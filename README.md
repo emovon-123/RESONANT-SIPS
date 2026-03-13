@@ -30,6 +30,8 @@ Notes:
 - The app auto-selects a provider from available keys.
 - If both keys are empty, it falls back to `mock` mode.
 
+`mock` is simulation mode: it does not call real LLM APIs and does not consume API quota, useful for local flow testing.
+
 ## Run Locally
 
 Start the development server:
