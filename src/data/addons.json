@@ -1,0 +1,383 @@
+{
+  "iceTypes": {
+    "no_ice": {
+      "id": "no_ice",
+      "name": "无冰",
+      "icon": "🚫",
+      "price": 0,
+      "compatibleEmotions": [
+        "calm",
+        "nostalgia"
+      ],
+      "description": "常温饮用，保留原味",
+      "thicknessEffect": 0,
+      "sweetnessEffect": 0,
+      "strengthEffect": 0,
+      "feeling": "不加冰意味着——你得承受原本的温度"
+    },
+    "less_ice": {
+      "id": "less_ice",
+      "name": "少冰",
+      "icon": "🧊",
+      "price": 50,
+      "compatibleEmotions": [
+        "relief",
+        "happiness"
+      ],
+      "description": "微凉爽口，适度清新",
+      "thicknessEffect": 0,
+      "sweetnessEffect": 0,
+      "strengthEffect": -0.5,
+      "feeling": "稍微凉一点，但不至于把感觉冻住"
+    },
+    "more_ice": {
+      "id": "more_ice",
+      "name": "多冰",
+      "icon": "❄️",
+      "price": 80,
+      "compatibleEmotions": [
+        "courage",
+        "aspiration"
+      ],
+      "description": "冰爽刺激，提神醒脑",
+      "thicknessEffect": -1,
+      "sweetnessEffect": 0,
+      "strengthEffect": -1,
+      "feeling": "让一切冷静下来，也让感觉变得遥远"
+    },
+    "full_ice": {
+      "id": "full_ice",
+      "name": "大量冰",
+      "icon": "🏔️",
+      "price": 100,
+      "compatibleEmotions": [
+        "anxiety",
+        "pressure",
+        "confusion"
+      ],
+      "description": "极致冰凉，冷却情绪",
+      "thicknessEffect": -1,
+      "sweetnessEffect": 0,
+      "strengthEffect": -2,
+      "feeling": "把滚烫的东西硬生生按到冰点以下"
+    },
+    "sphere_ice": {
+      "id": "sphere_ice",
+      "name": "圆球冰",
+      "icon": "🔮",
+      "price": 120,
+      "compatibleEmotions": [
+        "dependence",
+        "regret"
+      ],
+      "description": "融化缓慢，静静陪伴",
+      "thicknessEffect": 0,
+      "sweetnessEffect": 0,
+      "strengthEffect": -0.5,
+      "feeling": "它会慢慢融化——就像那些不着急的陪伴"
+    },
+    "dry_ice": {
+      "id": "dry_ice",
+      "name": "干冰",
+      "icon": "🌫️",
+      "price": 150,
+      "compatibleEmotions": [
+        "confusion",
+        "loneliness",
+        "anxiety"
+      ],
+      "description": "烟雾缭绕，神秘梦幻",
+      "thicknessEffect": 0,
+      "sweetnessEffect": 0,
+      "strengthEffect": 0,
+      "feeling": "雾气遮住了酒，也遮住了表情"
+    },
+    "flower_ice": {
+      "id": "flower_ice",
+      "name": "花朝冰",
+      "icon": "🌸",
+      "price": 130,
+      "compatibleEmotions": [
+        "aspiration",
+        "relief"
+      ],
+      "description": "内含花瓣，浪漫唯美",
+      "thicknessEffect": 0,
+      "sweetnessEffect": 0.5,
+      "strengthEffect": 0,
+      "feeling": "把一朵花冻在时间里——有些东西你不想让它消失"
+    }
+  },
+  "garnishTypes": {
+    "lemon": {
+      "id": "lemon",
+      "name": "柠檬汁",
+      "icon": "🍋",
+      "price": 60,
+      "compatibleEmotions": [
+        "happiness",
+        "relief"
+      ],
+      "description": "酸爽提味，增添活力",
+      "thicknessEffect": 0,
+      "sweetnessEffect": -1,
+      "strengthEffect": 0,
+      "feeling": "像一句\"醒醒\"——不温柔但有效"
+    },
+    "sugar": {
+      "id": "sugar",
+      "name": "糖浆",
+      "icon": "🍯",
+      "price": 50,
+      "compatibleEmotions": [
+        "nostalgia",
+        "calm",
+        "dependence"
+      ],
+      "description": "甜蜜温暖，抚慰心灵",
+      "thicknessEffect": 0.5,
+      "sweetnessEffect": 2,
+      "strengthEffect": 0,
+      "feeling": "像在伤口上贴了一个亮闪闪的创可贴"
+    },
+    "bitters": {
+      "id": "bitters",
+      "name": "苦精",
+      "icon": "💧",
+      "price": 80,
+      "compatibleEmotions": [
+        "loneliness",
+        "regret",
+        "pressure"
+      ],
+      "description": "苦涩回甘，品味人生",
+      "thicknessEffect": 0,
+      "sweetnessEffect": -2,
+      "strengthEffect": 0.5,
+      "feeling": "像一个不讨好任何人的事实"
+    },
+    "honey": {
+      "id": "honey",
+      "name": "蜂蜜",
+      "icon": "🍯",
+      "price": 70,
+      "compatibleEmotions": [
+        "dependence",
+        "nostalgia",
+        "anxiety"
+      ],
+      "description": "甜蜜温暖，治愈心灵",
+      "thicknessEffect": 1,
+      "sweetnessEffect": 2,
+      "strengthEffect": 0,
+      "feeling": "像把苦药裹上糖衣再递给你"
+    },
+    "rose_syrup": {
+      "id": "rose_syrup",
+      "name": "玫瑰糖浆",
+      "icon": "🌹",
+      "price": 90,
+      "compatibleEmotions": [
+        "aspiration",
+        "happiness"
+      ],
+      "description": "浪漫芬芳，甜美憧憬",
+      "thicknessEffect": 0.5,
+      "sweetnessEffect": 1.5,
+      "strengthEffect": 0,
+      "feeling": "像一句不好意思说出口的情话"
+    },
+    "lavender": {
+      "id": "lavender",
+      "name": "薰衣草精",
+      "icon": "💜",
+      "price": 85,
+      "compatibleEmotions": [
+        "calm",
+        "relief"
+      ],
+      "description": "宁静治愈，放松身心",
+      "thicknessEffect": 0,
+      "sweetnessEffect": 0.5,
+      "strengthEffect": 0,
+      "feeling": "像有人在你耳边说\"睡吧，明天再说\""
+    }
+  },
+  "decorationTypes": {
+    "cherry": {
+      "id": "cherry",
+      "name": "樱桃",
+      "icon": "🍒",
+      "price": 40,
+      "compatibleEmotions": [
+        "happiness",
+        "dependence"
+      ],
+      "description": "甜美点缀，甜蜜慰藉",
+      "thicknessEffect": 0,
+      "sweetnessEffect": 0.5,
+      "strengthEffect": 0,
+      "feeling": "一个甜甜的句号"
+    },
+    "orange": {
+      "id": "orange",
+      "name": "橙片",
+      "icon": "🍊",
+      "price": 50,
+      "compatibleEmotions": [
+        "courage",
+        "relief"
+      ],
+      "description": "清新明亮，充满阳光",
+      "thicknessEffect": 0,
+      "sweetnessEffect": 0.5,
+      "strengthEffect": 0,
+      "feeling": "像在信的末尾画了一个笑脸"
+    },
+    "mint": {
+      "id": "mint",
+      "name": "薄荷叶",
+      "icon": "🌿",
+      "price": 60,
+      "compatibleEmotions": [
+        "calm",
+        "relief"
+      ],
+      "description": "清凉自然，放松身心",
+      "thicknessEffect": 0,
+      "sweetnessEffect": -0.5,
+      "strengthEffect": 0,
+      "feeling": "像话说完之后的那口清风"
+    },
+    "edible_flower": {
+      "id": "edible_flower",
+      "name": "食用花",
+      "icon": "🌼",
+      "price": 70,
+      "compatibleEmotions": [
+        "relief",
+        "calm",
+        "regret"
+      ],
+      "description": "精致美观，淡淡伤感",
+      "thicknessEffect": 0,
+      "sweetnessEffect": 0,
+      "strengthEffect": 0,
+      "feeling": "像在告别时递出一朵花——什么都没说但什么都说了"
+    },
+    "gold_leaf": {
+      "id": "gold_leaf",
+      "name": "金箔",
+      "icon": "🌟",
+      "price": 150,
+      "compatibleEmotions": [
+        "courage",
+        "aspiration"
+      ],
+      "description": "奢华辉煌，彰显尊贵",
+      "thicknessEffect": 0,
+      "sweetnessEffect": 0,
+      "strengthEffect": 0,
+      "feeling": "像是在说\"你值得更好的\""
+    },
+    "smoke_bubble": {
+      "id": "smoke_bubble",
+      "name": "烟雾泡泡",
+      "icon": "💭",
+      "price": 100,
+      "compatibleEmotions": [
+        "confusion",
+        "loneliness",
+        "anxiety",
+        "pressure"
+      ],
+      "description": "神秘梦幻，烟雾缭绕",
+      "thicknessEffect": 0,
+      "sweetnessEffect": 0,
+      "strengthEffect": 0,
+      "feeling": "像一个还没想好答案的问号"
+    }
+  },
+  "addonBonusConfig": {
+    "ice": {
+      "base": 8,
+      "perfect": 15
+    },
+    "garnish": {
+      "base": 12,
+      "perfect": 20
+    },
+    "decoration": {
+      "base": 6,
+      "perfect": 12
+    }
+  },
+  "comboBonus": {
+    "healing": {
+      "requires": {
+        "garnish": "lavender",
+        "decoration": "mint",
+        "ice": "less_ice"
+      },
+      "bonus": 20,
+      "name": "治愈套餐",
+      "icon": "💚",
+      "description": "完美的放松组合"
+    },
+    "nostalgic": {
+      "requires": {
+        "garnish": "sugar",
+        "glass": "copper_mug",
+        "ice": "sphere_ice"
+      },
+      "bonus": 20,
+      "name": "时光倒流",
+      "icon": "🕰️",
+      "description": "唤起美好回忆"
+    },
+    "courage": {
+      "requires": {
+        "decoration": "gold_leaf",
+        "ice": "more_ice",
+        "glass": "coupe"
+      },
+      "bonus": 25,
+      "name": "勇者之酒",
+      "icon": "🦁",
+      "description": "给予面对一切的勇气"
+    },
+    "mystery": {
+      "requires": {
+        "ice": "dry_ice",
+        "decoration": "smoke_bubble",
+        "glass": "skull"
+      },
+      "bonus": 20,
+      "name": "迷雾深渊",
+      "icon": "🌫️",
+      "description": "神秘而深邃"
+    },
+    "sweet_depend": {
+      "requires": {
+        "garnish": "honey",
+        "decoration": "cherry",
+        "ice": "sphere_ice"
+      },
+      "bonus": 18,
+      "name": "甜蜜依赖",
+      "icon": "🍯",
+      "description": "温暖陪伴的感觉"
+    },
+    "pressure_release": {
+      "requires": {
+        "garnish": "bitters",
+        "decoration": "smoke_bubble",
+        "ice": "full_ice"
+      },
+      "bonus": 22,
+      "name": "压力释放",
+      "icon": "💨",
+      "description": "让压力随烟雾散去"
+    }
+  }
+}

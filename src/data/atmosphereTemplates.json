@@ -1,0 +1,252 @@
+{
+  "weatherIcons": {
+    "clear": "🌙",
+    "rainy": "🌧️",
+    "stormy": "⛈️",
+    "foggy": "🌫️",
+    "snowy": "❄️",
+    "heatwave": "🔥"
+  },
+  "weatherNames": {
+    "clear": "晴夜",
+    "rainy": "雨夜",
+    "stormy": "暴风雨",
+    "foggy": "雾夜",
+    "snowy": "雪夜",
+    "heatwave": "热浪"
+  },
+  "musicIcons": {
+    "jazz_slow": "🎵",
+    "electronic": "🎧",
+    "classical": "🎻",
+    "silence": "🔇",
+    "lo_fi": "📻"
+  },
+  "musicNames": {
+    "jazz_slow": "慢爵士",
+    "electronic": "电子乐",
+    "classical": "古典乐",
+    "silence": "寂静",
+    "lo_fi": "Lo-Fi"
+  },
+  "lightingIcons": {
+    "bright": "💡",
+    "dim_warm": "🕯️",
+    "neon": "🟣",
+    "candlelight": "🕯️",
+    "flickering": "⚡"
+  },
+  "lightingNames": {
+    "bright": "明亮",
+    "dim_warm": "暖色灯光",
+    "neon": "霓虹灯",
+    "candlelight": "烛光",
+    "flickering": "闪烁"
+  },
+  "crowdNames": {
+    "empty": "空无一人",
+    "sparse": "客人稀少",
+    "moderate": "适中",
+    "crowded": "拥挤"
+  },
+  "crowdIcons": {
+    "empty": "🏜️",
+    "sparse": "👤",
+    "moderate": "👥",
+    "crowded": "👨‍👩‍👧‍👦"
+  },
+  "fallbackAtmospheres": [
+    {
+      "weather": "rainy",
+      "timeOfDay": "night",
+      "season": "autumn",
+      "lighting": "dim_warm",
+      "music": "jazz_slow",
+      "crowdLevel": "sparse",
+      "scent": "雨水混着咖啡的气息",
+      "narrative": "窗外的雨敲打着赛博霓虹灯牌，水滴顺着玻璃滑落，折射出紫色和蓝色的光。今晚的酒吧很安静，适合倾听。",
+      "modifiers": {
+        "trustBonus": 0.02,
+        "emotionBias": [
+          "nostalgia",
+          "calm"
+        ],
+        "targetShift": {
+          "thickness": 0,
+          "sweetness": 1,
+          "strength": 0
+        },
+        "priceMultiplier": 1,
+        "customerCountMod": 0
+      }
+    },
+    {
+      "weather": "clear",
+      "timeOfDay": "evening",
+      "season": "summer",
+      "lighting": "neon",
+      "music": "electronic",
+      "crowdLevel": "moderate",
+      "scent": "电子烟雾和冰块碰撞的清脆",
+      "narrative": "晴朗的夜空被高楼的全息广告染成渐变色，酒吧里节奏感十足。人群在霓虹灯下晃动着身影。",
+      "modifiers": {
+        "trustBonus": -0.01,
+        "emotionBias": [
+          "happiness",
+          "aspiration"
+        ],
+        "targetShift": {
+          "thickness": 0,
+          "sweetness": 0,
+          "strength": 1
+        },
+        "priceMultiplier": 1.2,
+        "customerCountMod": 1
+      }
+    },
+    {
+      "weather": "foggy",
+      "timeOfDay": "late_night",
+      "season": "winter",
+      "lighting": "candlelight",
+      "music": "classical",
+      "crowdLevel": "empty",
+      "scent": "淡淡的檀香和老式皮革的味道",
+      "narrative": "浓雾笼罩了城市的霓虹，一切都变得朦胧不清。酒吧里只有烛光和大提琴的低吟，像是时间在此停滞。",
+      "modifiers": {
+        "trustBonus": 0.04,
+        "emotionBias": [
+          "loneliness",
+          "nostalgia"
+        ],
+        "targetShift": {
+          "thickness": 1,
+          "sweetness": 0,
+          "strength": 0
+        },
+        "priceMultiplier": 0.9,
+        "customerCountMod": -1
+      }
+    },
+    {
+      "weather": "stormy",
+      "timeOfDay": "night",
+      "season": "autumn",
+      "lighting": "flickering",
+      "music": "silence",
+      "crowdLevel": "sparse",
+      "scent": "臭氧和雨后泥土的混合气味",
+      "narrative": "暴风雨让城市的供电断断续续，酒吧的灯光不时闪烁。雷声在远处滚动，有种末世的紧迫感。",
+      "modifiers": {
+        "trustBonus": 0.01,
+        "emotionBias": [
+          "anxiety",
+          "courage"
+        ],
+        "targetShift": {
+          "thickness": 0,
+          "sweetness": -1,
+          "strength": 1
+        },
+        "priceMultiplier": 1,
+        "customerCountMod": -1
+      }
+    },
+    {
+      "weather": "snowy",
+      "timeOfDay": "night",
+      "season": "winter",
+      "lighting": "dim_warm",
+      "music": "lo_fi",
+      "crowdLevel": "sparse",
+      "scent": "肉桂和热红酒的香气",
+      "narrative": "窗外纷飞的雪花在霓虹灯光中变换着颜色，像是赛博空间崩塌的数据碎片。酒吧里温暖而慵懒。",
+      "modifiers": {
+        "trustBonus": 0.03,
+        "emotionBias": [
+          "calm",
+          "nostalgia"
+        ],
+        "targetShift": {
+          "thickness": 1,
+          "sweetness": 1,
+          "strength": -1
+        },
+        "priceMultiplier": 1.1,
+        "customerCountMod": 0
+      }
+    },
+    {
+      "weather": "clear",
+      "timeOfDay": "dawn",
+      "season": "spring",
+      "lighting": "bright",
+      "music": "jazz_slow",
+      "crowdLevel": "empty",
+      "scent": "新鲜柑橘和薄荷的清新",
+      "narrative": "天边泛起微光，城市的霓虹开始褪色。这是属于失眠者的时刻，酒吧即将打烊，但有些故事才刚刚开始。",
+      "modifiers": {
+        "trustBonus": 0.05,
+        "emotionBias": [
+          "relief",
+          "aspiration"
+        ],
+        "targetShift": {
+          "thickness": -1,
+          "sweetness": 1,
+          "strength": 0
+        },
+        "priceMultiplier": 0.8,
+        "customerCountMod": -1
+      }
+    },
+    {
+      "weather": "heatwave",
+      "timeOfDay": "evening",
+      "season": "summer",
+      "lighting": "neon",
+      "music": "electronic",
+      "crowdLevel": "crowded",
+      "scent": "汗水、冰块和电路板的混合",
+      "narrative": "热浪让整座城市都在冒烟，人们涌入有空调的酒吧避暑。空气中弥漫着电子音乐和躁动不安的能量。",
+      "modifiers": {
+        "trustBonus": -0.02,
+        "emotionBias": [
+          "pressure",
+          "anxiety"
+        ],
+        "targetShift": {
+          "thickness": -1,
+          "sweetness": 0,
+          "strength": 1
+        },
+        "priceMultiplier": 1.3,
+        "customerCountMod": 2
+      }
+    },
+    {
+      "weather": "rainy",
+      "timeOfDay": "late_night",
+      "season": "spring",
+      "lighting": "dim_warm",
+      "music": "lo_fi",
+      "crowdLevel": "sparse",
+      "scent": "花瓣被雨打湿后的清甜",
+      "narrative": "春雨淅淅沥沥，霓虹灯在雨幕中模糊成一团团光晕。Lo-Fi 的节拍像是雨点的伴奏，慵懒而治愈。",
+      "modifiers": {
+        "trustBonus": 0.03,
+        "emotionBias": [
+          "calm",
+          "dependence"
+        ],
+        "targetShift": {
+          "thickness": 0,
+          "sweetness": 1,
+          "strength": 0
+        },
+        "priceMultiplier": 1,
+        "customerCountMod": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,973 @@
+import { API_CONFIG, DEBUG_CONFIG, PROMPT_TYPES, generatePrompt, getActiveAPIType } from '../../config/api.js';
+import { callDeepSeekAPIHelper } from './sharedApi.js';
+
+export const callAIForCocktailJudgmentWithEmotionChange = async (params) => {
+  const { aiConfig, trustLevel, emotionState, cocktailRecipe, dialogueHistory } = params;
+  
+  console.log('🍸⚡ 开始合并调用：调酒判断+情绪变化...');
+  const startTime = Date.now();
+  
+  try {
+    // 生成合并的 prompt
+    const prompt = generatePrompt(PROMPT_TYPES.COCKTAIL_WITH_EMOTION, params);
+    
+    if (DEBUG_CONFIG.logPrompts) {
+      console.log('=== Combined Cocktail+Emotion Prompt ===');
+      console.log(prompt);
+      console.log('========================================');
+    }
+    
+    // 调用 Gemini API
+    const response = await callGeminiAPIForCombinedJudgment(prompt);
+    
+    // 解析合并的 JSON 响应
+    const result = parseCombinedJudgmentJSON(response, params);
+    
+    const elapsed = Date.now() - startTime;
+    console.log(`✅ 合并调用完成，耗时 ${elapsed}ms:`, result);
+    
+    return result;
+  } catch (error) {
+    console.error('❌ 合并调用失败:', error);
+    // 降级：使用简单规则
+    return getFallbackCombinedJudgment(params);
+  }
+};
+
+/**
+ * 专门用于合并判断的 API 调用（支持 DeepSeek 和 Gemini）
+ */
+const callGeminiAPIForCombinedJudgment = async (prompt) => {
+  const apiType = getActiveAPIType();
+  
+  // 使用 DeepSeek
+  if (apiType === 'deepseek') {
+    const text = await callDeepSeekAPIHelper(prompt, { temperature: 0.4, max_tokens: 4096 });
+    console.log('📥 合并判断原始返回:', text);
+    return text;
+  }
+  
+  // 使用 Gemini
+  const config = API_CONFIG.gemini;
+  
+  if (!config.enabled) {
+    throw new Error('没有启用的API');
+  }
+  
+  const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{
+          text: prompt
+        }]
+      }],
+      generationConfig: {
+        temperature: 0.4, // 较低温度提高一致性
+        topK: 20,
+        topP: 0.8,
+        maxOutputTokens: 4096, // 思考模型需要更多token（思考+输出共享额度）
+        candidateCount: 1
+      }
+    })
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error('❌ Gemini API错误:', errorData);
+    throw new Error(`Gemini API调用失败: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  
+  if (data.candidates && data.candidates.length > 0) {
+    const candidate = data.candidates[0];
+    
+    if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+      const text = candidate.content.parts[0].text;
+      console.log('📥 合并判断原始返回:', text);
+      return text;
+    }
+  }
+  
+  throw new Error('Gemini返回格式异常');
+};
+
+/**
+ * 解析合并判断的 JSON 响应
+ */
+const parseCombinedJudgmentJSON = (response, params) => {
+  if (!response || typeof response !== 'string') {
+    return null;
+  }
+  
+  let cleanedResponse = response.trim();
+  
+  // 移除 markdown 代码块标记
+  const codeBlockMatch = cleanedResponse.match(/```(?:json)?\s*([\s\S]*)```/);
+  if (codeBlockMatch) {
+    cleanedResponse = codeBlockMatch[1].trim();
+  }
+  
+  // 尝试解析
+  try {
+    const parsed = JSON.parse(cleanedResponse);
+    return validateCombinedResult(parsed, params);
+  } catch (e) {
+    // 尝试提取 JSON 对象
+    const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return validateCombinedResult(parsed, params);
+      } catch (e2) {
+        console.log('⚠️ JSON解析失败，尝试手动提取...');
+        return extractFromTruncatedCombinedJSON(cleanedResponse, params);
+      }
+    }
+  }
+  
+  return getFallbackCombinedJudgment(params);
+};
+
+/**
+ * 从截断的合并JSON中提取字段
+ */
+const extractFromTruncatedCombinedJSON = (text, params) => {
+  const successMatch = text.match(/"success"\s*:\s*(true|false)/i);
+  const satisfactionMatch = text.match(/"satisfaction"\s*:\s*([\d.]+)/);
+  const feedbackMatch = text.match(/"feedback"\s*:\s*"([^"]*)(?:"|$)/);
+  
+  if (successMatch) {
+    const success = successMatch[1].toLowerCase() === 'true';
+    const satisfaction = satisfactionMatch ? parseFloat(satisfactionMatch[1]) : (success ? 0.6 : 0.4);
+    const feedback = feedbackMatch ? feedbackMatch[1] : (success ? '这杯酒不错。' : '不太对味。');
+    
+    // 使用降级的情绪变化
+    const fallbackEmotions = getFallbackEmotionChangeSimple(params, success);
+    
+    return {
+      success,
+      satisfaction: Math.max(0, Math.min(1, satisfaction)),
+      feedback: feedback || (success ? '让我感觉好多了。' : '不太对。'),
+      newEmotions: fallbackEmotions
+    };
+  }
+  
+  return getFallbackCombinedJudgment(params);
+};
+
+/**
+ * 验证并规范化合并结果
+ */
+const validateCombinedResult = (parsed, params) => {
+  const validEmotionIds = [
+    'nostalgia', 'courage', 'loneliness', 'relief', 'anxiety', 
+    'calm', 'regret', 'aspiration', 'pressure', 'dependence', 
+    'confusion', 'happiness'
+  ];
+  
+  const filterValidEmotions = (emotions) => {
+    if (!emotions || !Array.isArray(emotions)) return [];
+    return emotions.filter(e => validEmotionIds.includes(e));
+  };
+  
+  const success = typeof parsed.success === 'boolean' ? parsed.success : false;
+  const satisfaction = typeof parsed.satisfaction === 'number' 
+    ? Math.max(0, Math.min(1, parsed.satisfaction)) 
+    : (success ? 0.7 : 0.3);
+  const feedback = typeof parsed.feedback === 'string' && parsed.feedback.length > 0 
+    ? parsed.feedback 
+    : (success ? '这杯酒让我感觉好多了。' : '这杯酒不太对味。');
+  
+  // 解析新情绪
+  let newEmotions = null;
+  if (parsed.newEmotions) {
+    const surface = filterValidEmotions(parsed.newEmotions.surface);
+    const reality = filterValidEmotions(parsed.newEmotions.reality);
+    
+    if (surface.length > 0 || reality.length > 0) {
+      newEmotions = {
+        surface: surface.length > 0 ? surface : params.emotionState?.surface || ['calm'],
+        reality: reality.length > 0 ? reality : params.emotionState?.reality || ['calm']
+      };
+    }
+  }
+  
+  // 如果没有有效的新情绪，使用降级逻辑
+  if (!newEmotions) {
+    newEmotions = getFallbackEmotionChangeSimple(params, success);
+  }
+  
+  return { success, satisfaction, feedback, newEmotions };
+};
+
+/**
+ * 简单的降级情绪变化
+ */
+const getFallbackEmotionChangeSimple = (params, wasSuccessful) => {
+  const currentSurface = params.emotionState?.surface || ['calm'];
+  const currentReality = params.emotionState?.reality || ['pressure'];
+  
+  const positiveTransitions = {
+    'pressure': 'relief',
+    'anxiety': 'calm',
+    'loneliness': 'happiness',
+    'confusion': 'calm',
+    'regret': 'relief'
+  };
+  
+  let newReality = [...currentReality];
+  
+  if (wasSuccessful) {
+    newReality = currentReality.map(emotion => {
+      if (positiveTransitions[emotion] && Math.random() > 0.4) {
+        return positiveTransitions[emotion];
+      }
+      return emotion;
+    });
+  }
+  
+  return {
+    surface: currentSurface,
+    reality: newReality
+  };
+};
+
+/**
+ * 降级的合并判断
+ */
+const getFallbackCombinedJudgment = (params) => {
+  // 新系统：使用预判定的 isSuccess，不再依赖酒的情绪匹配
+  const success = params.isSuccess === true;
+  const satisfaction = typeof params.satisfaction === 'number' ? params.satisfaction : (success ? 0.6 : 0.3);
+  
+  return {
+    success,
+    satisfaction,
+    feedback: success ? '这杯酒...有种说不出的感觉，谢谢。' : '嗯...不太对味。',
+    newEmotions: getFallbackEmotionChangeSimple(params, success)
+  };
+};
+
+// ==================== 调酒判断功能 ====================
+
+/**
+ * 调用AI判断调酒是否成功
+ * @param {Object} params - 包含 aiConfig, trustLevel, emotionState, cocktailRecipe, dialogueHistory
+ * @returns {Object} { success: boolean, satisfaction: number, feedback: string, reason: string }
+ */
+export const callAIForCocktailJudgment = async (params) => {
+  const { aiConfig, trustLevel, emotionState, cocktailRecipe, dialogueHistory } = params;
+  
+  console.log('🍸 开始调用AI判断调酒...');
+  
+  try {
+    // 生成 prompt
+    const prompt = generatePrompt(PROMPT_TYPES.COCKTAIL_FEEDBACK, params);
+    
+    if (DEBUG_CONFIG.logPrompts) {
+      console.log('=== Cocktail Judgment Prompt ===');
+      console.log(prompt);
+      console.log('================================');
+    }
+    
+    // 调用 Gemini API（使用较低的 temperature 提高一致性）
+    const response = await callGeminiAPIForCocktailJudgment(prompt);
+    
+    // 解析 JSON 响应
+    const result = parseCocktailJudgmentJSON(response);
+    
+    if (result) {
+      console.log('✅ AI调酒判断成功:', result);
+      return result;
+    } else {
+      console.warn('⚠️ JSON解析失败，使用降级判断');
+      return getFallbackCocktailJudgment(params, response);
+    }
+  } catch (error) {
+    console.error('❌ AI调酒判断失败:', error);
+    // 降级：使用简单规则判断
+    return getFallbackCocktailJudgment(params, null);
+  }
+};
+
+/**
+ * 专门用于调酒判断的 API 调用（支持 DeepSeek 和 Gemini）
+ */
+const callGeminiAPIForCocktailJudgment = async (prompt) => {
+  const apiType = getActiveAPIType();
+  
+  // 使用 DeepSeek
+  if (apiType === 'deepseek') {
+    const text = await callDeepSeekAPIHelper(prompt, { temperature: 0.5, max_tokens: 4096 });
+    console.log('📥 调酒判断原始返回:', text);
+    return text;
+  }
+  
+  // 使用 Gemini
+  const config = API_CONFIG.gemini;
+  
+  if (!config.enabled) {
+    throw new Error('没有启用的API');
+  }
+  
+  const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{
+          text: prompt
+        }]
+      }],
+      generationConfig: {
+        temperature: 0.5, // 较低的温度，提高判断一致性
+        topK: 20,
+        topP: 0.8,
+        maxOutputTokens: 4096, // 思考模型需要更多token（思考+输出共享额度）
+        candidateCount: 1
+      }
+    })
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error('❌ Gemini API错误:', errorData);
+    throw new Error(`Gemini API调用失败: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  
+  if (data.candidates && data.candidates.length > 0) {
+    const candidate = data.candidates[0];
+    
+    if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+      const text = candidate.content.parts[0].text;
+      console.log('📥 调酒判断原始返回:', text);
+      return text;
+    }
+  }
+  
+  throw new Error('Gemini返回格式异常');
+};
+
+/**
+ * 解析调酒判断的 JSON 响应
+ */
+const parseCocktailJudgmentJSON = (response) => {
+  if (!response || typeof response !== 'string') {
+    return null;
+  }
+  
+  let cleanedResponse = response.trim();
+  
+  // 移除 markdown 代码块标记
+  const codeBlockMatch = cleanedResponse.match(/```(?:json)?\s*([\s\S]*)```/);
+  if (codeBlockMatch) {
+    cleanedResponse = codeBlockMatch[1].trim();
+  }
+  
+  // 尝试直接解析
+  try {
+    const parsed = JSON.parse(cleanedResponse);
+    return validateCocktailJudgment(parsed);
+  } catch (e) {
+    // 尝试提取 JSON 对象
+    const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return validateCocktailJudgment(parsed);
+      } catch (e2) {
+        // JSON 被截断，尝试手动提取字段
+        console.log('⚠️ JSON被截断，尝试手动提取字段...');
+        return extractFromTruncatedJSON(cleanedResponse);
+      }
+    }
+  }
+  
+  return null;
+};
+
+/**
+ * 从截断的 JSON 中提取字段
+ */
+const extractFromTruncatedJSON = (text) => {
+  try {
+    // 提取 success 字段
+    const successMatch = text.match(/"success"\s*:\s*(true|false)/i);
+    const success = successMatch ? successMatch[1].toLowerCase() === 'true' : null;
+    
+    // 提取 satisfaction 字段
+    const satisfactionMatch = text.match(/"satisfaction"\s*:\s*([\d.]+)/);
+    const satisfaction = satisfactionMatch ? parseFloat(satisfactionMatch[1]) : null;
+    
+    // 提取 feedback 字段（可能被截断）
+    const feedbackMatch = text.match(/"feedback"\s*:\s*"([^"]*)(")?/);
+    let feedback = feedbackMatch ? feedbackMatch[1] : null;
+    
+    // 如果 feedback 被截断（没有结束引号），添加省略号
+    if (feedbackMatch && !feedbackMatch[2] && feedback) {
+      feedback = feedback + '...';
+    }
+    
+    // 提取 reason 字段
+    const reasonMatch = text.match(/"reason"\s*:\s*"([^"]*)"/);
+    const reason = reasonMatch ? reasonMatch[1] : '';
+    
+    // 如果至少提取到了 success，就返回结果
+    if (success !== null) {
+      console.log('✅ 从截断JSON中提取成功:', { success, satisfaction, feedback });
+      return {
+        success,
+        satisfaction: satisfaction !== null ? Math.max(0, Math.min(1, satisfaction)) : (success ? 0.6 : 0.4),
+        feedback: feedback || (success ? '这杯酒还不错。' : '这杯酒不太对味。'),
+        reason: reason || ''
+      };
+    }
+  } catch (e) {
+    console.error('❌ 提取截断JSON失败:', e);
+  }
+  
+  return null;
+};
+
+/**
+ * 验证并规范化调酒判断结果
+ */
+const validateCocktailJudgment = (parsed) => {
+  // 确保必要字段存在并有正确类型
+  const result = {
+    success: typeof parsed.success === 'boolean' ? parsed.success : false,
+    satisfaction: typeof parsed.satisfaction === 'number' 
+      ? Math.max(0, Math.min(1, parsed.satisfaction)) 
+      : (parsed.success ? 0.7 : 0.3),
+    feedback: typeof parsed.feedback === 'string' && parsed.feedback.length > 0 
+      ? parsed.feedback 
+      : (parsed.success ? '谢谢你的酒，让我感觉好多了。' : '这杯酒...不太对味。'),
+    reason: typeof parsed.reason === 'string' 
+      ? parsed.reason 
+      : ''
+  };
+  
+  return result;
+};
+
+/**
+ * 降级判断：当 AI 调用失败时使用简单规则
+ */
+const getFallbackCocktailJudgment = (params, rawResponse) => {
+  // 新系统：使用预判定的 isSuccess，不再依赖酒的情绪匹配
+  const success = params.isSuccess === true;
+  const satisfaction = typeof params.satisfaction === 'number' ? params.satisfaction : (success ? 0.6 : 0.3);
+  
+  // 尝试从原始响应中提取反馈文本（如果有的话）
+  let feedback = success 
+    ? '这杯酒...有种说不出的感觉，谢谢。' 
+    : '嗯...这杯酒不太对味，可能不是我想要的。';
+  
+  if (rawResponse && typeof rawResponse === 'string' && rawResponse.length > 10) {
+    // 如果有原始响应但 JSON 解析失败，尝试直接使用文本
+    const cleanText = rawResponse.replace(/[{}"]/g, '').trim();
+    if (cleanText.length > 10 && cleanText.length < 200) {
+      feedback = cleanText;
+    }
+  }
+  
+  return {
+    success,
+    satisfaction,
+    feedback,
+    reason: success ? '降级判断：调酒成功' : '降级判断：调酒失败'
+  };
+};
+
+// ==================== 情绪变化功能 ====================
+
+/**
+ * 调用AI生成顾客喝酒后的新情绪状态
+ * @param {Object} params - 包含 aiConfig, currentEmotions, cocktailEmotions, wasSuccessful, dialogueHistory
+ * @returns {Object} { surface: string[], reality: string[] }
+ */
+export const callAIForEmotionChange = async (params) => {
+  const { aiConfig, currentEmotions, cocktailEmotions, wasSuccessful, dialogueHistory } = params;
+  
+  console.log('🎭 开始调用AI生成情绪变化...');
+  console.log('📊 当前情绪:', currentEmotions);
+  console.log('🍸 酒的情绪:', cocktailEmotions);
+  console.log('✅ 是否成功:', wasSuccessful);
+  
+  try {
+    // 生成 prompt
+    const prompt = generatePrompt(PROMPT_TYPES.EMOTION_CHANGE, {
+      aiConfig,
+      currentEmotions,
+      cocktailEmotions,
+      wasSuccessful,
+      dialogueHistory
+    });
+    
+    if (DEBUG_CONFIG.logPrompts) {
+      console.log('=== Emotion Change Prompt ===');
+      console.log(prompt);
+      console.log('=============================');
+    }
+    
+    // 调用 Gemini API（使用较低的 temperature 提高一致性）
+    const response = await callGeminiAPIForEmotionChange(prompt);
+    
+    // 解析 JSON 响应
+    const result = parseEmotionChangeJSON(response);
+    
+    if (result) {
+      console.log('✅ AI情绪变化生成成功:', result);
+      return result;
+    } else {
+      console.warn('⚠️ JSON解析失败，使用降级情绪变化');
+      return getFallbackEmotionChange(params);
+    }
+  } catch (error) {
+    console.error('❌ AI情绪变化生成失败:', error);
+    // 降级：使用简单规则
+    return getFallbackEmotionChange(params);
+  }
+};
+
+/**
+ * 专门用于情绪变化的 API 调用（支持 DeepSeek 和 Gemini）
+ */
+const callGeminiAPIForEmotionChange = async (prompt) => {
+  const apiType = getActiveAPIType();
+  
+  // 使用 DeepSeek
+  if (apiType === 'deepseek') {
+    const text = await callDeepSeekAPIHelper(prompt, { temperature: 0.4, max_tokens: 4096 });
+    console.log('📥 情绪变化原始返回:', text);
+    return text;
+  }
+  
+  // 使用 Gemini
+  const config = API_CONFIG.gemini;
+  
+  if (!config.enabled) {
+    throw new Error('没有启用的API');
+  }
+  
+  const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{
+          text: prompt
+        }]
+      }],
+      generationConfig: {
+        temperature: 0.4, // 较低的温度，提高一致性
+        topK: 20,
+        topP: 0.8,
+        maxOutputTokens: 4096, // 思考模型需要更多token（思考+输出共享额度）
+        candidateCount: 1
+      }
+    })
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error('❌ Gemini API错误:', errorData);
+    throw new Error(`Gemini API调用失败: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  
+  if (data.candidates && data.candidates.length > 0) {
+    const candidate = data.candidates[0];
+    
+    if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+      const text = candidate.content.parts[0].text;
+      console.log('📥 情绪变化原始返回:', text);
+      return text;
+    }
+  }
+  
+  throw new Error('Gemini返回格式异常');
+};
+
+/**
+ * 解析情绪变化的 JSON 响应
+ */
+const parseEmotionChangeJSON = (response) => {
+  if (!response || typeof response !== 'string') {
+    return null;
+  }
+  
+  let cleanedResponse = response.trim();
+  
+  // 移除 markdown 代码块标记
+  const codeBlockMatch = cleanedResponse.match(/```(?:json)?\s*([\s\S]*)```/);
+  if (codeBlockMatch) {
+    cleanedResponse = codeBlockMatch[1].trim();
+  }
+  
+  // 尝试直接解析
+  try {
+    const parsed = JSON.parse(cleanedResponse);
+    return validateEmotionChangeResult(parsed);
+  } catch (e) {
+    // 尝试提取 JSON 对象
+    const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return validateEmotionChangeResult(parsed);
+      } catch (e2) {
+        console.log('⚠️ 情绪变化JSON解析失败');
+        return null;
+      }
+    }
+  }
+  
+  return null;
+};
+
+/**
+ * 验证并规范化情绪变化结果
+ */
+const validateEmotionChangeResult = (parsed) => {
+  // 验证情绪ID是否有效
+  const validEmotionIds = [
+    'nostalgia', 'courage', 'loneliness', 'relief', 'anxiety', 
+    'calm', 'regret', 'aspiration', 'pressure', 'dependence', 
+    'confusion', 'happiness'
+  ];
+  
+  const filterValidEmotions = (emotions) => {
+    if (!emotions || !Array.isArray(emotions)) return [];
+    return emotions.filter(e => validEmotionIds.includes(e));
+  };
+  
+  const surface = filterValidEmotions(parsed.surface);
+  const reality = filterValidEmotions(parsed.reality);
+  
+  // 确保至少有一个情绪
+  if (surface.length === 0 && reality.length === 0) {
+    return null;
+  }
+  
+  return {
+    surface: surface.length > 0 ? surface : ['calm'],
+    reality: reality.length > 0 ? reality : ['calm']
+  };
+};
+
+/**
+ * 降级情绪变化：当 AI 调用失败时使用简单规则
+ */
+const getFallbackEmotionChange = (params) => {
+  const { currentEmotions, cocktailEmotions, wasSuccessful } = params;
+  
+  // 获取当前情绪
+  const currentSurface = currentEmotions?.surface || ['calm'];
+  const currentReality = currentEmotions?.reality || ['pressure'];
+  
+  // 情绪转换映射（成功时可能的转变）
+  const positiveTransitions = {
+    'pressure': 'relief',
+    'anxiety': 'calm',
+    'loneliness': 'happiness',
+    'confusion': 'calm',
+    'regret': 'relief'
+  };
+  
+  let newSurface = [...currentSurface];
+  let newReality = [...currentReality];
+  
+  if (wasSuccessful) {
+    // 成功时：尝试将负面情绪转为正面
+    newReality = currentReality.map(emotion => {
+      if (positiveTransitions[emotion] && Math.random() > 0.4) {
+        return positiveTransitions[emotion];
+      }
+      return emotion;
+    });
+    
+    // 表面情绪可能变得更真实
+    if (Math.random() > 0.5) {
+      newSurface = newReality.slice(0, 1);
+    }
+  } else {
+    // 失败时：情绪基本保持不变，可能略微加深
+    // 有小概率加入焦虑或迷茫
+    if (Math.random() > 0.7 && !currentReality.includes('anxiety')) {
+      newReality = [...currentReality.slice(0, 1), 'confusion'];
+    }
+  }
+  
+  console.log('📊 降级情绪变化:', { surface: newSurface, reality: newReality });
+  
+  return {
+    surface: newSurface,
+    reality: newReality
+  };
+};
+
+// ==================== 对话信任度判断功能 ====================
+
+/**
+ * 调用AI判断对话是否影响信任度
+ * @param {Object} params - 包含 aiConfig, trustLevel, emotionState, playerInput, dialogueHistory
+ * @returns {Object} { change: number, reason: string }
+ */
+export const callAIForTrustJudgment = async (params) => {
+  const { aiConfig, trustLevel, emotionState, playerInput, dialogueHistory } = params;
+  
+  console.log('💬 开始调用AI判断对话信任度...');
+  console.log('📝 玩家输入:', playerInput);
+  console.log('📊 当前信任度:', trustLevel);
+  
+  try {
+    // 生成 prompt
+    const prompt = generatePrompt(PROMPT_TYPES.TRUST_JUDGMENT, {
+      aiConfig,
+      trustLevel,
+      emotionState,
+      playerInput,
+      dialogueHistory
+    });
+    
+    if (DEBUG_CONFIG.logPrompts) {
+      console.log('=== Trust Judgment Prompt ===');
+      console.log(prompt);
+      console.log('=============================');
+    }
+    
+    // 调用 Gemini API
+    const response = await callGeminiAPIForTrustJudgment(prompt);
+    
+    // 解析 JSON 响应
+    const result = parseTrustJudgmentJSON(response);
+    
+    if (result) {
+      console.log('✅ AI信任度判断成功:', result);
+      return result;
+    } else {
+      console.warn('⚠️ JSON解析失败，使用降级判断');
+      return getFallbackTrustJudgment(params);
+    }
+  } catch (error) {
+    console.error('❌ AI信任度判断失败:', error);
+    // 降级：使用简单规则
+    return getFallbackTrustJudgment(params);
+  }
+};
+
+/**
+ * 专门用于信任度判断的 API 调用（支持 DeepSeek 和 Gemini）
+ */
+const callGeminiAPIForTrustJudgment = async (prompt) => {
+  const apiType = getActiveAPIType();
+  
+  // 使用 DeepSeek
+  if (apiType === 'deepseek') {
+    const text = await callDeepSeekAPIHelper(prompt, { temperature: 0.3, max_tokens: 2048 });
+    console.log('📥 信任度判断原始返回:', text);
+    return text;
+  }
+  
+  // 使用 Gemini
+  const config = API_CONFIG.gemini;
+  
+  if (!config.enabled) {
+    throw new Error('没有启用的API');
+  }
+  
+  const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{
+          text: prompt
+        }]
+      }],
+      generationConfig: {
+        temperature: 0.3, // 较低的温度，提高判断一致性
+        topK: 15,
+        topP: 0.7,
+        maxOutputTokens: 2048, // 思考模型思考+输出共享额度，200太小会截断
+        candidateCount: 1
+      }
+    })
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error('❌ Gemini API错误:', errorData);
+    throw new Error(`Gemini API调用失败: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  
+  if (data.candidates && data.candidates.length > 0) {
+    const candidate = data.candidates[0];
+    
+    if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+      const text = candidate.content.parts[0].text;
+      console.log('📥 信任度判断原始返回:', text);
+      return text;
+    }
+  }
+  
+  throw new Error('Gemini返回格式异常');
+};
+
+/**
+ * 解析信任度判断的 JSON 响应
+ */
+const parseTrustJudgmentJSON = (response) => {
+  if (!response || typeof response !== 'string') {
+    return null;
+  }
+  
+  let cleanedResponse = response.trim();
+  
+  // 移除 markdown 代码块标记
+  const codeBlockMatch = cleanedResponse.match(/```(?:json)?\s*([\s\S]*)```/);
+  if (codeBlockMatch) {
+    cleanedResponse = codeBlockMatch[1].trim();
+  }
+  
+  // 尝试直接解析
+  try {
+    const parsed = JSON.parse(cleanedResponse);
+    return validateTrustJudgmentResult(parsed);
+  } catch (e) {
+    // 尝试提取 JSON 对象
+    const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return validateTrustJudgmentResult(parsed);
+      } catch (e2) {
+        // JSON不完整，尝试修复
+        console.log('⚠️ 尝试修复不完整的JSON...');
+        return tryFixIncompleteJSON(cleanedResponse);
+      }
+    }
+    
+    // 尝试修复不完整的JSON
+    return tryFixIncompleteJSON(cleanedResponse);
+  }
+};
+
+/**
+ * 尝试修复不完整的 JSON（处理被截断的情况）
+ */
+const tryFixIncompleteJSON = (response) => {
+  // 尝试提取 change 值
+  const changeMatch = response.match(/"change"\s*:\s*(-?[\d.]+)/);
+  if (changeMatch) {
+    const change = parseFloat(changeMatch[1]);
+    
+    // 尝试提取 reason 值（可能不完整）
+    const reasonMatch = response.match(/"reason"\s*:\s*"([^"]*)(?:"|$)/);
+    const reason = reasonMatch ? reasonMatch[1] : '对话评估';
+    
+    console.log('✅ 从不完整JSON中提取: change=', change, 'reason=', reason);
+    
+    return validateTrustJudgmentResult({
+      change,
+      reason: reason || '对话评估'
+    });
+  }
+  
+  console.log('⚠️ 无法从不完整JSON中提取数据');
+  return null;
+};
+
+/**
+ * 验证并规范化信任度判断结果
+ */
+const validateTrustJudgmentResult = (parsed) => {
+  // 确保 change 是有效数字
+  let change = typeof parsed.change === 'number' ? parsed.change : 0;
+  
+  // 限制变化范围在 -0.15 到 +0.15 之间
+  change = Math.max(-0.15, Math.min(0.15, change));
+  
+  // 确保 reason 是字符串
+  const reason = typeof parsed.reason === 'string' ? parsed.reason : '对话评估';
+  
+  return {
+    change,
+    reason
+  };
+};
+
+/**
+ * 降级信任度判断：当 AI 调用失败时使用简单规则
+ */
+const getFallbackTrustJudgment = (params) => {
+  const { playerInput, dialogueHistory } = params;
+  
+  // 简单规则判断
+  const message = playerInput || '';
+  
+  // 消息太短
+  if (message.length < 3) {
+    return { change: -0.03, reason: '回复太短' };
+  }
+  
+  // 重复消息
+  const recentPlayerMessages = (dialogueHistory || [])
+    .filter(h => h.role === 'player')
+    .slice(-3)
+    .map(h => h.content);
+  if (recentPlayerMessages.includes(message)) {
+    return { change: -0.05, reason: '重复回复' };
+  }
+  
+  // 只有数字和标点
+  if (/^[\d\s\.,!?。，！？]+$/.test(message)) {
+    return { change: -0.03, reason: '无意义回复' };
+  }
+  
+  // 包含关心词汇
+  const caringWords = ['怎么了', '还好吗', '没关系', '理解', '辛苦', '加油', '陪你', '听你说', '关心'];
+  const hasCaring = caringWords.some(word => message.includes(word));
+  if (hasCaring) {
+    return { change: 0.06, reason: '表达关心' };
+  }
+  
+  // 包含提问
+  if (message.includes('？') || message.includes('?')) {
+    return { change: 0.04, reason: '主动提问' };
+  }
+  
+  // 普通回复
+  if (message.length >= 10) {
+    return { change: 0.02, reason: '正常交流' };
+  }
+  
+  return { change: 0, reason: '普通回复' };
+};
+
+// 生成快捷追问选项

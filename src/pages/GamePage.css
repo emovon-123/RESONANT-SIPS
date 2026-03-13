@@ -1,0 +1,823 @@
+/* 游戏主页面布局 */
+.game-page {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
+  overflow: hidden;
+}
+
+.game-page-ui {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 加载界面 */
+.game-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-icon {
+  font-size: 64px;
+  animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.loading-text {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 20px 0;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #06FFA5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-subtext {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 10px 0;
+}
+
+.loading-hint {
+  font-size: 12px;
+  color: rgba(6, 255, 165, 0.7);
+  margin-top: 15px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* 顶部导航栏 */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 15px;
+}
+
+.back-button {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(-2px);
+}
+
+/* rules-button 样式已移至 GameHeader.css（精简为图标按钮） */
+
+.game-stats {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.game-stats span {
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+/* 主内容区 */
+.game-content {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* 左侧对话区（60%宽度） */
+.left-section {
+  flex: 0 0 60%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 右侧区域（40%宽度） */
+.right-section {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 情绪识别区域（右上） */
+.emotion-section {
+  flex: 0 0 45%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* 调酒操作区域（右下） */
+.bartender-section {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 调酒模式：左侧显示调酒台，右上角显示目标配方 */
+.game-content.mixing-mode .left-section {
+  flex: 0 0 72%;
+}
+
+.game-content.mixing-mode .right-section {
+  flex: 0 0 28%;
+}
+
+.game-content.mixing-mode .emotion-section {
+  flex: 1;
+  overflow: auto;
+}
+
+/* 目标配方显示区域（调酒模式右上角） */
+.target-section {
+  flex: 1;
+  overflow: auto;
+  padding: 15px;
+  background: rgba(20, 20, 40, 0.5);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .game-content {
+    flex-direction: column;
+  }
+  
+  .left-section {
+    flex: 0 0 50%;
+  }
+  
+  .right-section {
+    flex: 1;
+    flex-direction: row;
+  }
+  
+  .emotion-section {
+    flex: 0 0 50%;
+  }
+  
+  .bartender-section {
+    flex: 0 0 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .game-content {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .game-header {
+    padding: 10px 15px;
+  }
+  
+  .game-stats {
+    font-size: 12px;
+    gap: 10px;
+  }
+  
+  .right-section {
+    flex-direction: column;
+  }
+}
+
+/* 游戏提示面板 */
+.game-hint-panel {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, rgba(30, 30, 60, 0.95), rgba(20, 20, 50, 0.95));
+  border: 1px solid rgba(6, 255, 165, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 255, 165, 0.2);
+  z-index: 1000;
+  animation: hintSlideUp 0.4s ease-out;
+  max-width: 500px;
+}
+
+@keyframes hintSlideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.hint-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.hint-content {
+  flex: 1;
+}
+
+.hint-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #06FFA5;
+  margin-bottom: 4px;
+}
+
+.hint-message {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+}
+
+.hint-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.hint-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* 情绪猜测弹窗 */
+.guess-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: overlayFadeIn 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.guess-modal {
+  position: relative;
+  background: linear-gradient(135deg, rgba(26, 26, 58, 0.98), rgba(10, 10, 26, 0.98));
+  border: 2px solid rgba(139, 92, 246, 0.5);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 550px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
+  animation: modalSlideIn 0.4s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.guess-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.guess-close:hover {
+  background: rgba(231, 57, 70, 0.3);
+  border-color: #E63946;
+  transform: rotate(90deg);
+}
+
+.guess-title {
+  margin: 0 0 15px 0;
+  font-size: 26px;
+  color: #ffffff;
+  text-align: center;
+  background: linear-gradient(135deg, #B8A9F7, #8B5CF6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.guess-description {
+  text-align: center;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.guess-description strong {
+  color: #06FFA5;
+}
+
+.guess-warning {
+  display: block;
+  margin-top: 10px;
+  color: #E63946;
+  font-weight: bold;
+}
+
+.guess-emotions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.guess-emotion-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.guess-emotion-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.guess-emotion-icon {
+  font-size: 28px;
+}
+
+.guess-emotion-name {
+  font-size: 13px;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.guess-complete {
+  text-align: center;
+  font-size: 16px;
+  color: #06FFA5;
+  padding: 30px;
+}
+
+.guess-tips {
+  padding: 15px;
+  background: rgba(255, 183, 3, 0.1);
+  border: 1px solid rgba(255, 183, 3, 0.3);
+  border-radius: 12px;
+}
+
+.guess-tips h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #FFB703;
+}
+
+.guess-tips ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.guess-tips li {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 6px;
+  position: relative;
+}
+
+.guess-tips li::before {
+  content: '•';
+  position: absolute;
+  left: -15px;
+  color: #FFB703;
+}
+
+/* ==================== 音频控制样式 ==================== */
+
+.audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.audio-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.audio-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
+.audio-btn.muted {
+  background: rgba(230, 57, 70, 0.2);
+  border-color: rgba(230, 57, 70, 0.4);
+}
+
+.audio-btn.bgm-btn.playing {
+  background: linear-gradient(135deg, rgba(6, 255, 165, 0.2), rgba(0, 200, 150, 0.2));
+  border-color: rgba(6, 255, 165, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(6, 255, 165, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 15px 3px rgba(6, 255, 165, 0.3);
+  }
+}
+
+/* 音量设置面板 */
+.audio-settings-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 250px;
+  background: linear-gradient(135deg, rgba(26, 26, 58, 0.98), rgba(10, 10, 26, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  animation: settingsSlideDown 0.2s ease;
+}
+
+@keyframes settingsSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.audio-setting-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.audio-setting-item:last-child {
+  margin-bottom: 0;
+}
+
+.audio-setting-item label {
+  flex: 0 0 70px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+}
+
+.audio-setting-item input[type="range"] {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+
+.audio-setting-item input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, #06FFA5, #00C896);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(6, 255, 165, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.audio-setting-item input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.audio-setting-item input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, #06FFA5, #00C896);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(6, 255, 165, 0.4);
+}
+
+.audio-setting-item span {
+  flex: 0 0 40px;
+  font-size: 12px;
+  color: #06FFA5;
+  text-align: right;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .audio-controls {
+    gap: 6px;
+  }
+  
+  .audio-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+  
+  .audio-settings-panel {
+    width: 220px;
+    padding: 15px;
+    right: -10px;
+  }
+  
+  .audio-setting-item label {
+    flex: 0 0 60px;
+    font-size: 12px;
+  }
+}
+
+/* ==================== 天数和金钱显示 ==================== */
+
+.day-money-display {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.day-badge,
+.money-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+
+.day-badge {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(100, 70, 200, 0.2));
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.money-badge {
+  background: linear-gradient(135deg, rgba(255, 183, 3, 0.2), rgba(255, 149, 0, 0.2));
+  border-color: rgba(255, 183, 3, 0.4);
+}
+
+.day-icon,
+.money-icon {
+  font-size: 16px;
+}
+
+.day-text {
+  font-size: 13px;
+  color: #B8A9F7;
+  font-weight: bold;
+}
+
+.money-text {
+  font-size: 14px;
+  color: #FFB703;
+  font-weight: bold;
+}
+
+/* ==================== 教学遮罩（嵌入面板内部） ==================== */
+
+.tutorial-section-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 26, 0.8);
+  backdrop-filter: blur(3px);
+  z-index: 50;
+  border-radius: 16px;
+  pointer-events: all;
+}
+
+.tutorial-section-mask .mask-label {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+/* ==================== 氛围标签指示器 ==================== */
+
+.atmosphere-indicators {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.atmo-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  font-size: 12px;
+  color: #B8A9F7;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.atmo-indicator:hover {
+  background: rgba(139, 92, 246, 0.25);
+  transform: translateY(-1px);
+}
+
+.atmo-indicator.modifier {
+  background: rgba(6, 255, 165, 0.1);
+  border-color: rgba(6, 255, 165, 0.3);
+  color: #06FFA5;
+  font-weight: 600;
+}
+
+/* ==================== 顾客进度显示 ==================== */
+
+.customer-progress {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.customer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.customer-avatar {
+  font-size: 24px;
+}
+
+.customer-name {
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.success-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.progress-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.progress-dot {
+  font-size: 16px;
+  opacity: 0.4;
+  transition: all 0.3s ease;
+}
+
+.progress-dot.filled {
+  opacity: 1;
+  animation: dotPop 0.3s ease;
+}
+
+@keyframes dotPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.queue-info {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+

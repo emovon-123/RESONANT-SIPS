@@ -1,0 +1,317 @@
+import { useCallback } from 'react';
+import { generateFallbackCustomers, generateCustomer } from '../../utils/aiService.js';
+import { clearGameSession, getReturnCustomers, saveGameProgress } from '../../utils/storage.js';
+import { ALL_CATEGORY_IDS, pickRandom } from '../../data/aiCustomers.js';
+import { appendActiveNpcEvent, queueActiveSlotGameStateSync, setActiveNpcId } from '../../utils/saveRepository.js';
+
+export const useCustomerDayHandlers = ({ ctx, refs }) => {
+  const { consecutiveSilenceRef, totalSilenceRef } = refs;
+  const {
+    tutorial, progress, customerFlow, dialogue, emotionSystem, cocktailFlow,
+    achievements, chapterSystem, playSFX, addToast, aiConfig, trustLevel, setTrustLevel,
+    money, atmosphere, resetDailyEvents, clearCustomerRestrictions, checkPendingChains,
+    tryStartChain, generateDailyMemoryRecord, recordCustomer, advanceArc,
+    evaluateReturnPotential, orchestrateDay, buildReturnCustomerConfig,
+    getRecentCrossroadsSummaries, generateAtmosphere, triggerEvent
+  } = ctx;
+
+  const resetForNewCustomer = useCallback(() => {
+    const nextCustomer = customerFlow.dailyCustomers[customerFlow.currentCustomerIndex + 1] || customerFlow.dailyCustomers[customerFlow.currentCustomerIndex];
+    const initTrust = nextCustomer?.config?.isReturnCustomer
+      ? Math.max(0.3, nextCustomer.config.intimacy || 0.3)
+      : 0.3;
+    setTrustLevel(initTrust);
+    dialogue.resetDialogue();
+    emotionSystem.resetEmotionState();
+    cocktailFlow.resetCocktailState();
+    cocktailFlow.resetGuessReadiness();
+    customerFlow.customerSuccessCountRef.current = 0;
+    customerFlow.setCustomerSuccessCount(0);
+    // 重置顾客酒杯计数
+    customerFlow.customerCocktailCountRef.current = 0;
+    customerFlow.setCustomerCocktailCount(0);
+    // 重置沉默计数
+    consecutiveSilenceRef.current = 0;
+    totalSilenceRef.current = 0;
+  }, [customerFlow.dailyCustomers, customerFlow.currentCustomerIndex]);
+
+  const switchToNextCustomer = useCallback(() => {
+    customerFlow.setShowCustomerLeave(false);
+    customerFlow.setCustomersServed(prev => prev + 1);
+    clearCustomerRestrictions();
+
+    playSFX('door');
+    customerFlow.setShowCustomerEnter(true);
+    setTimeout(() => customerFlow.setShowCustomerEnter(false), 1200);
+
+    // 判断今日是否结束：总杯数达标 或 顾客数已满
+    const dailyDone = customerFlow.dailyCocktailCountRef.current >= customerFlow.TARGET_DAILY_COCKTAILS
+      || customerFlow.dailyCustomers.length >= customerFlow.MAX_CUSTOMERS_PER_DAY;
+
+    if (!dailyDone && customerFlow.currentCustomerIndex < customerFlow.dailyCustomers.length - 1) {
+      customerFlow.setCurrentCustomerIndex(prev => prev + 1);
+      const nextId = customerFlow.dailyCustomers[customerFlow.currentCustomerIndex + 1]?.id;
+      if (nextId) setActiveNpcId(nextId);
+    } else if (dailyDone) {
+      console.log(`📋 今日营业结束（总杯数: ${customerFlow.dailyCocktailCountRef.current}，顾客数: ${customerFlow.dailyCustomers.length}）`);
+      const ctxRef = customerFlow.switchContextRef.current;
+      generateDailyMemoryRecord(ctxRef.currentDay, {
+        customersServed: ctxRef.customersServed, successCount: ctxRef.daySuccessCount,
+        failureCount: ctxRef.dayFailureCount, totalEarnings: ctxRef.dayEarnings
+      }, ctxRef.atmosphere).then(memory => customerFlow.setDailyMemory(memory)).catch(() => {});
+      customerFlow.setShowDayEnd(true);
+      playSFX('success');
+      queueActiveSlotGameStateSync('day_end');
+    } else {
+      console.log('⏳ 等待下一位顾客生成...');
+      customerFlow.setIsLoadingCustomers(true);
+      customerFlow.setCustomerLoadingProgress('下一位顾客即将到来...');
+
+      const capturedIndex = customerFlow.currentCustomerIndex;
+
+      customerFlow.waitForCustomerIntervalRef.current = setInterval(() => {
+        customerFlow.setDailyCustomers(current => {
+          if (capturedIndex < current.length - 1) {
+            clearInterval(customerFlow.waitForCustomerIntervalRef.current);
+            clearTimeout(customerFlow.waitForCustomerTimeoutRef.current);
+            console.log('✅ 新顾客已到达');
+            customerFlow.setIsLoadingCustomers(false);
+            customerFlow.setCurrentCustomerIndex(prev => prev + 1);
+          }
+          return current;
+        });
+      }, 500);
+
+      customerFlow.waitForCustomerTimeoutRef.current = setTimeout(() => {
+        clearInterval(customerFlow.waitForCustomerIntervalRef.current);
+        customerFlow.setDailyCustomers(current => {
+          if (capturedIndex >= current.length - 1) {
+            console.log('⏰ 等待超时，今日营业结束');
+            customerFlow.setIsLoadingCustomers(false);
+            const ctxRef = customerFlow.switchContextRef.current;
+            generateDailyMemoryRecord(ctxRef.currentDay, {
+              customersServed: ctxRef.customersServed, successCount: ctxRef.daySuccessCount,
+              failureCount: ctxRef.dayFailureCount, totalEarnings: ctxRef.dayEarnings
+            }, ctxRef.atmosphere).then(memory => customerFlow.setDailyMemory(memory)).catch(() => {});
+            customerFlow.setShowDayEnd(true);
+            playSFX('success');
+          }
+          return current;
+        });
+      }, 10000);
+    }
+  }, [customerFlow.currentCustomerIndex, customerFlow.dailyCustomers.length, playSFX, clearCustomerRestrictions, generateDailyMemoryRecord]);
+
+  const handleCustomerLeave = useCallback((reason) => {
+    customerFlow.setShowCustomerLeave(true);
+    const messages = {
+      trust_zero: '😢 顾客失望地离开了...',
+      success_complete: '😊 顾客满意地离开了！'
+    };
+    addToast(messages[reason] || '顾客离开了', reason === 'success_complete' ? 'success' : 'warning');
+
+    if (!tutorial.isTutorialMode && aiConfig) {
+      achievements.onCustomerLeave({
+        category: aiConfig.categoryId, trustLevel,
+        dialogueRounds: dialogue.dialogueHistory.filter(d => d.role === 'player').length,
+        isReturnCustomer: aiConfig.isReturnCustomer || false
+      });
+    }
+
+    const parting = reason === 'success_complete' ? 'satisfied' : reason === 'trust_zero' ? 'disappointed' : 'neutral';
+    appendActiveNpcEvent({
+      role: 'system',
+      type: 'customer_leave',
+      content: parting,
+      timestamp: Date.now(),
+      meta: {
+        reason,
+        trustLevel
+      }
+    }).catch(() => {});
+    if (aiConfig && !aiConfig.isTutorialCustomer) {
+      recordCustomer(aiConfig, dialogue.dialogueHistory, parting, trustLevel);
+      if (aiConfig.isReturnCustomer) {
+        advanceArc(aiConfig.returnCustomerId, {
+          empathyScore: Math.round(trustLevel * 100),
+          bestResonance: Math.round(trustLevel * 100),
+          keyDialogue: dialogue.dialogueHistory.filter(d => d.role === 'ai').slice(-1)[0]?.content || '',
+          bartenderApproach: 'empathetic',
+          day: customerFlow.currentDay, trustLevel,
+          cocktailAttitudes: cocktailFlow.cocktailAttitudes
+        });
+      } else {
+        evaluateReturnPotential({
+          name: aiConfig.name, category: aiConfig.categoryId, backstory: aiConfig.backstory,
+          openThreads: [], bestResonance: Math.round(trustLevel * 100), parting,
+          dialogueRounds: dialogue.dialogueHistory.length, trustLevel, aiConfig,
+          emotionState: emotionSystem.dynamicCustomerEmotions, day: customerFlow.currentDay
+        });
+      }
+    }
+
+    setTimeout(() => switchToNextCustomer(), 1500);
+    queueActiveSlotGameStateSync('customer_leave');
+  }, [customerFlow.currentCustomerIndex, customerFlow.dailyCustomers.length, customerFlow.currentDay,
+    switchToNextCustomer, addToast, aiConfig, dialogue.dialogueHistory, trustLevel,
+    emotionSystem.dynamicCustomerEmotions, recordCustomer, advanceArc, evaluateReturnPotential, cocktailFlow.cocktailAttitudes]);
+  customerFlow.handleCustomerLeaveRef.current = handleCustomerLeave;
+
+  const handleDevSkipCustomer = useCallback(() => {
+    addToast('🔧 [DEV] 跳过当前顾客', 'info');
+    handleCustomerLeave('success_complete');
+  }, [handleCustomerLeave, addToast]);
+
+  // ==================== 天数管理 ====================
+
+  const startNewDay = useCallback(async () => {
+    achievements.onDayEnd(customerFlow.currentDay);
+    achievements.checkMidnightAchievement();
+
+    // 灯塔系统：每日结算检查
+    if (!tutorial.isTutorialMode) {
+      try {
+        await chapterSystem.processDayEnd(customerFlow.currentDay, {
+          trustLevel,
+          silenceCount: 0,
+          plainWaterCount: 0
+        });
+      } catch (e) {
+        console.warn('⚠️ 灯塔系统检查失败:', e);
+      }
+    }
+
+    const nextDay = customerFlow.currentDay + 1;
+    customerFlow.setDayTransitionText(`第 ${nextDay} 天`);
+    customerFlow.setShowDayTransition(true);
+
+    // 先关闭日结算弹窗
+    await new Promise(resolve => setTimeout(resolve, 600));
+    customerFlow.setShowDayEnd(false);
+
+    // 转场动画显示 2.5 秒
+    await new Promise(resolve => setTimeout(resolve, 2500));
+
+    // 先关闭转场动画，再切到加载状态（防止分支切换导致动画 DOM 重新挂载）
+    customerFlow.setShowDayTransition(false);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    customerFlow.setIsGameReady(false);
+
+    customerFlow.setCurrentDay(nextDay);
+    customerFlow.setDayEarnings(0);
+    customerFlow.setCustomersServed(0);
+    customerFlow.setCurrentCustomerIndex(0);
+    // 重置每日成功/失败计数和总杯数
+    customerFlow.daySuccessCountRef.current = 0;
+    customerFlow.dayFailureCountRef.current = 0;
+    customerFlow.dailyCocktailCountRef.current = 0;
+
+    // 保存进度（天数推进时立即持久化，防止刷新丢失）
+    saveGameProgress({ day: nextDay, money, stats: progress.gameStats, trustLevel });
+    // 清除旧会话（新一天会生成新的会话数据）
+    clearGameSession();
+
+    resetDailyEvents();
+    const crossroadsSummaries = getRecentCrossroadsSummaries();
+    await generateAtmosphere(nextDay, crossroadsSummaries);
+
+    const dueChainEvents = checkPendingChains(nextDay);
+    if (dueChainEvents.length > 0) {
+      console.log(`📖 第${nextDay}天有${dueChainEvents.length}个事件链事件到期`);
+      setTimeout(() => {
+        const chainEvent = dueChainEvents[0];
+        if (chainEvent.event) {
+          triggerEvent({
+            day: nextDay, customersServed: 0, atmosphere, currentCustomer: null,
+            forceEvent: { ...chainEvent.event, id: `chain_${chainEvent.chainId}_${Date.now()}` }
+          });
+        }
+      }, 3000);
+    } else {
+      const chainStart = tryStartChain(nextDay);
+      if (chainStart) {
+        setTimeout(() => {
+          triggerEvent({
+            day: nextDay, customersServed: 0, atmosphere, currentCustomer: null, forceEvent: chainStart
+          });
+        }, 4000);
+      }
+    }
+
+    const { returnCustomers: scheduledReturnsRaw } = orchestrateDay(nextDay, atmosphere?.weather || 'clear');
+    let scheduledReturns = [...(scheduledReturnsRaw || [])];
+
+    // 🆕 DEV：强制指定回头客每天作为首位（用于回头客连贯性测试）
+    try {
+      const forcedId = localStorage.getItem('bartender_dev_forced_return_customer_id');
+      if (forcedId) {
+        const pool = getReturnCustomers();
+        const forced = pool.find(c => c.id === forcedId);
+        if (forced && !scheduledReturns.some(c => c.id === forced.id)) {
+          scheduledReturns = [forced, ...scheduledReturns];
+          console.log('🧪 [DEV] 强制回头客插入今日队列:', forced.name);
+        }
+      }
+    } catch { /* ignore */ }
+    const initialCustomers = [];
+
+    if (scheduledReturns.length > 0) {
+      for (let i = 0; i < scheduledReturns.length && initialCustomers.length < customerFlow.MAX_CUSTOMERS_PER_DAY; i++) {
+        try {
+          const returnConfig = await buildReturnCustomerConfig(scheduledReturns[i]);
+          initialCustomers.push({
+            id: `${nextDay}-return-${i}`, type: returnConfig.categoryId, config: returnConfig
+          });
+          console.log('🔄 回头客加入今日队列:', returnConfig.name);
+        } catch (err) {
+          console.warn('⚠️ 回头客构建失败:', err);
+        }
+      }
+    }
+
+    const remainingSlots = customerFlow.MAX_CUSTOMERS_PER_DAY - initialCustomers.length;
+    const preloaded = [customerFlow.preloadedNextDayCustomer, customerFlow.preloadedSecondCustomer].filter(Boolean);
+    for (let i = 0; i < Math.min(preloaded.length, remainingSlots); i++) {
+      initialCustomers.push({
+        id: `${nextDay}-${initialCustomers.length}`, type: preloaded[i].categoryId, config: preloaded[i]
+      });
+      console.log('✅ 使用预加载的第', nextDay, `天第${initialCustomers.length}位顾客:`, preloaded[i].name);
+    }
+    customerFlow.setPreloadedNextDayCustomer(null);
+    customerFlow.setPreloadedSecondCustomer(null);
+
+    if (initialCustomers.length > 0) {
+      customerFlow.setDailyCustomers(initialCustomers);
+      customerFlow.setIsLoadingCustomers(false);
+    } else {
+      customerFlow.setIsLoadingCustomers(true);
+      customerFlow.setCustomerLoadingProgress('正在创建新一天的第一位顾客...');
+      try {
+        const firstCustomer = await generateCustomer(pickRandom(ALL_CATEGORY_IDS));
+        customerFlow.setDailyCustomers([{
+          id: `${nextDay}-0`, type: firstCustomer.categoryId, config: firstCustomer
+        }]);
+      } catch (error) {
+        console.error('❌ 顾客生成失败:', error);
+        const fallbackCustomers = generateFallbackCustomers(nextDay);
+        customerFlow.setDailyCustomers([fallbackCustomers[0]]);
+      }
+      customerFlow.setIsLoadingCustomers(false);
+    }
+
+    progress.setGameStats(prev => ({ ...prev, totalDays: nextDay }));
+    customerFlow.setIsGameReady(true);
+  }, [customerFlow.currentDay, customerFlow.preloadedNextDayCustomer, customerFlow.preloadedSecondCustomer,
+    resetDailyEvents, generateAtmosphere, orchestrateDay, buildReturnCustomerConfig, atmosphere]);
+
+  // ==================== 对话 ====================
+
+
+  return {
+    resetForNewCustomer,
+    switchToNextCustomer,
+    handleCustomerLeave,
+    handleDevSkipCustomer,
+    startNewDay
+  };
+};

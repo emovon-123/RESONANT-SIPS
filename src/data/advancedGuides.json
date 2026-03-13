@@ -1,0 +1,147 @@
+{
+  "ADVANCED_GUIDES": {
+    "reputation_visible": {
+      "id": "reputation_visible",
+      "trigger": {
+        "type": "day_started",
+        "condition": "day === 2"
+      },
+      "content": {
+        "title": "酒吧的名声",
+        "body": "屏幕顶部现在显示你的酒吧声誉。\n声誉会随着你的表现上升或下降。\n声誉越高，越多的人会听说这个地方。",
+        "position": "center",
+        "dismissable": true,
+        "highlight": ".bar-reputation-display"
+      }
+    },
+    "attitude_first_view": {
+      "id": "attitude_first_view",
+      "trigger": {
+        "type": "cocktail_preview",
+        "condition": "first_time",
+        "day": {
+          "min": 2
+        }
+      },
+      "content": {
+        "title": "酒在说话",
+        "body": "每杯酒都有一种态度。\n烈一点=直面问题；甜一点=给予希望；厚一点=深度思考。\n\"这杯酒在说……\"告诉你，你的酒正在表达什么。\n客人的反馈会回应这种态度——试着让酒说对的话。",
+        "position": "center",
+        "dismissable": true
+      }
+    },
+    "silence_high_trust": {
+      "id": "silence_high_trust",
+      "trigger": {
+        "type": "trust_level_reached",
+        "condition": "trust >= 0.6",
+        "customerCount": {
+          "min": 3
+        }
+      },
+      "content": {
+        "title": "有时候，沉默更有力",
+        "body": "你们之间的信任已经很高了。\n试试看\"……\"选项——不说话，只是安静地陪着。\n高信任时，沉默可能比任何话语都更有效。",
+        "position": "center",
+        "dismissable": true
+      }
+    },
+    "plain_water_intro": {
+      "id": "plain_water_intro",
+      "trigger": {
+        "type": "cocktail_panel_opened",
+        "condition": "customer_seems_fragile",
+        "day": {
+          "min": 3
+        }
+      },
+      "content": {
+        "title": "不一定要调酒",
+        "body": "调酒面板底部有个不起眼的按钮：\"倒一杯白水\"。\n有时候，一个人不需要酒——只需要有人在这里。\n如果你觉得现在不该给酒，试试白水。",
+        "position": "center",
+        "dismissable": true,
+        "highlight": ".plain-water-btn"
+      }
+    },
+    "return_customer_first": {
+      "id": "return_customer_first",
+      "trigger": {
+        "type": "customer_entered",
+        "condition": "is_return_customer",
+        "firstTime": true
+      },
+      "content": {
+        "title": "有人记住了这条路",
+        "body": "这位客人来过。你们之间有了\"共同记忆\"。\n他可能会提起上次的对话，或者带来新的故事。\n回头客的故事会随着每次来访而发展——从初识到告别。",
+        "position": "center",
+        "dismissable": true
+      }
+    },
+    "shared_memory_intro": {
+      "id": "shared_memory_intro",
+      "trigger": {
+        "type": "customer_entered",
+        "condition": "is_return_customer && visit_count >= 2"
+      },
+      "content": {
+        "title": "你们的故事",
+        "body": "情绪面板上方出现了「共同记忆」面板。\n系统会记住每一次对话、每一杯酒、每一个选择。\n这些记忆会影响你们之间的关系。",
+        "position": "center",
+        "dismissable": true
+      }
+    },
+    "crossroads_first": {
+      "id": "crossroads_first",
+      "trigger": {
+        "type": "crossroads_activated",
+        "firstTime": true
+      },
+      "content": {
+        "title": "十字路口",
+        "body": "这位客人正面临人生的重要选择。\n你没法替他做决定——但你的酒会影响他。\n一杯烈酒可能让他鼓起勇气，一杯温和的酒可能让他选择稳妥。\n结果不会立刻揭晓，要等他下次来才知道后果。",
+        "position": "center",
+        "dismissable": true
+      }
+    },
+    "event_first": {
+      "id": "event_first",
+      "trigger": {
+        "type": "event_triggered",
+        "firstTime": true
+      },
+      "content": {
+        "title": "意外",
+        "body": "酒吧里不只有对话和调酒。\n这座城市的呼吸偶尔会渗进来——街上的事、奇怪的客人、意外的机会。\n你的选择会有真实的后果。有些事件会跨天发展。",
+        "position": "center",
+        "dismissable": true
+      }
+    },
+    "feeling_visible": {
+      "id": "feeling_visible",
+      "trigger": {
+        "type": "chapter_reached",
+        "condition": "chapter >= 3"
+      },
+      "content": {
+        "title": "材料的感觉",
+        "body": "从现在开始，每种材料都有一个\"feeling\"——它传递的情感质地。\n威士忌\"像一个人坐了很久之后说出的第一句话\"；\n奶油\"像一个不说话的拥抱\"。\n试着用感觉来组合，而不只是看数字。",
+        "position": "center",
+        "dismissable": true
+      }
+    },
+    "fragment_first": {
+      "id": "fragment_first",
+      "trigger": {
+        "type": "fragment_triggered",
+        "firstTime": true
+      },
+      "content": {
+        "title": "回忆碎片",
+        "body": "每天听别人的故事……但你呢？你是谁？\n有些东西会慢慢浮上来。这是你的碎片。\n随着时间推移，碎片会越来越清晰。",
+        "position": "center",
+        "dismissable": true,
+        "style": "memory"
+      }
+    }
+  }
+}

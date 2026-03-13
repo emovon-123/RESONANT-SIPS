@@ -1,0 +1,1115 @@
+{
+  "eventTriggerConfig": {
+    "perCustomerChance": 0.2,
+    "minEventsPerDay": 0,
+    "maxEventsPerDay": 1,
+    "typeCooldown": 2,
+    "streakTrigger": {
+      "successStreak": 5,
+      "failStreak": 4
+    },
+    "triggerPointChance": {
+      "after_greeting": 0.15,
+      "after_dialogue_3": 0.2,
+      "after_cocktail": 0.25,
+      "chain_events": 1
+    },
+    "triggerPointPreference": {
+      "after_greeting": [
+        "atmosphere",
+        "narrative"
+      ],
+      "after_dialogue_3": [
+        "customer",
+        "narrative"
+      ],
+      "after_cocktail": [
+        "reward",
+        "challenge"
+      ],
+      "chain_events": [
+        "narrative"
+      ]
+    },
+    "dayScaling": {
+      "day1to3": {
+        "types": [
+          "atmosphere",
+          "reward"
+        ]
+      },
+      "day4to7": {
+        "types": [
+          "atmosphere",
+          "customer",
+          "reward"
+        ]
+      },
+      "day8plus": {
+        "types": [
+          "atmosphere",
+          "customer",
+          "challenge",
+          "reward",
+          "narrative"
+        ]
+      }
+    }
+  },
+  "eventTypeIcons": {
+    "atmosphere": "🌍",
+    "customer": "👤",
+    "challenge": "⚡",
+    "reward": "🎁",
+    "narrative": "📖"
+  },
+  "eventTypeNames": {
+    "atmosphere": "氛围事件",
+    "customer": "顾客事件",
+    "challenge": "挑战事件",
+    "reward": "奖励事件",
+    "narrative": "叙事事件"
+  },
+  "fallbackEvents": {
+    "atmosphere": [
+      {
+        "type": "atmosphere",
+        "narrative": "街对面的情绪监测站爆出一阵火花，然后暗了下去。连它都累了。酒吧里的灯跟着闪了一下。",
+        "effects": {
+          "trustModifier": 0.01,
+          "emotionShift": [
+            "calm"
+          ]
+        },
+        "duration": "current_customer",
+        "choices": [
+          {
+            "text": "🕯️ 点上蜡烛——\"这里不需要那种灯。\"",
+            "effect": {
+              "atmosphereChange": {
+                "lighting": "candlelight"
+              },
+              "trustModifier": 0.04
+            }
+          },
+          {
+            "text": "🔧 敲一下灯管——\"老毛病了。\"",
+            "effect": {
+              "trustModifier": 0.02
+            }
+          }
+        ]
+      },
+      {
+        "type": "atmosphere",
+        "narrative": "外面传来飞行器编队的轰鸣声，影子从窗户上掠过。杯子在吧台上轻微震动。顾客下意识地缩了缩肩。",
+        "effects": {
+          "trustModifier": -0.02,
+          "emotionShift": [
+            "anxiety"
+          ]
+        },
+        "duration": "current_customer",
+        "choices": [
+          {
+            "text": "🎵 把音乐调大一点盖住噪音",
+            "effect": {
+              "trustModifier": 0.03,
+              "emotionShift": [
+                "calm"
+              ]
+            }
+          },
+          {
+            "text": "💬 \"每天晚上都这样，习惯就好。\"",
+            "effect": {
+              "trustModifier": 0.02
+            }
+          }
+        ]
+      },
+      {
+        "type": "atmosphere",
+        "narrative": "酒吧外的巷子里，有人在墙上喷了一行字：\"机器听不懂你的沉默。\"油漆还没干。",
+        "effects": {
+          "trustModifier": 0.02,
+          "emotionShift": [
+            "aspiration"
+          ]
+        },
+        "duration": "rest_of_day",
+        "choices": [
+          {
+            "text": "📸 \"说得不错。要不要去看看？\"",
+            "effect": {
+              "trustModifier": 0.03,
+              "emotionShift": [
+                "courage"
+              ]
+            }
+          },
+          {
+            "text": "🤫 假装没看见",
+            "effect": {}
+          }
+        ]
+      },
+      {
+        "type": "atmosphere",
+        "narrative": "有人从门缝塞进来一张传单：\"情绪优化只需3秒——辉瑞第七代神经调节片。\"你把它揉成一团丢进了垃圾桶。",
+        "effects": {
+          "trustModifier": 0.01
+        },
+        "duration": "immediate",
+        "choices": [
+          {
+            "text": "🗑️ \"这里不需要那种东西。\"",
+            "effect": {
+              "trustModifier": 0.03
+            }
+          },
+          {
+            "text": "😤 展示给顾客看——\"信这个的人越来越多了。\"",
+            "effect": {
+              "trustModifier": 0.02,
+              "emotionShift": [
+                "regret"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "atmosphere",
+        "narrative": "窗玻璃上爬了一只蛾子，翅膀一开一合。在这种全是合成植物的城市里，真正的活物已经很少见了。",
+        "effects": {
+          "trustModifier": 0.01,
+          "emotionShift": [
+            "nostalgia"
+          ]
+        },
+        "duration": "current_customer",
+        "choices": [
+          {
+            "text": "🪟 小心地打开窗让它飞出去",
+            "effect": {
+              "trustModifier": 0.02,
+              "emotionShift": [
+                "relief"
+              ]
+            }
+          },
+          {
+            "text": "💬 \"看，一个跟我们一样不合时宜的家伙。\"",
+            "effect": {
+              "trustModifier": 0.04,
+              "emotionShift": [
+                "nostalgia"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "atmosphere",
+        "narrative": "收音机突然接收到一段信号——有人在城市的某个角落用短波电台播放老爵士乐。非法广播，但很好听。",
+        "effects": {
+          "atmosphereChange": {
+            "music": "jazz_slow"
+          },
+          "trustModifier": 0.02
+        },
+        "duration": "rest_of_day",
+        "choices": [
+          {
+            "text": "🎵 把音量开大——\"这个好。\"",
+            "effect": {
+              "trustModifier": 0.03,
+              "emotionShift": [
+                "calm"
+              ]
+            }
+          },
+          {
+            "text": "📻 \"这种电台还剩几个呢……\"",
+            "effect": {
+              "trustModifier": 0.02,
+              "emotionShift": [
+                "nostalgia"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "customer": [
+      {
+        "type": "customer",
+        "narrative": "顾客的手腕上突然亮了一下——一条推送通知。\"公司发的。\"他们飞快地划掉了，但你看到标题是\"情绪异常提醒\"。",
+        "effects": {
+          "trustModifier": -0.03,
+          "emotionShift": [
+            "anxiety"
+          ]
+        },
+        "duration": "immediate",
+        "choices": [
+          {
+            "text": "🤫 当作没看见",
+            "effect": {
+              "trustModifier": 0.02
+            }
+          },
+          {
+            "text": "💬 \"在这里，没有人会收到那种通知。\"",
+            "effect": {
+              "trustModifier": 0.05,
+              "emotionShift": [
+                "relief"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "customer",
+        "narrative": "顾客的口袋里传来一个柔和的声音：\"检测到压力指数上升，建议服用——\" 他们迅速按掉了。",
+        "effects": {
+          "trustModifier": -0.02
+        },
+        "duration": "immediate",
+        "choices": [
+          {
+            "text": "🍸 默默调一杯酒推过去",
+            "effect": {
+              "trustModifier": 0.04,
+              "emotionShift": [
+                "calm"
+              ]
+            }
+          },
+          {
+            "text": "💬 \"那个东西跟你说的话，和我跟你说的，不一样吧。\"",
+            "effect": {
+              "trustModifier": 0.05
+            }
+          }
+        ]
+      },
+      {
+        "type": "customer",
+        "narrative": "顾客喝了一口酒后愣住了，眼眶微微泛红。\"对不起...这个味道让我想起了一个人。\"",
+        "effects": {
+          "trustModifier": 0.05,
+          "emotionShift": [
+            "nostalgia"
+          ]
+        },
+        "duration": "current_customer",
+        "choices": [
+          {
+            "text": "🤝 \"想说说吗？我在听。\"",
+            "effect": {
+              "trustModifier": 0.06,
+              "emotionShift": [
+                "nostalgia"
+              ]
+            }
+          },
+          {
+            "text": "🍸 默默再倒一杯同样的",
+            "effect": {
+              "trustModifier": 0.04,
+              "emotionShift": [
+                "calm"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "customer",
+        "narrative": "一个戴着VR眼镜的人推开门看了一眼，说了声\"这地方连网都没有\"，转身走了。你的顾客看着那人的背影，忽然笑了一下。",
+        "effects": {
+          "trustModifier": 0.03,
+          "emotionShift": [
+            "happiness"
+          ]
+        },
+        "duration": "immediate",
+        "choices": [
+          {
+            "text": "😄 \"看来我们是同类。\"",
+            "effect": {
+              "trustModifier": 0.04,
+              "emotionShift": [
+                "happiness"
+              ]
+            }
+          },
+          {
+            "text": "🍸 \"所以你才会在这里。\"",
+            "effect": {
+              "trustModifier": 0.05
+            }
+          }
+        ]
+      },
+      {
+        "type": "customer",
+        "narrative": "顾客忽然问你：\"老板，你为什么要开一家没有AI的酒吧？这年头，这不是自找麻烦吗？\"",
+        "effects": {
+          "trustModifier": 0.02
+        },
+        "duration": "immediate",
+        "choices": [
+          {
+            "text": "💬 \"因为有些话只能对真人说。\"",
+            "effect": {
+              "trustModifier": 0.06
+            }
+          },
+          {
+            "text": "🤷 \"也许我就是个老派的人。\"",
+            "effect": {
+              "trustModifier": 0.04,
+              "emotionShift": [
+                "nostalgia"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "challenge": [
+      {
+        "type": "challenge",
+        "narrative": "供应商的无人机今晚没来——说是航线被管制了。柠檬、橙子这些生鲜原料存量告急。",
+        "effects": {
+          "itemRestriction": {
+            "type": "disable_category",
+            "category": "juice",
+            "except": [
+              "juice_lemon"
+            ],
+            "duration": "rest_of_day"
+          },
+          "trustModifier": 0
+        },
+        "duration": "rest_of_day",
+        "choices": [
+          {
+            "text": "🔄 \"用利口酒替代果汁调味。\"",
+            "effect": {
+              "trustModifier": 0.01
+            }
+          },
+          {
+            "text": "💡 \"限定菜单，反而有意思。\"",
+            "effect": {
+              "trustModifier": 0.02,
+              "bonusReward": {
+                "type": "money",
+                "amount": 30
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "challenge",
+        "narrative": "楼下的水管爆了，用不了自来水。幸好备了几桶矿泉水。但冰块得省着用了。",
+        "effects": {
+          "itemRestriction": {
+            "type": "limit_addon",
+            "addonType": "ice",
+            "allowedIds": [
+              "no_ice",
+              "less_ice"
+            ],
+            "duration": "rest_of_day"
+          },
+          "trustModifier": 0
+        },
+        "duration": "rest_of_day",
+        "choices": [
+          {
+            "text": "🧊 \"无冰之夜，别有风味。\"",
+            "effect": {
+              "trustModifier": 0.02
+            }
+          },
+          {
+            "text": "😅 \"凑合一晚上吧。\"",
+            "effect": {
+              "trustModifier": 0.01
+            }
+          }
+        ]
+      },
+      {
+        "type": "challenge",
+        "narrative": "顾客拿出一个发光的小瓶子：\"这是我从黑市买的合成基酒。你能用这个调吗？\" 你从没见过这种东西。",
+        "effects": {
+          "trustModifier": 0.02
+        },
+        "duration": "current_customer",
+        "choices": [
+          {
+            "text": "🧪 \"让我试试。\"",
+            "effect": {
+              "trustModifier": 0.05
+            }
+          },
+          {
+            "text": "🚫 \"抱歉，我只用自己的料。\"",
+            "effect": {
+              "trustModifier": -0.02
+            }
+          }
+        ]
+      },
+      {
+        "type": "challenge",
+        "narrative": "城市管理局发了通知：今晚对这片区域进行\"情绪数据抽检\"。有巡查车在外面。顾客显得格外紧张。",
+        "effects": {
+          "trustModifier": -0.05,
+          "emotionShift": [
+            "anxiety"
+          ]
+        },
+        "duration": "rest_of_day",
+        "choices": [
+          {
+            "text": "🔒 关上百叶窗——\"放心，进不来。\"",
+            "effect": {
+              "trustModifier": 0.06,
+              "emotionShift": [
+                "relief"
+              ]
+            }
+          },
+          {
+            "text": "🕶️ \"就当外面不存在。喝你的酒。\"",
+            "effect": {
+              "trustModifier": 0.04
+            }
+          }
+        ]
+      }
+    ],
+    "reward": [
+      {
+        "type": "reward",
+        "narrative": "一位之前来过的客人托人送来一小瓶东西，附了一张纸条：\"上次的酒让我做了个好梦。这个送你。\"",
+        "effects": {
+          "bonusReward": {
+            "type": "money",
+            "amount": 80
+          },
+          "trustModifier": 0.02
+        },
+        "duration": "immediate",
+        "choices": [
+          {
+            "text": "🥃 收下——\"替我谢谢TA。\"",
+            "effect": {
+              "bonusReward": {
+                "type": "money",
+                "amount": 80
+              }
+            }
+          },
+          {
+            "text": "🎁 拆开跟当前顾客分享",
+            "effect": {
+              "trustModifier": 0.05,
+              "bonusReward": {
+                "type": "money",
+                "amount": 40
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "reward",
+        "narrative": "一个快递无人机从窗户飞进来，放下一个小箱子就走了。里面是一套手工玻璃杯，做工精细得不像是这个时代的东西。",
+        "effects": {
+          "bonusReward": {
+            "type": "money",
+            "amount": 120
+          },
+          "trustModifier": 0.01
+        },
+        "duration": "immediate",
+        "choices": [
+          {
+            "text": "🥂 用新杯子给顾客倒一杯",
+            "effect": {
+              "trustModifier": 0.04,
+              "bonusReward": {
+                "type": "money",
+                "amount": 120
+              }
+            }
+          },
+          {
+            "text": "📦 收起来，留给特别的场合",
+            "effect": {
+              "bonusReward": {
+                "type": "money",
+                "amount": 120
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "reward",
+        "narrative": "有人在点评网站上写了一条匿名评价：\"这世界上最后一个还在用耳朵听你说话的地方。\" 被转发了很多次。",
+        "effects": {
+          "bonusReward": {
+            "type": "money",
+            "amount": 60
+          },
+          "trustModifier": 0.03
+        },
+        "duration": "immediate",
+        "choices": [
+          {
+            "text": "😊 \"看来有人记得这里。\"",
+            "effect": {
+              "trustModifier": 0.04,
+              "bonusReward": {
+                "type": "money",
+                "amount": 60
+              }
+            }
+          },
+          {
+            "text": "🤫 \"希望别传太开，不然巡查队要来了。\"",
+            "effect": {
+              "trustModifier": 0.02,
+              "bonusReward": {
+                "type": "money",
+                "amount": 60
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "reward",
+        "narrative": "一个穿旧风衣的老人推门进来，放下一瓶没有标签的酒就走了。你尝了一口——这是真正的手工蒸馏威士忌。在这个年代，这东西比黄金还稀有。",
+        "effects": {
+          "bonusReward": {
+            "type": "money",
+            "amount": 150
+          },
+          "trustModifier": 0.02
+        },
+        "duration": "immediate",
+        "choices": [
+          {
+            "text": "🥃 珍藏起来——\"总有用得上的时候。\"",
+            "effect": {
+              "bonusReward": {
+                "type": "money",
+                "amount": 150
+              }
+            }
+          },
+          {
+            "text": "🍸 给顾客倒一小杯——\"今晚你运气好。\"",
+            "effect": {
+              "trustModifier": 0.06,
+              "bonusReward": {
+                "type": "money",
+                "amount": 80
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "narrative": [
+      {
+        "type": "narrative",
+        "narrative": "窗外有人在雨中驻足，盯着酒吧看了很久。你注意到顾客也在看那个人。几秒后，窗外的人转身消失在巷子里。",
+        "effects": {
+          "trustModifier": 0,
+          "emotionShift": [
+            "nostalgia"
+          ]
+        },
+        "duration": "immediate",
+        "choices": [
+          {
+            "text": "💬 \"认识的人？\"",
+            "effect": {
+              "trustModifier": 0.04,
+              "emotionShift": [
+                "nostalgia"
+              ]
+            }
+          },
+          {
+            "text": "🤐 什么都不说",
+            "effect": {
+              "trustModifier": 0.01
+            }
+          }
+        ]
+      },
+      {
+        "type": "narrative",
+        "narrative": "吧台下面的老收音机自己开了。信号断断续续——\"……如果你能听到这段话，说明你还没有……\"然后就没了。",
+        "effects": {
+          "trustModifier": 0.01,
+          "emotionShift": [
+            "confusion"
+          ]
+        },
+        "duration": "current_customer",
+        "choices": [
+          {
+            "text": "📻 \"这东西总是在最有意思的时候断。\"",
+            "effect": {
+              "trustModifier": 0.03,
+              "emotionShift": [
+                "nostalgia"
+              ]
+            }
+          },
+          {
+            "text": "🔇 关掉收音机",
+            "effect": {
+              "trustModifier": 0.01
+            }
+          }
+        ]
+      },
+      {
+        "type": "narrative",
+        "narrative": "顾客起身去洗手间的时候，你发现他们刚才一直在餐巾纸上画画。是一栋房子，有个小院子。旁边写着一个日期，然后被划掉了。",
+        "effects": {
+          "trustModifier": 0.02,
+          "emotionShift": [
+            "regret"
+          ]
+        },
+        "duration": "current_customer",
+        "choices": [
+          {
+            "text": "👀 等他们回来后假装没看见",
+            "effect": {
+              "trustModifier": 0.01
+            }
+          },
+          {
+            "text": "💬 \"你画的那个地方，很漂亮。\"",
+            "effect": {
+              "trustModifier": 0.05,
+              "emotionShift": [
+                "nostalgia"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "narrative",
+        "narrative": "门被推开了一条缝，一只橘猫挤了进来，径直跳上了顾客旁边的空位，开始舔爪子。在这个连流浪动物都快绝迹的城市里，这是件新鲜事。",
+        "effects": {
+          "trustModifier": 0.03,
+          "emotionShift": [
+            "happiness"
+          ]
+        },
+        "duration": "current_customer",
+        "choices": [
+          {
+            "text": "🥛 给猫倒一小碟奶",
+            "effect": {
+              "trustModifier": 0.04,
+              "emotionShift": [
+                "happiness"
+              ]
+            }
+          },
+          {
+            "text": "💬 \"看来今晚有贵客。\"",
+            "effect": {
+              "trustModifier": 0.03,
+              "emotionShift": [
+                "calm"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "narrative",
+        "narrative": "凌晨两点。外面的霓虹灯一盏一盏关了。整条街只剩你酒吧的光还亮着。顾客看了看窗外，说：\"你也不早点关门吗？\"",
+        "effects": {
+          "trustModifier": 0.02
+        },
+        "duration": "immediate",
+        "choices": [
+          {
+            "text": "💬 \"你还在，我就在。\"",
+            "effect": {
+              "trustModifier": 0.06
+            }
+          },
+          {
+            "text": "😄 \"开太早关太晚，大概是唯一一件我跟AI比不了的事。\"",
+            "effect": {
+              "trustModifier": 0.04,
+              "emotionShift": [
+                "happiness"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "eventChains": [
+    {
+      "id": "chain_graffiti",
+      "name": "墙上的字",
+      "triggerAfterDay": 3,
+      "startProbability": 0.3,
+      "events": [
+        {
+          "day_offset": 0,
+          "event": {
+            "type": "atmosphere",
+            "narrative": "酒吧外的巷子里，有人在墙上喷了一行字：\"机器听不懂你的沉默。\"油漆还没干。",
+            "effects": {
+              "trustModifier": 0.02,
+              "emotionShift": [
+                "aspiration"
+              ]
+            },
+            "duration": "rest_of_day",
+            "choices": [
+              {
+                "text": "📸 \"说得不错。要不要去看看？\"",
+                "effect": {
+                  "trustModifier": 0.03,
+                  "emotionShift": [
+                    "courage"
+                  ]
+                }
+              },
+              {
+                "text": "🤫 假装没看见",
+                "effect": {}
+              }
+            ]
+          }
+        },
+        {
+          "day_offset": 3,
+          "event": {
+            "type": "narrative",
+            "narrative": "那行涂鸦被城市管理局清除了。但今晚，同一个位置又出现了新的一行：\"沉默也是一种回答。\"",
+            "effects": {
+              "trustModifier": 0.02,
+              "emotionShift": [
+                "courage"
+              ]
+            },
+            "duration": "immediate",
+            "choices": [
+              {
+                "text": "💬 \"有人不肯放弃。\"",
+                "effect": {
+                  "trustModifier": 0.04,
+                  "emotionShift": [
+                    "aspiration"
+                  ]
+                }
+              },
+              {
+                "text": "🤫 \"希望他们小心点。\"",
+                "effect": {
+                  "trustModifier": 0.02
+                }
+              }
+            ]
+          }
+        },
+        {
+          "day_offset": 7,
+          "event": {
+            "type": "narrative",
+            "narrative": "一个戴兜帽的年轻人推门进来。\"你就是那个没有AI的酒吧？涂鸦是我写的。\" 他看起来很年轻，也很疲惫。",
+            "effects": {
+              "trustModifier": 0.05,
+              "emotionShift": [
+                "courage"
+              ]
+            },
+            "duration": "current_customer",
+            "choices": [
+              {
+                "text": "🍸 \"坐吧。第一杯我请。\"",
+                "effect": {
+                  "trustModifier": 0.06,
+                  "bonusReward": {
+                    "type": "money",
+                    "amount": 50
+                  }
+                }
+              },
+              {
+                "text": "💬 \"你写的那些话，有人看见了。\"",
+                "effect": {
+                  "trustModifier": 0.05,
+                  "emotionShift": [
+                    "happiness"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "chain_stray_cat",
+      "name": "巷子里的猫",
+      "triggerAfterDay": 2,
+      "startProbability": 0.35,
+      "events": [
+        {
+          "day_offset": 0,
+          "event": {
+            "type": "narrative",
+            "narrative": "门被推开了一条缝，一只橘猫挤了进来，跳上吧台开始舔爪子。在这个连流浪动物都快绝迹的城市里，这是件稀罕事。",
+            "effects": {
+              "trustModifier": 0.03,
+              "emotionShift": [
+                "happiness"
+              ]
+            },
+            "duration": "current_customer",
+            "choices": [
+              {
+                "text": "🥛 给猫倒一小碟奶",
+                "effect": {
+                  "trustModifier": 0.04,
+                  "emotionShift": [
+                    "happiness"
+                  ]
+                }
+              },
+              {
+                "text": "💬 \"看来今晚有贵客。\"",
+                "effect": {
+                  "trustModifier": 0.03,
+                  "emotionShift": [
+                    "calm"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "day_offset": 1,
+          "event": {
+            "type": "narrative",
+            "narrative": "那只橘猫又来了。这次它径直跳到了吧台上，趴在你擦杯子的手旁边打呼噜。有顾客忍不住伸手摸了摸它。",
+            "effects": {
+              "trustModifier": 0.03,
+              "emotionShift": [
+                "calm"
+              ]
+            },
+            "duration": "current_customer",
+            "choices": [
+              {
+                "text": "😊 \"看来它把这里当家了。\"",
+                "effect": {
+                  "trustModifier": 0.04,
+                  "emotionShift": [
+                    "happiness"
+                  ]
+                }
+              },
+              {
+                "text": "🐱 给它起个名字",
+                "effect": {
+                  "trustModifier": 0.05
+                }
+              }
+            ]
+          }
+        },
+        {
+          "day_offset": 4,
+          "event": {
+            "type": "narrative",
+            "narrative": "今晚，橘猫带了一只小黑猫来。两只猫挤在吧台角落的暖灯下面，互相舔毛。来喝酒的人看到它们都忍不住笑了。",
+            "effects": {
+              "trustModifier": 0.04,
+              "emotionShift": [
+                "happiness"
+              ],
+              "bonusReward": {
+                "type": "money",
+                "amount": 40
+              }
+            },
+            "duration": "rest_of_day",
+            "choices": [
+              {
+                "text": "🐾 \"这里正式成为猫咪酒吧了。\"",
+                "effect": {
+                  "trustModifier": 0.05,
+                  "bonusReward": {
+                    "type": "money",
+                    "amount": 40
+                  }
+                }
+              },
+              {
+                "text": "📸 \"它们比我更会招揽生意。\"",
+                "effect": {
+                  "trustModifier": 0.04,
+                  "bonusReward": {
+                    "type": "money",
+                    "amount": 60
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "chain_mysterious_delivery",
+      "name": "神秘快递",
+      "triggerAfterDay": 5,
+      "startProbability": 0.25,
+      "events": [
+        {
+          "day_offset": 0,
+          "event": {
+            "type": "reward",
+            "narrative": "一个没有标识的快递盒出现在门口。里面是一瓶没有标签的琥珀色液体和一张纸条：\"给最后一个用真酒杯的人。\"",
+            "effects": {
+              "trustModifier": 0.02,
+              "bonusReward": {
+                "type": "money",
+                "amount": 80
+              }
+            },
+            "duration": "immediate",
+            "choices": [
+              {
+                "text": "🥃 尝一口——\"是好东西。\"",
+                "effect": {
+                  "bonusReward": {
+                    "type": "money",
+                    "amount": 80
+                  },
+                  "trustModifier": 0.03
+                }
+              },
+              {
+                "text": "🤔 先收起来，不太放心",
+                "effect": {
+                  "bonusReward": {
+                    "type": "money",
+                    "amount": 80
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "day_offset": 2,
+          "event": {
+            "type": "narrative",
+            "narrative": "又一个快递盒。这次里面是一张旧照片——一家老酒吧，门口站着一个年轻的调酒师。照片背面写着一个地址，就在这条巷子里。",
+            "effects": {
+              "trustModifier": 0.03,
+              "emotionShift": [
+                "nostalgia"
+              ]
+            },
+            "duration": "immediate",
+            "choices": [
+              {
+                "text": "💬 \"这是...这家酒吧以前的样子？\"",
+                "effect": {
+                  "trustModifier": 0.04,
+                  "emotionShift": [
+                    "nostalgia"
+                  ]
+                }
+              },
+              {
+                "text": "📷 把照片挂在吧台后面",
+                "effect": {
+                  "trustModifier": 0.03
+                }
+              }
+            ]
+          }
+        },
+        {
+          "day_offset": 5,
+          "event": {
+            "type": "narrative",
+            "narrative": "门开了。一位头发花白的老人走进来，目光扫过吧台后面的旧照片，沉默了很久。\"你继承了一个好地方，年轻人。\"他坐了下来。",
+            "effects": {
+              "trustModifier": 0.05,
+              "emotionShift": [
+                "nostalgia"
+              ],
+              "bonusReward": {
+                "type": "money",
+                "amount": 100
+              }
+            },
+            "duration": "current_customer",
+            "choices": [
+              {
+                "text": "🍸 \"来一杯？我请。\"",
+                "effect": {
+                  "trustModifier": 0.06,
+                  "bonusReward": {
+                    "type": "money",
+                    "amount": 100
+                  }
+                }
+              },
+              {
+                "text": "💬 \"跟我说说，这里以前是什么样？\"",
+                "effect": {
+                  "trustModifier": 0.05,
+                  "emotionShift": [
+                    "nostalgia"
+                  ],
+                  "bonusReward": {
+                    "type": "money",
+                    "amount": 100
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

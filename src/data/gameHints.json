@@ -1,0 +1,69 @@
+{
+  "gameHints": {
+    "reply_poor": {
+      "icon": "💡",
+      "title": "对话提示",
+      "message": "回应太简短或重复了，尝试更用心地交流吧！信任度略有下降。"
+    },
+    "cocktail_failed": {
+      "icon": "🍸",
+      "title": "调酒提示",
+      "message": "调酒失败了！试着更多了解顾客的真实情绪。提示：真实情绪通常藏在表面情绪之下。"
+    },
+    "trust_low": {
+      "icon": "🔓",
+      "title": "信任度提示",
+      "message": "信任度较低时顾客会隐藏真实情绪。继续真诚对话来提升信任度吧！"
+    },
+    "trust_medium": {
+      "icon": "✨",
+      "title": "好消息",
+      "message": "信任度提升！顾客开始透露一些内心感受，仔细观察情绪面板的提示吧。"
+    },
+    "trust_high": {
+      "icon": "🎉",
+      "title": "信任度突破",
+      "message": "顾客完全信任你了！情绪提示更加清晰，根据线索推断真实情绪来调酒吧！"
+    },
+    "emotion_hint": {
+      "icon": "🎭",
+      "title": "情绪识别",
+      "message": "表面情绪是伪装，根据提示推断真实情绪才是关键！猜对了才能调酒成功。"
+    },
+    "recipe_repeat": {
+      "icon": "⚠️",
+      "title": "配方重复",
+      "message": "这个配方已经使用过了！请尝试不同的情绪组合。"
+    },
+    "guess_success": {
+      "icon": "🎊",
+      "title": "猜测成功！",
+      "message": "恭喜！你成功识别了顾客的情绪，解锁了新的情绪元素！"
+    },
+    "guess_failed": {
+      "icon": "💔",
+      "title": "猜测失败",
+      "message": "很遗憾，这不是顾客的真实情绪。信任度大幅下降..."
+    },
+    "emotion_changed": {
+      "icon": "💭",
+      "title": "情绪变化",
+      "message": "顾客喝完酒后，情绪似乎有了微妙的变化。注意观察新的线索！"
+    },
+    "emotion_improved": {
+      "icon": "🌟",
+      "title": "情绪好转",
+      "message": "这杯酒触动了顾客！他的情绪正在向积极的方向转变。"
+    },
+    "dialogue_excellent": {
+      "icon": "💝",
+      "title": "对话出色",
+      "message": "你的回应让顾客感到被深深理解！信任度大幅提升。"
+    },
+    "dialogue_good": {
+      "icon": "💬",
+      "title": "对话良好",
+      "message": "顾客感受到了你的关心，继续保持真诚的交流！"
+    }
+  }
+}

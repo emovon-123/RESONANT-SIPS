@@ -1,0 +1,564 @@
+﻿import React, { useEffect, useMemo, useState } from 'react';
+
+// 缁勪欢瀵煎叆
+import ChatPanel from '../components/Chat/ChatPanel.jsx';
+import EmotionPanel from '../components/Emotion/EmotionPanel.jsx';
+import BartenderPanel from '../components/Bartender/BartenderPanel.jsx';
+import TargetDisplay from '../components/Bartender/TargetDisplay.jsx';
+import CocktailPreview from '../components/Bartender/CocktailPreview.jsx';
+import Toast from '../components/Common/Toast.jsx';
+import RulesModal from '../components/Common/RulesModal.jsx';
+import { DevPanel } from '../components/DevMode/index.js';
+import {
+  GameLoadingScreen,
+  GameHeader,
+  DayEndModal,
+  CustomerLeaveOverlay,
+  GameHintPanel
+} from '../components/Game/index.js';
+import AtmosphereOverlay from '../components/Atmosphere/AtmosphereOverlay.jsx';
+import EventNotification from '../components/Atmosphere/EventNotification.jsx';
+import CustomerAvatar from '../components/Avatar/CustomerAvatar.jsx';
+import TutorialTooltip from '../components/Tutorial/TutorialTooltip.jsx';
+import TutorialCompleteModal from '../components/Tutorial/TutorialCompleteModal.jsx';
+import AchievementNotification from '../components/Achievement/AchievementNotification.jsx';
+import ReturnCustomerOverlay from '../components/Game/ReturnCustomerOverlay.jsx';
+import SharedMemoryPanel from '../components/Game/SharedMemoryPanel.jsx';
+import ChapterTransition from '../components/Game/ChapterTransition.jsx';
+import MemoryFragment from '../components/Game/MemoryFragment.jsx';
+import EndingScreen from '../components/Game/EndingScreen.jsx';
+import AmbientGameCanvas from '../game/pixi/AmbientGameCanvas.jsx';
+import { createGameViewModel } from '../game/viewModel/createGameViewModel.js';
+// 鏂版墜寮曞绯荤粺
+import AdvancedGuidePopup from '../components/Guide/AdvancedGuidePopup.jsx';
+import HelpPanel from '../components/Help/HelpPanel.jsx';
+
+// 鑷畾涔?Hooks
+import { useToasts } from '../hooks/useToasts.js';
+import { useGameHints } from '../hooks/useGameHints.js';
+import { useAudio } from '../hooks/useAudio.js';
+import { useBarAtmosphere } from '../hooks/useBarAtmosphere.js';
+import { useBarEvents } from '../hooks/useBarEvents.js';
+import { useTutorial } from '../hooks/useTutorial.js';
+import { useAchievements } from '../hooks/useAchievements.js';
+import { useDailyMemory } from '../hooks/useDailyMemory.js';
+import { useNarrativeEngine } from '../hooks/useNarrativeEngine.js';
+import { useChapterSystem } from '../hooks/useChapterSystem.js';
+import { useCocktailFlow } from '../hooks/useCocktailFlow.js';
+import { useCustomerFlow } from '../hooks/useCustomerFlow.js';
+import { useDialogue } from '../hooks/useDialogue.js';
+import { useEmotionSystem } from '../hooks/useEmotionSystem.js';
+import { useGameProgress } from '../hooks/useGameProgress.js';
+import { useMixingSession } from '../hooks/useMixingSession.js';
+// 鎷嗗垎鍑虹殑缂栨帓 hooks
+import { useGameInit } from '../hooks/useGameInit.js';
+import { useGameHandlers } from '../hooks/useGameHandlers.js';
+import { useAutoTest } from '../hooks/useAutoTest.js';
+import { useAdvancedGuides } from '../hooks/useAdvancedGuides.js';
+
+// 鏁版嵁瀵煎叆
+import { getAIConfig } from '../data/aiCustomers.js';
+import { INITIAL_UNLOCKED_EMOTIONS, GLASS_TYPES } from '../data/emotions.js';
+import { INITIAL_UNLOCKED_INGREDIENTS } from '../data/ingredients.js';
+import { TUTORIAL_VISIBLE_EMOTIONS } from '../data/tutorialData.js';
+import { clearAllCache } from '../utils/storage.js';
+import {
+  ensureNpcProfileInActiveSlot,
+  queueActiveSlotGameStateSync,
+  setActiveNpcId,
+  setActiveSlotId as setActiveSlotInRepository
+} from '../utils/saveRepository.js';
+import './GamePage.css';
+import './GamePage.overlays.css';
+
+/**
+ * 娓告垙涓婚〉闈紙鐦﹁韩鐗堬級
+ * 鑱岃矗锛欻ook 缂栨帓 + UI 娓叉煋
+ * 涓氬姟閫昏緫宸叉媶鍒嗗埌 useGameInit / useGameHandlers / useAutoTest
+ */
+const GamePage = ({
+  aiType = 'workplace',
+  activeSlotId = null,
+  onBack,
+  money: appMoney,
+  setMoney: setAppMoney,
+  unlockedItems: appUnlockedItems,
+  setUnlockedItems: setAppUnlockedItems,
+  onShopPurchase,
+  devModeVisible,
+  setDevModeVisible,
+  devActions,
+  preloadedFirstCustomer,
+  onCustomerUsed
+}) => {
+  // ==================== 鍩虹 Hooks ====================
+
+  const { toastList, addToast, removeToast } = useToasts();
+  const { gameHint, showGameHint, closeGameHint } = useGameHints();
+
+  const {
+    atmosphere, showAtmosphereOverlay,
+    generateAtmosphere, dismissAtmosphereOverlay, applyAtmosphereChange
+  } = useBarAtmosphere();
+
+  const {
+    currentEvent, showEventNotification, dailyEventCount,
+    persistentEffects, activeRestrictions,
+    shouldTriggerEvent, triggerEvent, handleEventChoice, dismissEvent,
+    resetDailyEvents, updateStreak, clearCustomerRestrictions,
+    checkPendingChains, tryStartChain
+  } = useBarEvents();
+
+  const tutorial = useTutorial();
+  const achievements = useAchievements();
+  const [currentAchievementNotif, setCurrentAchievementNotif] = useState(null);
+
+  const { todayRecords, recordCustomer, generateDailyMemoryRecord } = useDailyMemory();
+  const { evaluateReturnPotential, orchestrateDay, advanceArc, buildReturnCustomerConfig, getRecentCrossroadsSummaries } = useNarrativeEngine();
+  const chapterSystem = useChapterSystem();
+
+  // 鏂版墜寮曞绯荤粺
+  const advancedGuides = useAdvancedGuides();
+  const [showHelp, setShowHelp] = useState(false);
+
+  const audioHook = useAudio();
+  const isMuted = audioHook?.isMuted ?? false;
+  const sfxVolume = audioHook?.sfxVolume ?? 0.5;
+  const playSFX = audioHook?.playSFX ?? (() => {});
+  const toggleMute = audioHook?.toggleMute ?? (() => {});
+  const setSfxVolume = audioHook?.setSfxVolume ?? (() => {});
+  const initAudio = audioHook?.initAudio ?? (() => {});
+
+  const cocktailFlow = useCocktailFlow({ playSFX, addToast });
+  const [recipePreview, setRecipePreview] = useState({
+    recipe: { glass: null, ice: null, ingredients: [], garnish: null, decoration: null },
+    totalPortions: 0,
+    maxPortions: 3
+  });
+  const customerFlow = useCustomerFlow();
+  const dialogue = useDialogue();
+  const emotionSystem = useEmotionSystem({ playSFX, showGameHint });
+  const progress = useGameProgress();
+
+  // ==================== 鍏变韩鐘舵€?====================
+
+  const [trustLevel, setTrustLevel] = useState(0.3);
+  const money = appMoney ?? 0;
+  const setMoney = setAppMoney ?? (() => {});
+  const unlockedItems = appUnlockedItems ?? {
+    emotions: INITIAL_UNLOCKED_EMOTIONS,
+    glasses: ['martini'],
+    iceTypes: ['no_ice'],
+    garnishes: [],
+    decorations: []
+  };
+  const setUnlockedItems = setAppUnlockedItems ?? (() => {});
+
+  const aiConfig = customerFlow.currentCustomer?.config || getAIConfig(aiType || 'workplace');
+
+  useEffect(() => {
+    if (!activeSlotId) return;
+    setActiveSlotInRepository(activeSlotId);
+    queueActiveSlotGameStateSync('slot_attached');
+  }, [activeSlotId]);
+
+  useEffect(() => {
+    const npcId = customerFlow.currentCustomer?.id;
+    if (!npcId) return;
+    setActiveNpcId(npcId);
+    ensureNpcProfileInActiveSlot(npcId, customerFlow.currentCustomer?.config || {}).catch(() => {});
+    queueActiveSlotGameStateSync('customer_changed');
+  }, [customerFlow.currentCustomer?.id]);
+
+  const gameViewModel = useMemo(() => createGameViewModel({
+    aiConfig,
+    atmosphere,
+    currentDay: customerFlow.currentDay,
+    currentCustomerIndex: customerFlow.currentCustomerIndex,
+    guessedCorrectly: cocktailFlow.guessedCorrectly,
+    mixture: cocktailFlow.currentMixtureValues,
+    recipePreview,
+    showCocktailResult: cocktailFlow.showCocktailResult,
+    totalCustomers: customerFlow.dailyCustomers.length,
+    trustLevel
+  }), [
+    aiConfig,
+    atmosphere,
+    customerFlow.currentCustomerIndex,
+    customerFlow.currentDay,
+    customerFlow.dailyCustomers.length,
+    cocktailFlow.currentMixtureValues,
+    cocktailFlow.guessedCorrectly,
+    cocktailFlow.showCocktailResult,
+    recipePreview,
+    trustLevel
+  ]);
+
+  // 馃啎 DevPanel 闇€瑕佺殑娓告垙鍐呰皟璇曚笂涓嬫枃锛圓I璐ㄩ噺娴嬭瘯鍙帮級
+  const devGame = {
+    aiConfig,
+    dialogueHistory: dialogue.dialogueHistory || [],
+    emotionState: {
+      surface: (emotionSystem.surfaceEmotions || []).map(e => e.id),
+      reality: emotionSystem.dynamicCustomerEmotions?.reality?.length > 0
+        ? emotionSystem.dynamicCustomerEmotions.reality
+        : (aiConfig?.emotionMask?.reality || [])
+    },
+    mixingMode: chapterSystem.currentChapter?.mixingMode || 'strict',
+    chapterId: chapterSystem.chapterState?.currentChapter,
+    barReputation: devActions?.getWorldState?.()?.barReputation,
+    runChapterCheck: async () => {
+      if (!chapterSystem?.processDayEnd) return;
+      await chapterSystem.processDayEnd(customerFlow.currentDay, {
+        trustLevel,
+        silenceCount: 0,
+        plainWaterCount: 0
+      });
+    },
+    jumpToChapter: (targetChapterId) => {
+      if (!chapterSystem?.devJumpToChapter) return;
+      chapterSystem.devJumpToChapter(targetChapterId, customerFlow.currentDay);
+    },
+    insertReturnCustomerNext: async (returnCustomerId) => {
+      if (!returnCustomerId) return;
+      const pool = devActions?.getReturnCustomers?.() || [];
+      const rc = pool.find(c => c.id === returnCustomerId);
+      if (!rc) return;
+      const cfg = await buildReturnCustomerConfig(rc);
+      const newItem = {
+        id: `${customerFlow.currentDay}-devreturn-${Date.now()}`,
+        type: cfg.categoryId,
+        config: cfg
+      };
+      customerFlow.setDailyCustomers(prev => {
+        const copy = Array.isArray(prev) ? [...prev] : [];
+        const insertAt = Math.min(copy.length, (customerFlow.currentCustomerIndex || 0) + 1);
+        copy.splice(insertAt, 0, newItem);
+        return copy;
+      });
+    }
+  };
+
+  customerFlow.switchContextRef.current = {
+    currentDay: customerFlow.currentDay,
+    customersServed: customerFlow.customersServed,
+    gameStats: progress.gameStats,
+    daySuccessCount: customerFlow.daySuccessCountRef.current,
+    dayFailureCount: customerFlow.dayFailureCountRef.current,
+    dayEarnings: customerFlow.dayEarnings,
+    atmosphere
+  };
+
+  // ==================== 缂栨帓涓婁笅鏂?====================
+
+  const ctx = {
+    tutorial, progress, customerFlow, dialogue, emotionSystem,
+    cocktailFlow, achievements, chapterSystem, advancedGuides,
+    playSFX, addToast, showGameHint, initAudio,
+    aiConfig, aiType, trustLevel, setTrustLevel,
+    money, setMoney, unlockedItems, setUnlockedItems,
+    atmosphere, generateAtmosphere,
+    showAtmosphereOverlay, dismissAtmosphereOverlay,
+    showEventNotification, currentEvent,
+    dailyEventCount, triggerEvent, shouldTriggerEvent,
+    handleEventChoice, dismissEvent, applyAtmosphereChange,
+    resetDailyEvents, updateStreak, clearCustomerRestrictions,
+    checkPendingChains, tryStartChain,
+    generateDailyMemoryRecord, recordCustomer, advanceArc,
+    evaluateReturnPotential, orchestrateDay, buildReturnCustomerConfig,
+    getRecentCrossroadsSummaries,
+    preloadedFirstCustomer, onCustomerUsed,
+    currentAchievementNotif, setCurrentAchievementNotif
+  };
+
+  // ==================== 涓氬姟 Hooks ====================
+
+  const handlers = useGameHandlers(ctx);
+
+  // 灏?handlers 涔熷姞鍒?ctx 涓緵 useGameInit 鍜?useAutoTest 浣跨敤
+  ctx.resetForNewCustomer = handlers.resetForNewCustomer;
+  ctx.startConversation = handlers.startConversation;
+  ctx.startNewDay = handlers.startNewDay;
+  ctx.handleEventChoiceAction = handlers.handleEventChoiceAction;
+  ctx.handleEventDismissAction = handlers.handleEventDismissAction;
+  ctx.handleServeCocktail = handlers.handleServeCocktail;
+
+  const mixingSession = useMixingSession({
+    resetKey: `${customerFlow.currentDay}:${customerFlow.currentCustomerIndex}:${cocktailFlow.guessedCorrectly ? 'mixing' : 'locked'}`,
+    targetConditions: cocktailFlow.targetConditions,
+    onServeCocktail: handlers.handleServeCocktail,
+    unlockedGlasses: unlockedItems.glasses || ['martini'],
+    unlockedIceTypes: unlockedItems.iceTypes || ['no_ice'],
+    unlockedIngredients: unlockedItems.ingredients || INITIAL_UNLOCKED_INGREDIENTS,
+    unlockedGarnishes: unlockedItems.garnishes || [],
+    unlockedDecorations: unlockedItems.decorations || [],
+    onMixtureChange: cocktailFlow.setCurrentMixtureValues,
+    onRecipeChange: setRecipePreview,
+    restrictions: activeRestrictions
+  });
+
+  useGameInit(ctx);
+  const { handleAutoTest } = useAutoTest(ctx);
+
+  // ==================== 瑕嗙洊灞備紭鍏堢骇绠＄悊 ====================
+  // 鍚屼竴鏃堕棿鍙樉绀轰紭鍏堢骇鏈€楂樼殑鍏ㄥ睆瑕嗙洊灞傦紝閬垮厤澶氫釜椤甸潰浜掔浉閬尅
+  const activeOverlay = (() => {
+    if (chapterSystem.pendingEnding) return 'ending';
+    if (chapterSystem.pendingChapterTransition) return 'chapter_transition';
+    if (chapterSystem.pendingFragment) return 'memory_fragment';
+    if (tutorial.showTutorialComplete) return 'tutorial_complete';
+    if (customerFlow.showDayTransition) return 'day_transition';
+    if (customerFlow.showDayEnd) return 'day_end';
+    if (customerFlow.showReturnCustomerOverlay) return 'return_customer';
+    if (customerFlow.showCustomerLeave) return 'customer_leave';
+    if (customerFlow.showCustomerEnter) return 'customer_enter';
+    return null;
+  })();
+
+  // ==================== 娓叉煋 ====================
+
+  // 澶╂暟杞満鍔ㄧ敾锛堢嫭绔嬩簬鍔犺浇/娓告垙鍒嗘敮锛岄伩鍏嶉噸澶嶆寕杞藉鑷存挱鏀句袱娆★級
+  const dayTransitionOverlay = activeOverlay === 'day_transition' ? (
+    <div className="day-transition-overlay" key="day-transition">
+      <div className="day-transition-text">{customerFlow.dayTransitionText}</div>
+      <div className="day-transition-line"></div>
+    </div>
+  ) : null;
+  // ???????????????
+  const hasHighPriorityOverlay = ['ending', 'chapter_transition', 'memory_fragment', 'tutorial_complete', 'day_transition'].includes(activeOverlay);
+
+  if ((!customerFlow.isGameReady || customerFlow.dailyCustomers.length === 0 || customerFlow.isLoadingCustomers) && !hasHighPriorityOverlay) {
+    return (
+      <div className="game-page">
+        <AmbientGameCanvas viewModel={gameViewModel} />
+        <div className="game-page-ui">
+          <GameLoadingScreen isLoadingCustomers={customerFlow.isLoadingCustomers} progress={customerFlow.customerLoadingProgress} />
+          <AtmosphereOverlay atmosphere={atmosphere} day={customerFlow.currentDay} onStart={dismissAtmosphereOverlay} isVisible={showAtmosphereOverlay && !customerFlow.isLoadingCustomers} />
+          {dayTransitionOverlay}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="game-page">
+      <AmbientGameCanvas viewModel={gameViewModel} />
+      <div className="game-page-ui">
+      <AtmosphereOverlay atmosphere={atmosphere} day={customerFlow.currentDay} onStart={dismissAtmosphereOverlay} isVisible={showAtmosphereOverlay} />
+      <EventNotification event={currentEvent} onChoice={handlers.handleEventChoiceAction} onDismiss={handlers.handleEventDismissAction} isVisible={showEventNotification} />
+
+      <GameHeader
+        onBack={onBack} onShowRules={() => progress.setShowRules(true)} currentDay={customerFlow.currentDay} money={money}
+        aiConfig={aiConfig} customerSuccessCount={customerFlow.customerSuccessCount} customerCocktailCount={customerFlow.customerCocktailCount}
+        currentCustomerIndex={customerFlow.currentCustomerIndex} totalCustomers={customerFlow.dailyCustomers.length}
+        isMuted={isMuted} toggleMute={toggleMute} sfxVolume={sfxVolume} setSfxVolume={setSfxVolume} playSFX={playSFX} atmosphere={atmosphere}
+        barLevelInfo={chapterSystem.getBarLevelInfo()}
+        chapterInfo={chapterSystem.currentChapter}
+        onShowHelp={() => setShowHelp(true)}
+      />
+
+      <div className={`game-content ${cocktailFlow.guessedCorrectly ? 'mixing-mode' : ''}`}>
+        <div className="left-section">
+          {!cocktailFlow.guessedCorrectly ? (
+            <ChatPanel
+              aiConfig={aiConfig} trustLevel={trustLevel} dialogueHistory={dialogue.dialogueHistory}
+              onSendMessage={handlers.handleSendMessage} quickOptions={dialogue.quickOptions} isLoading={dialogue.isLoading}
+            />
+          ) : (
+            <BartenderPanel
+              session={mixingSession}
+              targetConditions={cocktailFlow.targetConditions} targetHint={cocktailFlow.targetHint}
+              unlockedGlasses={unlockedItems.glasses || ['martini']}
+              unlockedIceTypes={unlockedItems.iceTypes || ['no_ice']}
+              unlockedGarnishes={unlockedItems.garnishes || []}
+              unlockedDecorations={unlockedItems.decorations || []}
+              disabled={false} hideTargetInPanel={true}
+              mixingMode={chapterSystem.currentChapter?.mixingMode || 'strict'}
+            />
+          )}
+        </div>
+
+        <div className="right-section">
+          {cocktailFlow.guessedCorrectly ? (
+            <div className="target-section">
+              {['strict', 'transitional'].includes(chapterSystem.currentChapter?.mixingMode || 'strict') && (
+                <TargetDisplay currentValues={cocktailFlow.currentMixtureValues} conditions={cocktailFlow.targetConditions} showHint={true} />
+              )}
+              <CocktailPreview
+                recipe={recipePreview.recipe}
+                totalPortions={recipePreview.totalPortions}
+                maxPortions={recipePreview.maxPortions}
+              />
+            </div>
+          ) : (
+            <div className={`emotion-section emotion-section-full ${cocktailFlow.emotionFlash} ${cocktailFlow.emotionCardAnim}`} style={{ position: 'relative', flex: 1 }}>
+              {aiConfig?.isReturnCustomer && (
+                <SharedMemoryPanel
+                  sharedHistory={aiConfig.sharedHistory} intimacy={aiConfig.intimacy || 0}
+                  currentPhase={aiConfig.characterArc?.currentPhase || 'introduction'}
+                  crossroads={aiConfig.crossroads}
+                />
+              )}
+              {tutorial.isTutorialMode && !tutorial.visibleAreas.includes('emotion') && (
+                <div className="tutorial-section-mask"><div className="mask-label">?? ???????</div></div>
+              )}
+              <EmotionPanel
+                surfaceEmotions={emotionSystem.surfaceEmotions} realEmotions={[]}
+                emotionHints={tutorial.isTutorialMode && tutorial.tutorialPhase !== 'dialogue' ? [
+                  { emotionId: 'pressure', hint: '馃挱 椤惧鑲╀笂浼间箮鍘嬬潃閲嶆媴......', level: 'medium' },
+                  { emotionId: 'loneliness', hint: '馃挱 椤惧韬笂鏈夌鐤忕鎰?.....', level: 'medium' }
+                ] : emotionSystem.emotionHints}
+                trustLevel={trustLevel}
+                onEmotionSelect={emotionSystem.handleEmotionSelect}
+                selectedEmotions={emotionSystem.selectedEmotions}
+                unlockedEmotions={tutorial.isTutorialMode ? TUTORIAL_VISIBLE_EMOTIONS : unlockedItems.emotions}
+                dialogueClues={emotionSystem.observedClues}
+                guessReadiness={cocktailFlow.guessReadiness}
+                customerRealEmotions={emotionSystem.dynamicCustomerEmotions.reality.length > 0
+                  ? emotionSystem.dynamicCustomerEmotions.reality : (aiConfig?.emotionMask?.reality || [])}
+                guessMode={cocktailFlow.emotionGuessMode}
+                guessedCorrectly={cocktailFlow.guessedCorrectly}
+                onStartGuess={() => cocktailFlow.handleStartEmotionGuess(trustLevel, cocktailFlow.guessReadiness)}
+                onCancelGuess={() => { cocktailFlow.handleCancelGuess(); emotionSystem.setSelectedEmotions([]); }}
+                onConfirmGuess={handlers.handleConfirmGuess}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 淇′换搴﹂瀛?*/}
+      {cocktailFlow.trustFlies.map(fly => (
+        <div key={fly.id} className={`trust-fly ${fly.positive ? 'positive' : 'negative'}`}>{fly.text}</div>
+      ))}
+
+      {/* Toast */}
+      {toastList.map(toast => (
+        <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />
+      ))}
+
+      <GameHintPanel hint={gameHint} onClose={closeGameHint} />
+      <AchievementNotification achievement={currentAchievementNotif} onClose={() => setCurrentAchievementNotif(null)} isVisible={!!currentAchievementNotif} />
+      {progress.showRules && <RulesModal onClose={() => progress.setShowRules(false)} />}
+
+      {cocktailFlow.showServeAnim && <div className="serve-animation">馃嵏</div>}
+
+      {cocktailFlow.showCocktailResult && (
+        <div className={`cocktail-result-card ${cocktailFlow.showCocktailResult.isSuccess ? 'success' : ''}`}>
+          <div className="result-icon">{cocktailFlow.showCocktailResult.isSuccess ? '🍸' : '💭'}</div>
+          <div className="result-title">{cocktailFlow.showCocktailResult.isSuccess ? '这杯酒送达了' : '这杯酒还没共鸣'}</div>
+          <div className="result-stats">
+            <div className={`result-stat ${(cocktailFlow.showCocktailResult.targetCheck?.results || []).some(c => c.attr === 'thickness' && !c.met) ? 'unmet' : 'met'}`}>
+              <span className="result-stat-label">稠度</span><span className="result-stat-value">{cocktailFlow.showCocktailResult.mixture.thickness?.toFixed(1) || '0'}</span>
+            </div>
+            <div className={`result-stat ${(cocktailFlow.showCocktailResult.targetCheck?.results || []).some(c => c.attr === 'sweetness' && !c.met) ? 'unmet' : 'met'}`}>
+              <span className="result-stat-label">甜度</span><span className="result-stat-value">{cocktailFlow.showCocktailResult.mixture.sweetness?.toFixed(1) || '0'}</span>
+            </div>
+            <div className={`result-stat ${(cocktailFlow.showCocktailResult.targetCheck?.results || []).some(c => c.attr === 'strength' && !c.met) ? 'unmet' : 'met'}`}>
+              <span className="result-stat-label">烈度</span><span className="result-stat-value">{cocktailFlow.showCocktailResult.mixture.strength?.toFixed(1) || '0'}</span>
+            </div>
+          </div>
+          <div className="result-recipe-summary">
+            {GLASS_TYPES[cocktailFlow.showCocktailResult.glass]?.icon} {GLASS_TYPES[cocktailFlow.showCocktailResult.glass]?.name || ''}
+            {cocktailFlow.showCocktailResult.ingredients?.length > 0 && ` · ${cocktailFlow.showCocktailResult.ingredients.length} 种原液`}
+          </div>
+          {cocktailFlow.showCocktailResult.judgment && (
+            <div className="result-judgment">
+              <span className="judgment-mode">模式：{({ strict: '严格', transitional: '过渡', expressive: '共鸣', master: '大师' })[cocktailFlow.showCocktailResult.judgment.mixingMode] || cocktailFlow.showCocktailResult.judgment.mixingMode || '-'}</span>
+              {cocktailFlow.showCocktailResult.judgment.resonanceLabel && (
+                <span className="judgment-resonance"> · 共鸣：{cocktailFlow.showCocktailResult.judgment.resonanceLabel}</span>
+              )}
+              {cocktailFlow.showCocktailResult.judgment.method && (
+                <span className="judgment-method"> · 判定：{({ numeric: '数值', hybrid: '混合', resonance: '共鸣' })[cocktailFlow.showCocktailResult.judgment.method] || cocktailFlow.showCocktailResult.judgment.method}</span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ==================== 鍏ㄥ睆瑕嗙洊灞傦紙浜掓枼锛屾寜浼樺厛绾у彧鏄剧ず涓€涓級 ==================== */}
+
+      {activeOverlay === 'customer_enter' && (
+        <div className="customer-enter-overlay">
+          <div className="enter-avatar">
+            <CustomerAvatar avatarBase64={aiConfig?.avatarBase64} emoji={aiConfig?.avatar || '馃懁'} size={64} customerId={aiConfig?.id || aiConfig?.avatarCacheKey} />
+          </div>
+        </div>
+      )}
+
+      {activeOverlay === 'customer_leave' && <CustomerLeaveOverlay aiConfig={aiConfig} trustLevel={trustLevel} />}
+
+      {dayTransitionOverlay}
+
+      {activeOverlay === 'day_end' && (
+        <DayEndModal
+          currentDay={customerFlow.currentDay} customersServed={customerFlow.customersServed}
+          successCount={progress.gameStats.successCount} dayEarnings={customerFlow.dayEarnings}
+          totalMoney={money} onStartNewDay={handlers.startNewDay} unlockedItems={unlockedItems}
+          onShopPurchase={handlers.handleShopPurchase} dailyMemory={customerFlow.dailyMemory}
+        />
+      )}
+
+      {/* 鏁欏鎻愮ず锛堝皬鍨嬶紝涓嶅崰鍏ㄥ睆锛屽彲涓庡叾浠栧叡瀛橈級 */}
+      {tutorial.isTutorialMode && tutorial.activeTooltip && !activeOverlay && (
+        <TutorialTooltip tooltipId={tutorial.activeTooltip} position="bottom" onDismiss={tutorial.dismissTooltip} />
+      )}
+
+      {activeOverlay === 'tutorial_complete' && (
+        <TutorialCompleteModal onContinue={() => { tutorial.completeTutorial(); handlers.startNewDay(); }} />
+      )}
+
+      {/* 鐏绯荤粺鍙犲姞灞?*/}
+      {activeOverlay === 'chapter_transition' && (
+        <ChapterTransition
+          chapter={chapterSystem.pendingChapterTransition.chapter}
+          openingNarrative={chapterSystem.pendingChapterTransition.openingNarrative}
+          onComplete={chapterSystem.dismissChapterTransition}
+        />
+      )}
+
+      {activeOverlay === 'memory_fragment' && (
+        <MemoryFragment
+          fragment={chapterSystem.pendingFragment}
+          onDismiss={chapterSystem.dismissFragment}
+        />
+      )}
+
+      {activeOverlay === 'ending' && (
+        <EndingScreen
+          narrative={chapterSystem.pendingEnding.narrative}
+          onFreeMode={() => chapterSystem.enterFreeMode()}
+          onNewGame={() => { clearAllCache(); window.location.reload(); }}
+        />
+      )}
+
+      {/* 杩涢樁寮曞寮圭獥锛堜粎鍦ㄦ病鏈夊叏灞忚鐩栧眰鏃舵樉绀猴級 */}
+      {!activeOverlay && advancedGuides.currentGuide && (
+        <AdvancedGuidePopup guide={advancedGuides.currentGuide} onDismiss={advancedGuides.dismissGuide} />
+      )}
+
+      {/* 甯姪闈㈡澘锛堢敤鎴蜂富鍔ㄦ墦寮€锛屽彲瑕嗙洊鍏朵粬锛?*/}
+      {showHelp && <HelpPanel onClose={() => setShowHelp(false)} />}
+
+      <DevPanel
+        isVisible={devModeVisible} onClose={() => setDevModeVisible?.(false)}
+        money={money} setMoney={setMoney} unlockedItems={unlockedItems} setUnlockedItems={setUnlockedItems}
+        trustLevel={trustLevel} setTrustLevel={setTrustLevel}
+        currentDay={customerFlow.currentDay} setCurrentDay={customerFlow.setCurrentDay}
+        customerRealEmotions={emotionSystem.dynamicCustomerEmotions.reality.length > 0
+          ? emotionSystem.dynamicCustomerEmotions.reality : (aiConfig?.emotionMask?.reality || [])}
+        customerSuccessCount={customerFlow.customerSuccessCount} setCustomerSuccessCount={customerFlow.setCustomerSuccessCount}
+        onSkipCustomer={handlers.handleDevSkipCustomer} devActions={devActions}
+        onAutoTest={handleAutoTest} autoTestRunning={progress.autoTestRunning}
+        guessedCorrectly={cocktailFlow.guessedCorrectly} emotionGuessMode={cocktailFlow.emotionGuessMode}
+        devGame={devGame}
+      />
+      </div>
+    </div>
+  );
+};
+
+export default GamePage;
+
+
+

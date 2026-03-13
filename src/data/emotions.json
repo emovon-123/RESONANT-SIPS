@@ -1,0 +1,494 @@
+{
+  "emotions": {
+    "nostalgia": {
+      "id": "nostalgia",
+      "name": "怀旧",
+      "color": "#9B7EBD",
+      "icon": "🕰️"
+    },
+    "courage": {
+      "id": "courage",
+      "name": "勇气",
+      "color": "#FF6B6B",
+      "icon": "💪"
+    },
+    "loneliness": {
+      "id": "loneliness",
+      "name": "孤独",
+      "color": "#4A4E69",
+      "icon": "🌙"
+    },
+    "relief": {
+      "id": "relief",
+      "name": "释然",
+      "color": "#A8DADC",
+      "icon": "🍃"
+    },
+    "anxiety": {
+      "id": "anxiety",
+      "name": "焦虑",
+      "color": "#E63946",
+      "icon": "⚡"
+    },
+    "calm": {
+      "id": "calm",
+      "name": "平静",
+      "color": "#457B9D",
+      "icon": "🧘"
+    },
+    "regret": {
+      "id": "regret",
+      "name": "遗憾",
+      "color": "#6C757D",
+      "icon": "💔"
+    },
+    "aspiration": {
+      "id": "aspiration",
+      "name": "憧憬",
+      "color": "#FFB703",
+      "icon": "✨"
+    },
+    "pressure": {
+      "id": "pressure",
+      "name": "压力",
+      "color": "#8D0801",
+      "icon": "⚠️"
+    },
+    "dependence": {
+      "id": "dependence",
+      "name": "依赖",
+      "color": "#F77F00",
+      "icon": "🤝"
+    },
+    "confusion": {
+      "id": "confusion",
+      "name": "迷茫",
+      "color": "#8B8C89",
+      "icon": "❓"
+    },
+    "happiness": {
+      "id": "happiness",
+      "name": "开心",
+      "color": "#06FFA5",
+      "icon": "😊"
+    }
+  },
+  "initialUnlockedEmotions": [
+    "nostalgia",
+    "courage",
+    "loneliness",
+    "relief",
+    "anxiety",
+    "calm",
+    "regret",
+    "aspiration",
+    "pressure",
+    "dependence",
+    "confusion",
+    "happiness"
+  ],
+  "emotionHints": {
+    "low": {
+      "nostalgia": "顾客似乎沉浸在某些回忆中...",
+      "courage": "顾客内心似乎有股力量在涌动...",
+      "loneliness": "顾客身上有种疏离感...",
+      "relief": "顾客似乎在试图放下什么...",
+      "anxiety": "顾客内心似乎有些不安...",
+      "calm": "顾客表面下藏着一份宁静...",
+      "regret": "顾客眼中似乎有未完成的心愿...",
+      "aspiration": "顾客眼中闪烁着对未来的期待...",
+      "pressure": "顾客肩上似乎压着重担...",
+      "dependence": "顾客似乎在寻求某种连接...",
+      "confusion": "顾客似乎正处于十字路口...",
+      "happiness": "顾客内心深处藏着快乐..."
+    },
+    "medium": {
+      "nostalgia": "顾客不时露出怀念的神情，似乎在想念过去的某段时光...",
+      "courage": "顾客虽然沉默，但眼神中透着一股不服输的劲头...",
+      "loneliness": "顾客独自来酒吧，眼神偶尔望向远方，像是习惯了独处...",
+      "relief": "顾客说话时语气平缓，像是刚刚放下了心中的石头...",
+      "anxiety": "顾客手指不自觉地敲打吧台，内心的躁动难以掩饰...",
+      "calm": "顾客呼吸平稳，似乎在用平静掩盖着什么情绪...",
+      "regret": "顾客提到过去时总是欲言又止，似乎有遗憾未能释怀...",
+      "aspiration": "顾客偶尔露出憧憬的眼神，仿佛心中有美好的愿景...",
+      "pressure": "顾客眉头紧锁，肩膀微微紧绷，承受着看不见的重压...",
+      "dependence": "顾客提到某些人或事时特别在意，似乎很需要被认可...",
+      "confusion": "顾客说话时常常犹豫，似乎对很多事都拿不定主意...",
+      "happiness": "顾客嘴角偶尔上扬，内心似乎藏着掩饰不住的喜悦..."
+    },
+    "high": {
+      "nostalgia": "💭 顾客心中充满了对往昔的思念，那些旧时光的记忆正在涌现...",
+      "courage": "💪 顾客正在酝酿勇气，准备面对某个重要的挑战...",
+      "loneliness": "🌙 顾客内心深处的孤独感正在显现，渴望被真正理解...",
+      "relief": "🍃 顾客似乎准备好了要释然，想要彻底放下某些执念...",
+      "anxiety": "⚡ 顾客内心的焦虑已经难以掩饰，急需一份安定...",
+      "calm": "🧘 顾客追求的是内心的平静，想要暂时远离纷扰...",
+      "regret": "💔 顾客心中有着深深的遗憾，那些未曾说出口的话...",
+      "aspiration": "✨ 顾客眼中满是对未来的憧憬，心中燃着希望的火焰...",
+      "pressure": "⚠️ 顾客承受着巨大的压力，需要一个释放的出口...",
+      "dependence": "🤝 顾客内心渴望依赖与被依赖的感觉，寻求真正的联结...",
+      "confusion": "❓ 顾客正处于人生的迷茫期，不知该往何处去...",
+      "happiness": "😊 顾客内心其实很开心，只是不太善于表达..."
+    }
+  },
+  "emotionCompatibility": {
+    "compatible": [
+      [
+        "courage",
+        "relief"
+      ],
+      [
+        "calm",
+        "happiness"
+      ],
+      [
+        "aspiration",
+        "courage"
+      ],
+      [
+        "nostalgia",
+        "calm"
+      ],
+      [
+        "relief",
+        "happiness"
+      ],
+      [
+        "courage",
+        "aspiration"
+      ]
+    ],
+    "conflict": [
+      [
+        "loneliness",
+        "anxiety"
+      ],
+      [
+        "pressure",
+        "anxiety"
+      ],
+      [
+        "regret",
+        "confusion"
+      ],
+      [
+        "loneliness",
+        "pressure"
+      ],
+      [
+        "anxiety",
+        "confusion"
+      ],
+      [
+        "regret",
+        "loneliness"
+      ]
+    ]
+  },
+  "glassTypes": {
+    "martini": {
+      "id": "martini",
+      "name": "马提尼杯（中杯）",
+      "icon": "🍸",
+      "price": 0,
+      "bonus": [
+        "courage",
+        "calm",
+        "relief"
+      ],
+      "description": "经典优雅，适合理性情绪",
+      "maxPortions": 2,
+      "feeling": "这种杯子要求你直视它——没有地方躲"
+    },
+    "highball": {
+      "id": "highball",
+      "name": "高球杯（大杯）",
+      "icon": "🥃",
+      "price": 100,
+      "bonus": [
+        "happiness",
+        "aspiration",
+        "nostalgia"
+      ],
+      "description": "轻松随意，适合积极情绪",
+      "maxPortions": 3,
+      "feeling": "这种杯子不急，慢慢喝，慢慢说"
+    },
+    "rock": {
+      "id": "rock",
+      "name": "古典杯（中杯）",
+      "icon": "🥛",
+      "price": 150,
+      "bonus": [
+        "loneliness",
+        "regret",
+        "confusion"
+      ],
+      "description": "沉稳厚重，适合复杂情绪",
+      "maxPortions": 2,
+      "feeling": "这种杯子像一个承诺——分量不大但很重"
+    },
+    "coupe": {
+      "id": "coupe",
+      "name": "浅碟香槟杯（大杯）",
+      "icon": "🍷",
+      "price": 200,
+      "bonus": [
+        "aspiration",
+        "happiness",
+        "courage"
+      ],
+      "description": "浪漫梦幻，适合憧憬情绪",
+      "maxPortions": 3,
+      "feeling": "这种杯子像一个邀请——请你抬起头来"
+    },
+    "copper_mug": {
+      "id": "copper_mug",
+      "name": "铜制驴子杯（中杯）",
+      "icon": "🥤",
+      "price": 180,
+      "bonus": [
+        "nostalgia",
+        "loneliness",
+        "regret"
+      ],
+      "description": "复古风格，适合怀旧与沉思情绪",
+      "maxPortions": 2,
+      "feeling": "这种杯子属于另一个时代——握着它就会想起从前"
+    },
+    "skull": {
+      "id": "skull",
+      "name": "骷髅杯（超大杯）",
+      "icon": "💀",
+      "price": 250,
+      "bonus": [
+        "regret",
+        "loneliness",
+        "pressure"
+      ],
+      "description": "暗黑神秘，适合深沉复杂情绪",
+      "maxPortions": 4,
+      "feeling": "这种杯子不是用来喝酒的，是用来对峙的"
+    },
+    "hurricane": {
+      "id": "hurricane",
+      "name": "飓风杯（超大杯）",
+      "icon": "🌊",
+      "price": 220,
+      "bonus": [
+        "anxiety",
+        "pressure",
+        "courage"
+      ],
+      "description": "曲线优美，适合情绪波动时刻",
+      "maxPortions": 4,
+      "feeling": "这种杯子能装下很多——但也意味着你得全部喝完"
+    }
+  },
+  "emotionTargets": {
+    "nostalgia": {
+      "id": "nostalgia",
+      "conditions": [
+        {
+          "attr": "thickness",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "attr": "sweetness",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "hint": "怀旧需要醇厚且带甜蜜的酒，唤起温暖的回忆",
+      "description": "浓稠度≥1，甜度≥1"
+    },
+    "courage": {
+      "id": "courage",
+      "conditions": [
+        {
+          "attr": "strength",
+          "op": ">=",
+          "value": 2
+        },
+        {
+          "attr": "sweetness",
+          "op": "<=",
+          "value": 1
+        }
+      ],
+      "hint": "勇气需要烈度够高、不太甜的酒，激发内心力量",
+      "description": "烈度≥2，甜度≤1"
+    },
+    "loneliness": {
+      "id": "loneliness",
+      "conditions": [
+        {
+          "attr": "strength",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "attr": "sweetness",
+          "op": "<=",
+          "value": 0
+        }
+      ],
+      "hint": "孤独需要有点烈度、偏苦涩的酒，陪伴漫漫长夜",
+      "description": "烈度≥1，甜度≤0"
+    },
+    "relief": {
+      "id": "relief",
+      "conditions": [
+        {
+          "attr": "thickness",
+          "op": "<=",
+          "value": 1
+        },
+        {
+          "attr": "strength",
+          "op": "<=",
+          "value": 2
+        }
+      ],
+      "hint": "释然需要清爽不腻、适中酒精的酒，轻松放下",
+      "description": "浓稠度≤1，烈度≤2"
+    },
+    "anxiety": {
+      "id": "anxiety",
+      "conditions": [
+        {
+          "attr": "strength",
+          "op": ">=",
+          "value": 2
+        },
+        {
+          "attr": "thickness",
+          "op": "<=",
+          "value": 1
+        }
+      ],
+      "hint": "焦虑需要高烈度、清爽的酒，麻痹紧张的神经",
+      "description": "烈度≥2，浓稠度≤1"
+    },
+    "calm": {
+      "id": "calm",
+      "conditions": [
+        {
+          "attr": "thickness",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "attr": "strength",
+          "op": "<=",
+          "value": 1
+        }
+      ],
+      "hint": "平静需要醇厚、低酒精的酒，让心沉淀下来",
+      "description": "浓稠度≥1，烈度≤1"
+    },
+    "regret": {
+      "id": "regret",
+      "conditions": [
+        {
+          "attr": "sweetness",
+          "op": "<=",
+          "value": 0
+        },
+        {
+          "attr": "thickness",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "hint": "遗憾需要苦涩厚重的酒，品味人生的不完美",
+      "description": "甜度≤0，浓稠度≥1"
+    },
+    "aspiration": {
+      "id": "aspiration",
+      "conditions": [
+        {
+          "attr": "sweetness",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "attr": "strength",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "hint": "憧憬需要甜蜜且有劲的酒，燃起希望的火焰",
+      "description": "甜度≥1，烈度≥1"
+    },
+    "pressure": {
+      "id": "pressure",
+      "conditions": [
+        {
+          "attr": "strength",
+          "op": ">=",
+          "value": 3
+        },
+        {
+          "attr": "sweetness",
+          "op": "<=",
+          "value": 0
+        }
+      ],
+      "hint": "压力需要极烈且苦涩的酒，释放积压的重担",
+      "description": "烈度≥3，甜度≤0"
+    },
+    "dependence": {
+      "id": "dependence",
+      "conditions": [
+        {
+          "attr": "sweetness",
+          "op": ">=",
+          "value": 2
+        },
+        {
+          "attr": "thickness",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "hint": "依赖需要甜蜜浓稠的酒，给予温暖的慰藉",
+      "description": "甜度≥2，浓稠度≥1"
+    },
+    "confusion": {
+      "id": "confusion",
+      "conditions": [
+        {
+          "attr": "strength",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "attr": "strength",
+          "op": "<=",
+          "value": 2
+        }
+      ],
+      "hint": "迷茫需要适中酒精的酒，不太清醒也不太醉",
+      "description": "烈度在1-2之间"
+    },
+    "happiness": {
+      "id": "happiness",
+      "conditions": [
+        {
+          "attr": "sweetness",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "attr": "thickness",
+          "op": "<=",
+          "value": 2
+        }
+      ],
+      "hint": "开心需要甜蜜清爽的酒，分享快乐的心情",
+      "description": "甜度≥1，浓稠度≤2"
+    }
+  }
+}

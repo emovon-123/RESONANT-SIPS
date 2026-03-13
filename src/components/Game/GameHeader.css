@@ -1,0 +1,328 @@
+/* ========================================
+   游戏顶部导航栏（精简版）
+   ======================================== */
+
+/* ---- 帮助图标按钮 ---- */
+.header-icon-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(6, 255, 165, 0.15), rgba(0, 200, 150, 0.15));
+  border: 1px solid rgba(6, 255, 165, 0.35);
+  border-radius: 50%;
+  color: var(--color-primary, #06FFA5);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.header-icon-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(6, 255, 165, 0.25);
+  background: linear-gradient(135deg, rgba(6, 255, 165, 0.25), rgba(0, 200, 150, 0.25));
+}
+
+/* ---- 三栏布局 ---- */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.header-left .back-button {
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ---- 顾客进度（紧凑版） ---- */
+.customer-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.customer-avatar-mini {
+  display: flex;
+  align-items: center;
+}
+
+.customer-name-mini {
+  font-size: 13px;
+  color: #fff;
+  font-weight: 600;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-badge {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+}
+
+/* ---- 氛围指示器（折叠版） ---- */
+.atmo-compact {
+  position: relative;
+}
+
+.atmo-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 10px;
+  font-size: 18px;
+  cursor: default;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.atmo-compact:hover .atmo-icon-btn {
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.atmo-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  background: var(--color-primary, #06FFA5);
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(6, 255, 165, 0.5);
+}
+
+.atmo-detail-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(26, 26, 58, 0.98), rgba(10, 10, 26, 0.98));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  animation: atmoDetailIn 0.15s ease;
+}
+
+@keyframes atmoDetailIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.atmo-detail-row {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.atmo-detail-modifiers {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.atmo-modifier-tag {
+  padding: 3px 8px;
+  background: rgba(6, 255, 165, 0.15);
+  border: 1px solid rgba(6, 255, 165, 0.3);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--color-primary, #06FFA5);
+  font-weight: 600;
+}
+
+/* ---- 酒吧等级展示 ---- */
+.bar-reputation-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background: rgba(147, 130, 220, 0.1);
+  border: 1px solid rgba(147, 130, 220, 0.25);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.bar-reputation-display:hover {
+  border-color: rgba(147, 130, 220, 0.45);
+  background: rgba(147, 130, 220, 0.15);
+}
+
+.bar-level-name {
+  font-size: 12px;
+  color: rgba(147, 130, 220, 0.9);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bar-reputation-bar {
+  width: 60px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.bar-reputation-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(147, 130, 220, 0.6), #9382dc);
+  border-radius: 2px;
+  transition: width 0.8s ease;
+  box-shadow: 0 0 6px rgba(147, 130, 220, 0.4);
+}
+
+.chapter-badge {
+  font-size: 10px;
+  color: rgba(147, 130, 220, 0.6);
+  padding: 2px 6px;
+  background: rgba(147, 130, 220, 0.1);
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* ---- 响应式 ---- */
+@media (max-width: 768px) {
+  .header-center {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .customer-name-mini {
+    max-width: 60px;
+  }
+
+  .atmo-detail-panel {
+    right: -10px;
+  }
+}
+
+/* ========================================
+   UI Refresh Showcase - Header
+   ======================================== */
+
+.header-left,
+.header-center,
+.header-right {
+  gap: 10px;
+}
+
+.header-icon-btn,
+.customer-compact,
+.bar-reputation-display,
+.atmo-icon-btn {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.customer-name-mini,
+.bar-level-name {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+}
+
+.queue-badge,
+.chapter-badge {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.atmo-detail-panel {
+  background: linear-gradient(180deg, rgba(7, 12, 20, 0.98), rgba(8, 10, 16, 0.94));
+  border: 1px solid rgba(103, 196, 255, 0.18);
+  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.28);
+}
+
+/* ========================================
+   UI Polish V2 - Header (Restrained)
+   ======================================== */
+
+.header-left,
+.header-center,
+.header-right {
+  gap: 8px;
+}
+
+.header-icon-btn {
+  background: linear-gradient(135deg, rgba(6, 255, 165, 0.15), rgba(0, 200, 150, 0.15));
+  border: 1px solid rgba(6, 255, 165, 0.35);
+}
+
+.customer-compact {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+.customer-name-mini,
+.bar-level-name {
+  font-family: inherit;
+  letter-spacing: 0;
+}
+
+.bar-reputation-display {
+  background: rgba(147, 130, 220, 0.1);
+  border: 1px solid rgba(147, 130, 220, 0.25);
+  box-shadow: none;
+}
+
+.queue-badge,
+.chapter-badge {
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+}
+
+.atmo-icon-btn {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  box-shadow: none;
+}
+
+.atmo-detail-panel {
+  background: linear-gradient(135deg, rgba(26, 26, 58, 0.98), rgba(10, 10, 26, 0.98));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
