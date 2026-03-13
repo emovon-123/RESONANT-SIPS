@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
-    port: 3000,
+    port: 5173,
     allowedHosts: ['.ngrok-free.dev', '.ngrok.io'],
     // 配置代理，解决Google API访问问题
     proxy: {
