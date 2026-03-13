@@ -76,5 +76,5 @@ npm run preview
 
 ## Notes
 
-- The design document directory `docs/design/` is in `.gitignore`.
-- `.env` and `.env.local` are also ignored and will not be committed by default.
+- The runtime save slots directory `saves/` is ignored by Git, keeping only the folder structure. Your local game saves will not be committed.
+- `.env`, `.env.local` and other sensitive config files are in `.gitignore` to keep your API keys secure and will not be committed.
