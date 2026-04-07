@@ -40,3 +40,9 @@ docs/design/
 # runtime save slots
 saves/*
 !saves/.gitkeep
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
