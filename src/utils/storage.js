@@ -5,6 +5,26 @@ import {
   queueActiveSlotGameStateSync,
   saveNpcMemory
 } from './saveRepository.js';
+import { GLASS_TYPES } from '../data/emotions.js';
+import { ICE_TYPES, GARNISH_TYPES, DECORATION_TYPES } from '../data/addons.js';
+import { INGREDIENTS } from '../data/ingredients.js';
+import { ALL_CUSTOMER_TYPES } from '../data/aiCustomers.js';
+
+const ALL_EMOTION_IDS = [
+  'nostalgia', 'courage', 'loneliness', 'relief', 'anxiety', 'calm',
+  'regret', 'aspiration', 'pressure', 'dependence', 'confusion', 'happiness'
+];
+
+const buildFullyUnlockedItems = (base = {}) => ({
+  emotions: [...ALL_EMOTION_IDS],
+  glasses: Object.keys(GLASS_TYPES),
+  iceTypes: Object.keys(ICE_TYPES),
+  garnishes: Object.keys(GARNISH_TYPES),
+  decorations: Object.keys(DECORATION_TYPES),
+  ingredients: Object.keys(INGREDIENTS),
+  aiCustomers: ALL_CUSTOMER_TYPES,
+  successCount: Number(base.successCount || 0)
+});
 
 const STORAGE_KEYS = {
   SHORT_MEMORY: 'bartender_short_memory',  // 短期记忆
@@ -218,39 +238,15 @@ export const saveUnlockedItems = (items) => {
 
 export const getUnlockedItems = () => {
   try {
-    const defaultUnlocked = {
-      // 默认解锁所有12种情绪
-      emotions: ['nostalgia', 'courage', 'loneliness', 'relief', 'anxiety', 'calm', 'regret', 'aspiration', 'pressure', 'dependence', 'confusion', 'happiness'],
-      glasses: ['martini'],      // 初始解锁1种杯型，其他需购买
-      iceTypes: ['no_ice'],      // 初始无冰免费，其他需购买
-      garnishes: [],             // 配料全部需购买解锁
-      decorations: [],           // 装饰全部需购买解锁
-      ingredients: ['vodka', 'juice_orange', 'juice_lemon', 'soda', 'syrup'], // 初始解锁5种原浆
-      aiCustomers: ['workplace'], // 初始解锁1个AI
-      successCount: 0
-    };
+    const defaultUnlocked = buildFullyUnlockedItems();
     const unlocked = JSON.parse(localStorage.getItem(STORAGE_KEYS.UNLOCKED_ITEMS) || 'null');
-    
-    // 兼容旧版本数据：如果缺少新字段，补充默认值
+
+    // 全量提前解锁：旧存档也强制补全为全解锁，仅保留 successCount
     if (unlocked) {
-      // 确保情绪列表完整（默认解锁全部12种）
-      if (!unlocked.emotions || unlocked.emotions.length < 12) {
-        unlocked.emotions = defaultUnlocked.emotions;
-      }
-      if (!unlocked.iceTypes) unlocked.iceTypes = ['no_ice'];
-      if (!unlocked.garnishes) unlocked.garnishes = [];
-      if (!unlocked.decorations) unlocked.decorations = [];
-      // 🆕 确保原浆列表存在（兼容旧存档）
-      if (!unlocked.ingredients) {
-        unlocked.ingredients = defaultUnlocked.ingredients;
-      }
-      // 如果旧版本有多个杯子，保留，但新玩家只有1个
-      if (!unlocked.glasses || unlocked.glasses.length === 0) {
-        unlocked.glasses = ['martini'];
-      }
+      return buildFullyUnlockedItems(unlocked);
     }
-    
-    return unlocked || defaultUnlocked;
+
+    return defaultUnlocked;
   } catch (error) {
     console.error('读取解锁内容失败:', error);
     return null;

@@ -22,7 +22,6 @@ import './App.css';
 const GamePage = lazy(() => import('./pages/GamePage.jsx'));
 const EncyclopediaPage = lazy(() => import('./pages/EncyclopediaPage.jsx'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'));
-const ShopPage = lazy(() => import('./pages/ShopPage.jsx'));
 const SaveSlotsPage = lazy(() => import('./pages/SaveSlotsPage.jsx'));
 const DevPanel = lazy(() => import('./components/DevMode/DevPanel.jsx'));
 
@@ -189,29 +188,6 @@ function App() {
     }
   }, [checkAIConnectivity]);
 
-  const handleShopPurchase = useCallback((itemType, itemId, price) => {
-    if (money < price) {
-      return false;
-    }
-
-    setMoney((prev) => prev - price);
-    setUnlockedItems((prev) => {
-      const nextUnlocked = { ...prev };
-
-      if (!nextUnlocked[itemType]) {
-        nextUnlocked[itemType] = [];
-      }
-
-      if (!nextUnlocked[itemType].includes(itemId)) {
-        nextUnlocked[itemType].push(itemId);
-      }
-
-      return nextUnlocked;
-    });
-
-    return true;
-  }, [money]);
-
   const handleNewGame = useCallback(async () => {
     if (isEnteringGame) return;
 
@@ -284,7 +260,6 @@ function App() {
             setMoney={setMoney}
             unlockedItems={unlockedItems}
             setUnlockedItems={setUnlockedItems}
-            onShopPurchase={handleShopPurchase}
             devModeVisible={devModeVisible}
             setDevModeVisible={setDevModeVisible}
             devActions={devActions}
@@ -296,15 +271,6 @@ function App() {
         return <EncyclopediaPage onBack={handleBackToHome} />;
       case 'settings':
         return <SettingsPage onBack={handleBackToHome} />;
-      case 'shop':
-        return (
-          <ShopPage
-            onBack={handleBackToHome}
-            money={money}
-            unlockedItems={unlockedItems}
-            onShopPurchase={handleShopPurchase}
-          />
-        );
       default:
         return (
           <HomePage

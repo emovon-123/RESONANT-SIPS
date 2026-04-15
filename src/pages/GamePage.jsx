@@ -84,7 +84,6 @@ const GamePage = ({
   setMoney: setAppMoney,
   unlockedItems: appUnlockedItems,
   setUnlockedItems: setAppUnlockedItems,
-  onShopPurchase,
   devModeVisible,
   setDevModeVisible,
   devActions,
@@ -495,7 +494,7 @@ const GamePage = ({
           currentDay={customerFlow.currentDay} customersServed={customerFlow.customersServed}
           successCount={progress.gameStats.successCount} dayEarnings={customerFlow.dayEarnings}
           totalMoney={money} onStartNewDay={handlers.startNewDay} unlockedItems={unlockedItems}
-          onShopPurchase={handlers.handleShopPurchase} dailyMemory={customerFlow.dailyMemory}
+          dailyMemory={customerFlow.dailyMemory}
         />
       )}
 

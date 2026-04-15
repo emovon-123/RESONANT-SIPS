@@ -247,6 +247,15 @@ export const collectLegacyStorageSnapshot = () => {
 export const hydrateLegacyStorageFromGameState = (gameState) => {
   if (!gameState || typeof gameState !== 'object') return;
 
+  // 先清空 legacy 键，避免新槽位被上一个槽位的遗留会话/状态污染
+  LEGACY_KEYS.forEach((key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // noop
+    }
+  });
+
   const snapshot = gameState.legacyStorageSnapshot || {};
   Object.entries(snapshot).forEach(([key, value]) => {
     try {

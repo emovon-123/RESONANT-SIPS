@@ -1,6 +1,5 @@
 // 日结算弹窗组件
 import React from 'react';
-import ShopPanel from '../Shop/ShopPanel.jsx';
 import './DayEndModal.css';
 
 /**
@@ -12,8 +11,6 @@ import './DayEndModal.css';
  * @param {number} props.dayEarnings - 今日收入
  * @param {number} props.totalMoney - 总资产
  * @param {Function} props.onStartNewDay - 开始新一天回调
- * @param {Object} props.unlockedItems - 已解锁物品
- * @param {Function} props.onShopPurchase - 商店购买回调
  */
 const DayEndModal = ({
   currentDay = 1,
@@ -22,8 +19,6 @@ const DayEndModal = ({
   dayEarnings = 0,
   totalMoney = 0,
   onStartNewDay,
-  unlockedItems,
-  onShopPurchase,
   dailyMemory = null  // 🆕 日记忆数据
 }) => {
   // 根据收入显示不同消息
@@ -35,10 +30,8 @@ const DayEndModal = ({
 
   return (
     <div className="day-end-overlay">
-      <div className="day-end-modal with-shop">
-        {/* 左侧：统计信息 */}
-        <div className="day-end-left">
-          <h2 className="day-end-title">🌙 第 {currentDay} 天结束</h2>
+      <div className="day-end-modal">
+        <h2 className="day-end-title">🌙 第 {currentDay} 天结束</h2>
 
           {/* 🆕 日记展示 */}
           {dailyMemory?.journalEntry && (
@@ -89,21 +82,9 @@ const DayEndModal = ({
             {getMessage()}
           </div>
 
-          <button className="next-day-button" onClick={onStartNewDay}>
-            ☀️ 开始新的一天
-          </button>
-        </div>
-
-        {/* 右侧：商店面板 */}
-        <div className="day-end-right">
-          <div className="shop-hint">🛒 趁休息时间进点货吧</div>
-          <ShopPanel
-            money={totalMoney}
-            unlockedItems={unlockedItems}
-            onPurchase={onShopPurchase}
-            compact={true}
-          />
-        </div>
+        <button className="next-day-button" onClick={onStartNewDay}>
+          ☀️ 开始新的一天
+        </button>
       </div>
     </div>
   );
