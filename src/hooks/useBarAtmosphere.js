@@ -3,6 +3,29 @@ import { useState, useCallback, useRef } from 'react';
 import { generateDailyAtmosphere } from '../utils/aiService.js';
 import { getFallbackAtmosphere } from '../data/atmosphereTemplates.js';
 
+// 先聚焦核心循环：暂时关闭当晚影响（价格/目标/信任偏置等）
+const ATMOSPHERE_EFFECTS_ENABLED = false;
+
+const getNeutralModifiers = () => ({
+  trustBonus: 0,
+  emotionBias: [],
+  targetShift: {
+    thickness: 0,
+    sweetness: 0,
+    strength: 0
+  },
+  priceMultiplier: 1,
+  customerCountMod: 0
+});
+
+const stripAtmosphereEffects = (value) => {
+  if (!value) return value;
+  return {
+    ...value,
+    modifiers: getNeutralModifiers()
+  };
+};
+
 /**
  * 酒吧氛围管理 Hook
  * 管理每日氛围的生成、展示和影响
@@ -33,17 +56,18 @@ export const useBarAtmosphere = () => {
       
       if (result) {
         console.log('✅ 氛围生成成功:', result);
-        setAtmosphere(result);
+        const finalAtmosphere = ATMOSPHERE_EFFECTS_ENABLED ? result : stripAtmosphereEffects(result);
+        setAtmosphere(finalAtmosphere);
         setShowAtmosphereOverlay(true);
         setIsGenerating(false);
         
         // 维护最近氛围历史（保留最近3天）
         recentAtmospheresRef.current = [
-          result,
+          finalAtmosphere,
           ...recentAtmospheresRef.current.slice(0, 2)
         ];
         
-        return result;
+        return finalAtmosphere;
       }
     } catch (error) {
       console.error('❌ AI氛围生成失败，使用降级模板:', error);
@@ -52,16 +76,17 @@ export const useBarAtmosphere = () => {
     // 降级：使用模板
     const fallback = getFallbackAtmosphere(day, recentAtmospheresRef.current);
     console.log('⚠️ 使用降级氛围模板:', fallback.weather);
-    setAtmosphere(fallback);
+    const finalFallback = ATMOSPHERE_EFFECTS_ENABLED ? fallback : stripAtmosphereEffects(fallback);
+    setAtmosphere(finalFallback);
     setShowAtmosphereOverlay(true);
     
     recentAtmospheresRef.current = [
-      fallback,
+      finalFallback,
       ...recentAtmospheresRef.current.slice(0, 2)
     ];
     
     setIsGenerating(false);
-    return fallback;
+    return finalFallback;
   }, []);
 
   /**

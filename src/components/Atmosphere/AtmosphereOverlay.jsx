@@ -8,6 +8,9 @@ import {
 } from '../../data/atmosphereTemplates.js';
 import './AtmosphereOverlay.css';
 
+// 先聚焦核心循环：暂时不展示“今晚影响”
+const ATMOSPHERE_EFFECTS_ENABLED = false;
+
 /**
  * 氛围开场展示叠加层
  * 每天开始时展示当日氛围描述和影响
@@ -145,7 +148,7 @@ const AtmosphereOverlay = ({ atmosphere, day, onStart, isVisible }) => {
         </div>
 
         {/* 今晚特效 */}
-        {effects.length > 0 && (
+        {ATMOSPHERE_EFFECTS_ENABLED && effects.length > 0 && (
           <div className={`atmosphere-effects ${phase >= 5 ? 'show' : ''}`}>
             <div className="effects-header">
               <span className="effects-title">今晚影响</span>
