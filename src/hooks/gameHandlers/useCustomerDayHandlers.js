@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
-import { generateFallbackCustomers, generateCustomer } from '../../utils/aiService.js';
-import { clearGameSession, getReturnCustomers, saveGameProgress } from '../../utils/storage.js';
-import { ALL_CATEGORY_IDS, pickRandom } from '../../data/aiCustomers.js';
+import { generateFallbackCustomers, generateCustomerWithCharacterPool } from '../../utils/aiService.js';
+import { clearGameSession, getActiveCharacterIds, getReturnCustomers, saveGameProgress } from '../../utils/storage.js';
 import { appendActiveNpcEvent, queueActiveSlotGameStateSync, setActiveNpcId } from '../../utils/saveRepository.js';
 
 export const useCustomerDayHandlers = ({ ctx, refs }) => {
@@ -279,6 +278,33 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
       });
       console.log('✅ 使用预加载的第', nextDay, `天第${initialCustomers.length}位顾客:`, preloaded[i].name);
     }
+
+    // 角色池补位：优先使用未出现的 activeCharacterIds，不足再随机
+    if (initialCustomers.length < customerFlow.MAX_CUSTOMERS_PER_DAY) {
+      const activeCharacterIds = getActiveCharacterIds();
+      const usedCharacterIds = initialCustomers
+        .map((item) => item?.config?.customCharacterId)
+        .filter(Boolean);
+
+      while (initialCustomers.length < customerFlow.MAX_CUSTOMERS_PER_DAY) {
+        try {
+          const customer = await generateCustomerWithCharacterPool({
+            activeCharacterIds,
+            usedCharacterIds
+          });
+          if (customer.customCharacterId) usedCharacterIds.push(customer.customCharacterId);
+          initialCustomers.push({
+            id: `${nextDay}-${initialCustomers.length}`,
+            type: customer.categoryId,
+            config: customer
+          });
+        } catch (error) {
+          console.warn('⚠️ 角色池补位失败，进入降级逻辑:', error);
+          break;
+        }
+      }
+    }
+
     customerFlow.setPreloadedNextDayCustomer(null);
     customerFlow.setPreloadedSecondCustomer(null);
 
@@ -289,7 +315,9 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
       customerFlow.setIsLoadingCustomers(true);
       customerFlow.setCustomerLoadingProgress('正在创建新一天的第一位顾客...');
       try {
-        const firstCustomer = await generateCustomer(pickRandom(ALL_CATEGORY_IDS));
+        const firstCustomer = await generateCustomerWithCharacterPool({
+          activeCharacterIds: getActiveCharacterIds()
+        });
         customerFlow.setDailyCustomers([{
           id: `${nextDay}-0`, type: firstCustomer.categoryId, config: firstCustomer
         }]);

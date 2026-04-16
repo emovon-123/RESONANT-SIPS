@@ -4,6 +4,8 @@ import { API_CONFIG, getActiveAPIType, generatePrompt, PROMPT_TYPES, DEBUG_CONFI
 export {
   generateCustomerAvatar,
   generateCustomer,
+  generateCustomerFromCharacterId,
+  generateCustomerWithCharacterPool,
   generateDailyCustomers,
 } from './ai/customerGeneration.js';
 export { generateDailyAtmosphere } from './ai/atmosphereGeneration.js';

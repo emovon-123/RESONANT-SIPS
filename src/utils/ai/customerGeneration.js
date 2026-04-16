@@ -202,6 +202,17 @@ const CATEGORY_APPEARANCE = {
   },
 };
 
+const CHARACTER_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
+
+const hashCharacterId = (text) => {
+  const value = String(text || '');
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = ((hash << 5) - hash + value.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+};
+
 const buildAvatarPrompt = (customerConfig) => {
   const category = customerConfig.categoryId || 'workplace';
   const appearance = CATEGORY_APPEARANCE[category] || CATEGORY_APPEARANCE.workplace;
@@ -340,6 +351,63 @@ export const generateCustomer = async (categoryId) => {
     console.error('❌ 顾客生成失败:', error);
     return completeCustomerConfig({}, categoryConfig);
   }
+};
+
+export const generateCustomerFromCharacterId = async (characterId) => {
+  const roleId = String(characterId || '').trim();
+  if (!CHARACTER_ID_PATTERN.test(roleId)) {
+    throw new Error('invalid_character_id');
+  }
+
+  const categoryId = ALL_CATEGORY_IDS[hashCharacterId(roleId) % ALL_CATEGORY_IDS.length] || 'workplace';
+  const categoryConfig = getCategoryConfig(categoryId);
+  const base = completeCustomerConfig({
+    name: roleId,
+    backstory: `来自角色库的角色 ${roleId}，今晚来到酒吧。`,
+    initialDialogue: [
+      `我是 ${roleId}。`,
+      '今晚想找个人说说话。',
+      '给我一杯适合我现在心情的酒吧。'
+    ]
+  }, categoryConfig);
+
+  base.customCharacterId = roleId;
+  base.isCustomCharacter = true;
+
+  base.avatarBase64 = null;
+  base.avatarCacheKey = `custom_${roleId}_${Date.now()}`;
+  try {
+    const cachedAvatar = await getAvatarFromCache(base.avatarCacheKey);
+    if (cachedAvatar) {
+      base.avatarBase64 = cachedAvatar;
+    } else {
+      generateAndCacheAvatar(base).catch(() => {});
+    }
+  } catch {
+    // ignore avatar errors
+  }
+
+  return base;
+};
+
+export const generateCustomerWithCharacterPool = async ({
+  activeCharacterIds = [],
+  usedCharacterIds = []
+} = {}) => {
+  const validIds = Array.isArray(activeCharacterIds)
+    ? activeCharacterIds
+      .map((item) => String(item || '').trim())
+      .filter((item) => CHARACTER_ID_PATTERN.test(item))
+    : [];
+  const used = new Set((Array.isArray(usedCharacterIds) ? usedCharacterIds : []).map((item) => String(item || '').trim()));
+
+  const remainingCustom = validIds.filter((id) => !used.has(id));
+  if (remainingCustom.length > 0) {
+    const chosen = pickRandom(remainingCustom);
+    return generateCustomerFromCharacterId(chosen);
+  }
+
+  return generateCustomer(pickRandom(ALL_CATEGORY_IDS));
 };
 
 const callGeminiAPIForCustomer = async (prompt) => {

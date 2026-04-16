@@ -10,9 +10,10 @@
  * - 后台生成下一个顾客
  */
 import { useState, useRef, useCallback } from 'react';
-import { generateCustomer, generateFallbackCustomers } from '../utils/aiService.js';
+import { generateCustomer, generateCustomerWithCharacterPool, generateFallbackCustomers } from '../utils/aiService.js';
 import { pickRandom, ALL_CATEGORY_IDS } from '../data/aiCustomers.js';
 import { getGameProgress } from '../utils/storage.js';
+import { getActiveCharacterIds } from '../utils/storage.js';
 
 const MAX_CUSTOMERS_PER_DAY = 3;         // 每天固定3位顾客
 const MAX_COCKTAILS_PER_CUSTOMER = 3;    // 每位顾客最多喝3杯
@@ -106,7 +107,14 @@ export const useCustomerFlow = () => {
 
     console.log('🔄 开始在后台生成下一个顾客...');
     try {
-      const nextCustomer = await generateCustomer(pickRandom(ALL_CATEGORY_IDS));
+      const activeCharacterIds = getActiveCharacterIds();
+      const usedCharacterIds = dailyCustomers
+        .map((item) => item?.config?.customCharacterId)
+        .filter(Boolean);
+      const nextCustomer = await generateCustomerWithCharacterPool({
+        activeCharacterIds,
+        usedCharacterIds
+      });
       const newCustomer = {
         id: `${currentDay}-${nextIndex}`,
         type: nextCustomer.categoryId,

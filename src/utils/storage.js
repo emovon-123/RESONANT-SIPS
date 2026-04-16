@@ -52,10 +52,27 @@ const STORAGE_KEYS = {
   MEMORY_FRAGMENTS: 'bartender_memory_fragments',
   // 🆕 文档14 - 新手引导
   GUIDES_SHOWN: 'bartender_guides_shown',
+  // 🆕 自定义角色池
+  CUSTOM_CHARACTER_IDS: 'bartender_custom_character_ids',
+  ACTIVE_CHARACTER_IDS: 'bartender_active_character_ids',
   // 游戏会话状态（刷新恢复用）
   GAME_SESSION: 'bartender_game_session',
   // 序幕已观看标记
   HAS_SEEN_PROLOGUE: 'bartender_has_seen_prologue'
+};
+
+const CHARACTER_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
+
+const normalizeCharacterIds = (ids) => {
+  if (!Array.isArray(ids)) return [];
+  const dedup = new Set();
+  ids.forEach((item) => {
+    const value = String(item || '').trim();
+    if (!value) return;
+    if (!CHARACTER_ID_PATTERN.test(value)) return;
+    dedup.add(value);
+  });
+  return Array.from(dedup);
 };
 
 // 短期记忆：当前AI顾客的对话、情绪判断、调酒记录
@@ -276,6 +293,84 @@ export const getSettings = () => {
   } catch (error) {
     console.error('读取设置失败:', error);
     return null;
+  }
+};
+
+// ========== 自定义角色池 ==========
+export const getCustomCharacterIds = () => {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.CUSTOM_CHARACTER_IDS) || '[]');
+    return normalizeCharacterIds(raw);
+  } catch (error) {
+    console.error('读取自定义角色失败:', error);
+    return [];
+  }
+};
+
+export const saveCustomCharacterIds = (ids) => {
+  try {
+    const normalized = normalizeCharacterIds(ids);
+    localStorage.setItem(STORAGE_KEYS.CUSTOM_CHARACTER_IDS, JSON.stringify(normalized));
+
+    // active 列表必须是 custom 列表子集
+    const currentActive = getActiveCharacterIds();
+    const nextActive = currentActive.filter((id) => normalized.includes(id));
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_CHARACTER_IDS, JSON.stringify(nextActive));
+
+    queueActiveSlotGameStateSync('save_custom_character_ids');
+    return normalized;
+  } catch (error) {
+    console.error('保存自定义角色失败:', error);
+    return [];
+  }
+};
+
+export const addCustomCharacterId = (id) => {
+  const value = String(id || '').trim();
+  if (!CHARACTER_ID_PATTERN.test(value)) {
+    return { ok: false, reason: 'invalid_format' };
+  }
+
+  const current = getCustomCharacterIds();
+  if (current.includes(value)) {
+    return { ok: false, reason: 'duplicate' };
+  }
+
+  const next = saveCustomCharacterIds([...current, value]);
+  const active = getActiveCharacterIds();
+  saveActiveCharacterIds([...active, value]);
+  return { ok: true, ids: next };
+};
+
+export const removeCustomCharacterId = (id) => {
+  const value = String(id || '').trim();
+  const next = saveCustomCharacterIds(getCustomCharacterIds().filter((item) => item !== value));
+  return next;
+};
+
+export const getActiveCharacterIds = () => {
+  try {
+    const custom = getCustomCharacterIds();
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACTIVE_CHARACTER_IDS) || 'null');
+    if (!raw) return custom;
+    const normalized = normalizeCharacterIds(raw).filter((id) => custom.includes(id));
+    return normalized;
+  } catch (error) {
+    console.error('读取可出现角色失败:', error);
+    return getCustomCharacterIds();
+  }
+};
+
+export const saveActiveCharacterIds = (ids) => {
+  try {
+    const custom = getCustomCharacterIds();
+    const normalized = normalizeCharacterIds(ids).filter((id) => custom.includes(id));
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_CHARACTER_IDS, JSON.stringify(normalized));
+    queueActiveSlotGameStateSync('save_active_character_ids');
+    return normalized;
+  } catch (error) {
+    console.error('保存可出现角色失败:', error);
+    return [];
   }
 };
 

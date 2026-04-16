@@ -32,6 +32,8 @@ const LEGACY_KEYS = [
   'bartender_chapter_state',
   'bartender_memory_fragments',
   'bartender_guides_shown',
+  'bartender_custom_character_ids',
+  'bartender_active_character_ids',
   'bartender_game_session',
   'bartender_has_seen_prologue',
 ];

@@ -1,0 +1,131 @@
+import React, { useEffect, useState } from 'react';
+import Toast from '../components/Common/Toast.jsx';
+import {
+  addCustomCharacterId,
+  getActiveCharacterIds,
+  getCustomCharacterIds,
+  removeCustomCharacterId,
+  saveActiveCharacterIds,
+} from '../utils/storage.js';
+import './NewGameSetupPage.css';
+
+const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
+  const [customCharacterInput, setCustomCharacterInput] = useState('');
+  const [customCharacterIds, setCustomCharacterIds] = useState([]);
+  const [activeCharacterIds, setActiveCharacterIds] = useState([]);
+  const [toastList, setToastList] = useState([]);
+
+  useEffect(() => {
+    setCustomCharacterIds(getCustomCharacterIds());
+    setActiveCharacterIds(getActiveCharacterIds());
+  }, []);
+
+  const pushToast = (message, type = 'info') => {
+    const id = `toast_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    setToastList((prev) => [...prev, { id, message, type }]);
+  };
+
+  const handleAddCharacter = () => {
+    const result = addCustomCharacterId(customCharacterInput);
+    if (!result.ok) {
+      if (result.reason === 'invalid_format') {
+        pushToast('角色ID仅允许字母、数字、下划线和短横线', 'warning');
+      } else if (result.reason === 'duplicate') {
+        pushToast('该角色已添加', 'warning');
+      } else {
+        pushToast('添加角色失败', 'error');
+      }
+      return;
+    }
+
+    setCustomCharacterIds(getCustomCharacterIds());
+    setActiveCharacterIds(getActiveCharacterIds());
+    setCustomCharacterInput('');
+    pushToast('角色已添加并默认启用', 'success');
+  };
+
+  const handleRemoveCharacter = (id) => {
+    removeCustomCharacterId(id);
+    setCustomCharacterIds(getCustomCharacterIds());
+    setActiveCharacterIds(getActiveCharacterIds());
+    pushToast(`已移除角色 ${id}`, 'info');
+  };
+
+  const handleToggleCharacter = (id, checked) => {
+    const current = getActiveCharacterIds();
+    const next = checked
+      ? Array.from(new Set([...current, id]))
+      : current.filter((item) => item !== id);
+    const saved = saveActiveCharacterIds(next);
+    setActiveCharacterIds(saved);
+  };
+
+  return (
+    <div className="newgame-setup-page">
+      <div className="newgame-setup-panel">
+        <h1 className="newgame-setup-title">新游戏配置</h1>
+        <p className="newgame-setup-desc">先配置可出现角色，再开始新游戏。未勾选角色不会被优先选中。</p>
+
+        <section className="newgame-role-panel">
+          <div className="newgame-role-title">角色池管理</div>
+          <p className="newgame-role-hint">输入角色ID（例如 5738g），可勾选是否允许在当日出现。</p>
+
+          <div className="newgame-role-input-row">
+            <input
+              className="newgame-role-input"
+              value={customCharacterInput}
+              onChange={(event) => setCustomCharacterInput(event.target.value)}
+              placeholder="输入角色ID"
+              maxLength={64}
+            />
+            <button className="newgame-role-add-btn" onClick={handleAddCharacter} disabled={loading}>添加</button>
+          </div>
+
+          <div className="newgame-role-list">
+            {customCharacterIds.length === 0 && (
+              <div className="newgame-role-empty">暂无已添加角色，系统将使用随机角色。</div>
+            )}
+            {customCharacterIds.map((id) => (
+              <div className="newgame-role-item" key={id}>
+                <label className="newgame-role-main">
+                  <input
+                    type="checkbox"
+                    checked={activeCharacterIds.includes(id)}
+                    onChange={(event) => handleToggleCharacter(id, event.target.checked)}
+                    disabled={loading}
+                  />
+                  <span>{id}</span>
+                </label>
+                <button
+                  className="newgame-role-remove-btn"
+                  onClick={() => handleRemoveCharacter(id)}
+                  disabled={loading}
+                >
+                  移除
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <div className="newgame-actions">
+          <button className="newgame-back-btn" onClick={onBack} disabled={loading}>返回</button>
+          <button className="newgame-start-btn" onClick={onConfirmStart} disabled={loading}>
+            {loading ? '创建中...' : '开始新游戏'}
+          </button>
+        </div>
+      </div>
+
+      {toastList.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToastList((prev) => prev.filter((item) => item.id !== toast.id))}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default NewGameSetupPage;

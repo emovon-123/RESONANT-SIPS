@@ -3,12 +3,11 @@
  * 从 GamePage 提取的所有初始化 useEffect
  */
 import { useEffect, useRef } from 'react';
-import { saveShortMemory, saveGameSession, getGameSession, clearGameSession } from '../utils/storage.js';
+import { saveShortMemory, saveGameSession, getGameSession, clearGameSession, getActiveCharacterIds } from '../utils/storage.js';
 import { generateQuickOptions } from '../utils/aiService.js';
 import audioManager from '../utils/audioManager.js';
 import { TUTORIAL_CUSTOMER } from '../data/tutorialData.js';
-import { generateFallbackCustomers, generateCustomer } from '../utils/aiService.js';
-import { pickRandom, ALL_CATEGORY_IDS } from '../data/aiCustomers.js';
+import { generateFallbackCustomers, generateCustomerWithCharacterPool } from '../utils/aiService.js';
 
 /**
  * @param {Object} ctx - 上下文对象，包含所有需要的 hook 引用和状态
@@ -135,7 +134,8 @@ export const useGameInit = (ctx) => {
       customerFlow.setIsLoadingCustomers(true);
       customerFlow.setCustomerLoadingProgress(`正在创建第 ${day} 天的第一位顾客...`);
       try {
-        const firstCustomer = await generateCustomer(pickRandom(ALL_CATEGORY_IDS));
+        const activeCharacterIds = getActiveCharacterIds();
+        const firstCustomer = await generateCustomerWithCharacterPool({ activeCharacterIds });
         customerFlow.setDailyCustomers([{
           id: `${day}-0`, type: firstCustomer.categoryId, config: firstCustomer
         }]);

@@ -3,10 +3,12 @@ import HomePage from './pages/HomePage.jsx';
 import { createDevActions } from './components/DevMode/devActions.js';
 import {
   getGameProgress,
+  getActiveCharacterIds,
   getUnlockedItems,
   saveGameProgress,
   saveUnlockedItems,
 } from './utils/storage.js';
+import { pickRandom } from './data/aiCustomers.js';
 import { getActiveAPIConfig, getActiveAPIType } from './config/api.js';
 import {
   createSlot,
@@ -23,6 +25,7 @@ const GamePage = lazy(() => import('./pages/GamePage.jsx'));
 const EncyclopediaPage = lazy(() => import('./pages/EncyclopediaPage.jsx'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'));
 const SaveSlotsPage = lazy(() => import('./pages/SaveSlotsPage.jsx'));
+const NewGameSetupPage = lazy(() => import('./pages/NewGameSetupPage.jsx'));
 const DevPanel = lazy(() => import('./components/DevMode/DevPanel.jsx'));
 
 const ENCYCLOPEDIA_ENABLED = false;
@@ -81,9 +84,14 @@ function App() {
       import('./utils/aiService.js'),
       import('./data/aiCustomers.js'),
     ])
-      .then(([aiService, customerData]) =>
-        aiService.generateCustomer(customerData.pickRandom(customerData.ALL_CATEGORY_IDS))
-      )
+      .then(async ([aiService, customerData]) => {
+        const activeCharacterIds = getActiveCharacterIds();
+        if (activeCharacterIds.length > 0) {
+          const roleId = pickRandom(activeCharacterIds);
+          return aiService.generateCustomerFromCharacterId(roleId);
+        }
+        return aiService.generateCustomer(customerData.pickRandom(customerData.ALL_CATEGORY_IDS));
+      })
       .then((customer) => {
         setPreloadedFirstCustomer(customer);
         console.log('✅ 第一个顾客预加载完成:', customer.name);
@@ -190,7 +198,14 @@ function App() {
     }
   }, [checkAIConnectivity]);
 
-  const handleNewGame = useCallback(async () => {
+  const handleOpenNewGameSetup = useCallback(() => {
+    if (isEnteringGame) return;
+    startTransition(() => {
+      setCurrentPage('new_game_setup');
+    });
+  }, [isEnteringGame]);
+
+  const handleStartNewGame = useCallback(async () => {
     if (isEnteringGame) return;
 
     try {
@@ -237,11 +252,19 @@ function App() {
       case 'home':
         return (
           <HomePage
-            onNewGame={handleNewGame}
+            onNewGame={handleOpenNewGameSetup}
             onLoadGame={() => handleNavigate('save_slots')}
             onNavigate={handleNavigate}
             money={money}
             onToggleDevMode={handleToggleDevMode}
+          />
+        );
+      case 'new_game_setup':
+        return (
+          <NewGameSetupPage
+            onBack={handleBackToHome}
+            onConfirmStart={handleStartNewGame}
+            loading={isEnteringGame}
           />
         );
       case 'save_slots':
@@ -249,7 +272,7 @@ function App() {
           <SaveSlotsPage
             onBack={handleBackToHome}
             onLoadSlot={(slotId) => enterGameWithSlot(slotId)}
-            onCreateAndStart={handleNewGame}
+            onCreateAndStart={handleOpenNewGameSetup}
           />
         );
       case 'game':
@@ -274,7 +297,7 @@ function App() {
           ? <EncyclopediaPage onBack={handleBackToHome} />
           : (
             <HomePage
-              onNewGame={handleNewGame}
+              onNewGame={handleOpenNewGameSetup}
               onLoadGame={() => handleNavigate('save_slots')}
               onNavigate={handleNavigate}
               money={money}
@@ -286,7 +309,7 @@ function App() {
       default:
         return (
           <HomePage
-            onNewGame={handleNewGame}
+            onNewGame={handleOpenNewGameSetup}
             onLoadGame={() => handleNavigate('save_slots')}
             onNavigate={handleNavigate}
             money={money}
