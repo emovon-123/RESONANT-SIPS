@@ -355,7 +355,7 @@ const GamePage = ({
         aiConfig={aiConfig} customerSuccessCount={customerFlow.customerSuccessCount} customerCocktailCount={customerFlow.customerCocktailCount}
         currentCustomerIndex={customerFlow.currentCustomerIndex} totalCustomers={customerFlow.dailyCustomers.length}
         isMuted={isMuted} toggleMute={toggleMute} sfxVolume={sfxVolume} setSfxVolume={setSfxVolume} playSFX={playSFX} atmosphere={atmosphere}
-        barLevelInfo={chapterSystem.getBarLevelInfo()}
+        barLevelInfo={null}
         chapterInfo={null}
         onShowHelp={() => setShowHelp(true)}
       />
