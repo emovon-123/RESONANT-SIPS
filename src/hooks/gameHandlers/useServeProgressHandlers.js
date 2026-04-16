@@ -17,10 +17,12 @@ export const useServeProgressHandlers = ({ ctx }) => {
     achievements, chapterSystem, playSFX, addToast, showGameHint, aiConfig, aiType,
     trustLevel, setTrustLevel, money, setMoney, unlockedItems, setUnlockedItems,
     atmosphere, shouldTriggerEvent, triggerEvent, updateStreak, handleEventChoice,
-    dismissEvent, applyAtmosphereChange, currentEvent
+    dismissEvent, applyAtmosphereChange, currentEvent, eventsEnabled
   } = ctx;
 
   const tryTriggerEventAfterServe = useCallback(async (isSuccess) => {
+    if (!eventsEnabled) return;
+
     const context = {
       day: customerFlow.currentDay, customerIndex: customerFlow.currentCustomerIndex, lastWasSuccess: isSuccess
     };
@@ -30,7 +32,7 @@ export const useServeProgressHandlers = ({ ctx }) => {
         atmosphere, currentCustomer: customerFlow.currentCustomer
       });
     }
-  }, [customerFlow.currentDay, customerFlow.currentCustomerIndex, customerFlow.customersServed, atmosphere, customerFlow.currentCustomer, shouldTriggerEvent, triggerEvent]);
+  }, [eventsEnabled, customerFlow.currentDay, customerFlow.currentCustomerIndex, customerFlow.customersServed, atmosphere, customerFlow.currentCustomer, shouldTriggerEvent, triggerEvent]);
 
   const handleServeCocktail = useCallback(async (recipe) => {
     playSFX('shake');

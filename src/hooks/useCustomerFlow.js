@@ -14,7 +14,7 @@ import { generateCustomer, generateFallbackCustomers } from '../utils/aiService.
 import { pickRandom, ALL_CATEGORY_IDS } from '../data/aiCustomers.js';
 import { getGameProgress } from '../utils/storage.js';
 
-const MAX_CUSTOMERS_PER_DAY = 5;         // 每天最多5位顾客
+const MAX_CUSTOMERS_PER_DAY = 3;         // 每天固定3位顾客
 const MAX_COCKTAILS_PER_CUSTOMER = 3;    // 每位顾客最多喝3杯
 const TARGET_DAILY_COCKTAILS = 9;        // 每天目标总杯数
 

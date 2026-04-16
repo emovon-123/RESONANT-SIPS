@@ -4,6 +4,9 @@ import { generateBarEvent } from '../utils/aiService.js';
 import { EVENT_TRIGGER_CONFIG, getAvailableEventTypes, getFallbackEvent, EVENT_CHAINS } from '../data/eventTemplates.js';
 import { savePendingChains, getPendingChains } from '../utils/storage.js';
 
+// 先聚焦核心玩法：暂时关闭事件系统（奖励事件/随机事件/事件链）
+const EVENTS_ENABLED = false;
+
 /**
  * 动态事件管理 Hook
  * 管理事件的触发、展示和效果应用
@@ -40,6 +43,8 @@ export const useBarEvents = () => {
    * @returns {boolean} 是否应触发
    */
   const shouldTriggerEvent = useCallback((context) => {
+    if (!EVENTS_ENABLED) return false;
+
     const { day, customerIndex, lastWasSuccess } = context;
 
     // 更新连续成功/失败计数
@@ -85,6 +90,8 @@ export const useBarEvents = () => {
    * @returns {Object|null} 触发的事件
    */
   const triggerEvent = useCallback(async (context) => {
+    if (!EVENTS_ENABLED) return null;
+
     const { day, customersServed, atmosphere, currentCustomer, forceEvent } = context;
 
     // 🆕 如果有强制事件（事件链），直接使用，不占用每日随机事件名额
@@ -179,6 +186,8 @@ export const useBarEvents = () => {
    * @returns {Object} 选择的效果
    */
   const handleEventChoice = useCallback((choiceIndex) => {
+    if (!EVENTS_ENABLED) return null;
+
     if (!currentEvent || !currentEvent.choices) return null;
 
     const choice = currentEvent.choices[choiceIndex];
@@ -226,6 +235,8 @@ export const useBarEvents = () => {
    * 关闭事件通知（无选择时）
    */
   const dismissEvent = useCallback(() => {
+    if (!EVENTS_ENABLED) return {};
+
     setShowEventNotification(false);
     
     // 应用事件的默认效果
@@ -242,6 +253,8 @@ export const useBarEvents = () => {
    * 重置每日事件状态（新的一天开始时调用）
    */
   const resetDailyEvents = useCallback(() => {
+    if (!EVENTS_ENABLED) return;
+
     setDailyEventCount(0);
     setCurrentEvent(null);
     setShowEventNotification(false);
@@ -256,6 +269,8 @@ export const useBarEvents = () => {
    * @param {boolean} wasSuccess
    */
   const updateStreak = useCallback((wasSuccess) => {
+    if (!EVENTS_ENABLED) return;
+
     if (wasSuccess) {
       streakRef.current.success += 1;
       streakRef.current.fail = 0;
@@ -271,6 +286,8 @@ export const useBarEvents = () => {
    * @returns {Array} 到期的事件列表
    */
   const checkPendingChains = useCallback((day) => {
+    if (!EVENTS_ENABLED) return [];
+
     const due = pendingChains.filter(p => p.triggerDay <= day);
     const remaining = pendingChains.filter(p => p.triggerDay > day);
     
@@ -289,6 +306,8 @@ export const useBarEvents = () => {
    * @returns {Object|null} 事件链的第一个事件
    */
   const tryStartChain = useCallback((day) => {
+    if (!EVENTS_ENABLED) return null;
+
     // 过滤符合条件的事件链
     const available = EVENT_CHAINS.filter(chain => 
       day >= chain.triggerAfterDay && 
@@ -327,6 +346,8 @@ export const useBarEvents = () => {
    * 🆕 清除 current_customer 级别的约束（顾客切换时调用）
    */
   const clearCustomerRestrictions = useCallback(() => {
+    if (!EVENTS_ENABLED) return;
+
     setActiveRestrictions(prev => prev.filter(r => r.duration !== 'current_customer'));
     setPersistentEffects(prev => prev.filter(e => e.duration !== 'current_customer'));
   }, []);
@@ -338,6 +359,7 @@ export const useBarEvents = () => {
     dailyEventCount,
     persistentEffects,
     activeRestrictions,  // 🆕
+    eventsEnabled: EVENTS_ENABLED,
 
     // 方法
     shouldTriggerEvent,

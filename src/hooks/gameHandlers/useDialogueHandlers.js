@@ -17,7 +17,7 @@ export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
   const {
     tutorial, customerFlow, dialogue, emotionSystem, cocktailFlow,
     playSFX, addToast, showGameHint, aiConfig, trustLevel, setTrustLevel,
-    unlockedItems, atmosphere, dailyEventCount, triggerEvent, chapterSystem
+    unlockedItems, atmosphere, dailyEventCount, triggerEvent, chapterSystem, eventsEnabled
   } = ctx;
 
   const startConversation = useCallback(async () => {
@@ -301,7 +301,7 @@ export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
       emotionSystem.updateEmotions(aiConfig, trustLevel);
 
       // 事件触发点：基于玩家对话行为（非挂机被动触发）
-      if (!tutorial.isTutorialMode) {
+      if (!tutorial.isTutorialMode && eventsEnabled) {
         const playerMsgCount = dialogue.dialogueHistory.filter(d => d.role === 'player').length + 1;
 
         // 触发点1：第1轮对话后（替代原来开场白后的 setTimeout）

@@ -105,6 +105,7 @@ const GamePage = ({
     persistentEffects, activeRestrictions,
     shouldTriggerEvent, triggerEvent, handleEventChoice, dismissEvent,
     resetDailyEvents, updateStreak, clearCustomerRestrictions,
+    eventsEnabled,
     checkPendingChains, tryStartChain
   } = useBarEvents();
 
@@ -259,6 +260,7 @@ const GamePage = ({
     atmosphere, generateAtmosphere,
     showAtmosphereOverlay, dismissAtmosphereOverlay,
     showEventNotification, currentEvent,
+    eventsEnabled,
     dailyEventCount, triggerEvent, shouldTriggerEvent,
     handleEventChoice, dismissEvent, applyAtmosphereChange,
     resetDailyEvents, updateStreak, clearCustomerRestrictions,
@@ -344,7 +346,9 @@ const GamePage = ({
       <AmbientGameCanvas viewModel={gameViewModel} />
       <div className="game-page-ui">
       <AtmosphereOverlay atmosphere={atmosphere} day={customerFlow.currentDay} onStart={dismissAtmosphereOverlay} isVisible={showAtmosphereOverlay} />
-      <EventNotification event={currentEvent} onChoice={handlers.handleEventChoiceAction} onDismiss={handlers.handleEventDismissAction} isVisible={showEventNotification} />
+      {eventsEnabled && (
+        <EventNotification event={currentEvent} onChoice={handlers.handleEventChoiceAction} onDismiss={handlers.handleEventDismissAction} isVisible={showEventNotification} />
+      )}
 
       <GameHeader
         onBack={onBack} onShowRules={() => progress.setShowRules(true)} currentDay={customerFlow.currentDay} money={money}
@@ -352,7 +356,7 @@ const GamePage = ({
         currentCustomerIndex={customerFlow.currentCustomerIndex} totalCustomers={customerFlow.dailyCustomers.length}
         isMuted={isMuted} toggleMute={toggleMute} sfxVolume={sfxVolume} setSfxVolume={setSfxVolume} playSFX={playSFX} atmosphere={atmosphere}
         barLevelInfo={chapterSystem.getBarLevelInfo()}
-        chapterInfo={chapterSystem.currentChapter}
+        chapterInfo={null}
         onShowHelp={() => setShowHelp(true)}
       />
 

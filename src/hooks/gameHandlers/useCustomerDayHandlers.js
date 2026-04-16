@@ -44,9 +44,11 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
     customerFlow.setShowCustomerEnter(true);
     setTimeout(() => customerFlow.setShowCustomerEnter(false), 1200);
 
-    // 判断今日是否结束：总杯数达标 或 顾客数已满
+    // 判断今日是否结束：总杯数达标，或已服务到当日最后一位顾客
+    const reachedDailyCustomerCap = customerFlow.currentCustomerIndex >= customerFlow.MAX_CUSTOMERS_PER_DAY - 1;
+    const noNextCustomerInQueue = customerFlow.currentCustomerIndex >= customerFlow.dailyCustomers.length - 1;
     const dailyDone = customerFlow.dailyCocktailCountRef.current >= customerFlow.TARGET_DAILY_COCKTAILS
-      || customerFlow.dailyCustomers.length >= customerFlow.MAX_CUSTOMERS_PER_DAY;
+      || (reachedDailyCustomerCap && noNextCustomerInQueue);
 
     if (!dailyDone && customerFlow.currentCustomerIndex < customerFlow.dailyCustomers.length - 1) {
       customerFlow.setCurrentCustomerIndex(prev => prev + 1);

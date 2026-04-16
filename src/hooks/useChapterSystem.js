@@ -91,53 +91,10 @@ export const useChapterSystem = () => {
   /**
    * 检查是否满足下一章节条件
    */
-  const checkChapterAdvance = useCallback((worldState, totalCustomersServed, currentDay = 0) => {
-    if (chapterState.freeMode || chapterState.endingTriggered) return null;
-
-    const currentIdx = chapterState.currentChapter - 1;
-    const nextChapter = CHAPTERS[currentIdx + 1];
-    if (!nextChapter) return null;
-
-    const conditions = nextChapter.conditions;
-    if (conditions.auto) return nextChapter;
-
-    let met = true;
-    const returnCustomers = getReturnCustomers();
-
-    // 最低天数门槛（必须达到指定天数才能进入下一章）
-    if (conditions.minDay && currentDay < conditions.minDay) {
-      met = false;
-    }
-    if (conditions.barReputation && worldState.barReputation < conditions.barReputation) {
-      met = false;
-    }
-    if (conditions.hasReturnCustomer && returnCustomers.length === 0) {
-      met = false;
-    }
-    if (conditions.returnCustomerEscalation) {
-      const escalationCount = returnCustomers.filter(
-        c => ['escalation', 'turning_point', 'resolution', 'epilogue']
-          .includes(c.characterArc?.currentPhase)
-      ).length;
-      if (escalationCount < conditions.returnCustomerEscalation) met = false;
-    }
-    if (conditions.returnCustomerTurningPoint) {
-      const turningCount = returnCustomers.filter(
-        c => ['turning_point', 'resolution', 'epilogue']
-          .includes(c.characterArc?.currentPhase)
-      ).length;
-      if (turningCount < conditions.returnCustomerTurningPoint) met = false;
-    }
-
-    // OR 条件
-    if (!met && conditions.OR_totalCustomersServed) {
-      if (totalCustomersServed >= conditions.OR_totalCustomersServed) {
-        met = true;
-      }
-    }
-
-    return met ? nextChapter : null;
-  }, [chapterState]);
+  const checkChapterAdvance = useCallback(() => {
+    // 章节系统已停用：只保留天数推进，不再触发章节切换
+    return null;
+  }, []);
 
   /**
    * 生成章节开场白（AI）
@@ -414,7 +371,7 @@ ANCHOR: (锚点或"无")`;
    * 检查结局条件
    */
   const checkEndingConditions = useCallback((currentDay) => {
-    if (chapterState.currentChapter < 5 || chapterState.endingTriggered || chapterState.freeMode) {
+    if (chapterState.endingTriggered || chapterState.freeMode) {
       return null;
     }
 
@@ -665,18 +622,10 @@ ${returnCustomers.slice(0, 3).map(c =>
    * 在 GamePage 的 dayEnd 逻辑中调用
    */
   const processDayEnd = useCallback(async (currentDay, context = {}) => {
-    const worldState = getWorldState();
     const stats = getAchievementStats();
     const totalCustomersServed = stats.totalCustomersServed || 0;
 
-    // 1. 检查章节推进（传入当前天数用于 minDay 检查）
-    const nextChapter = checkChapterAdvance(worldState, totalCustomersServed, currentDay);
-    if (nextChapter) {
-      await advanceChapter(nextChapter, currentDay);
-      return { type: 'chapter_advance', chapter: nextChapter };
-    }
-
-    // 2. 检查回忆碎片触发
+    // 1. 检查回忆碎片触发
     const fragmentTrigger = checkFragmentTriggers({
       currentDay,
       totalCustomersServed,
@@ -687,7 +636,7 @@ ${returnCustomers.slice(0, 3).map(c =>
       return { type: 'fragment', fragment: fragmentTrigger };
     }
 
-    // 3. 检查结局条件
+    // 2. 检查结局条件
     const endingTrigger = checkEndingConditions(currentDay);
     if (endingTrigger) {
       await triggerEnding(endingTrigger, currentDay);
@@ -695,7 +644,7 @@ ${returnCustomers.slice(0, 3).map(c =>
     }
 
     return null;
-  }, [checkChapterAdvance, advanceChapter, checkFragmentTriggers, triggerMemoryFragment, checkEndingConditions, triggerEnding]);
+  }, [checkFragmentTriggers, triggerMemoryFragment, checkEndingConditions, triggerEnding]);
 
   return {
     // 状态
