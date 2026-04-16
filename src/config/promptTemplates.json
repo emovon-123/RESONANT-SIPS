@@ -63,8 +63,8 @@
       "【情绪变化规则】",
       "1. 情绪变化应该渐进自然，每次最多改变1-2个情绪",
       "2. 新情绪必须和当前情绪不同（不能保持完全一样的组合）",
-      "3. 如果酒成功触动：真实情绪向积极方向偏移（如 pressure→relief, loneliness→calm）",
-      "4. 如果酒未触动：情绪可能变化或加深（如 pressure→anxiety, loneliness→regret）",
+      "3. 如果酒成功触动：真实情绪向积极方向偏移（如 fear→trust, sadness→joy）",
+      "4. 如果酒未触动：情绪可能变化或加深（如 fear→anger, trust→fear）",
       "5. 表面情绪和真实情绪可以不同（顾客可能继续掩饰）",
       "",
       "【有效情绪ID（必须使用英文ID）】",
@@ -76,8 +76,8 @@
       "{\"surface\":[\"emotion_id1\"],\"reality\":[\"emotion_id1\",\"emotion_id2\"]}",
       "",
       "示例：",
-      "- 被触动后放松：{\"surface\":[\"calm\"],\"reality\":[\"relief\",\"calm\"]}",
-      "- 未被触动变化：{\"surface\":[\"calm\"],\"reality\":[\"anxiety\",\"confusion\"]}"
+      "- 被触动后放松：{\"surface\":[\"trust\"],\"reality\":[\"joy\",\"trust\"]}",
+      "- 未被触动变化：{\"surface\":[\"trust\"],\"reality\":[\"fear\",\"surprise\"]}"
     ],
     "cocktail_with_emotion": [
       "你是{{ai_name}}，性格：{{personality}}。",
@@ -91,7 +91,7 @@
       "【对话】{{recent_dialogue}}",
       "",
       "【情绪变化规则】",
-      "成功：负面→正面(pressure→relief) 失败：基本不变或加深",
+      "成功：负面→正面(fear→trust) 失败：基本不变或加深",
       "",
       "【有效情绪ID】{{valid_emotion_ids}}",
       "",
@@ -156,7 +156,7 @@
       "- <40：可能停滞",
       "- 阶段顺序：introduction → escalation → turning_point → resolution → epilogue",
       "",
-      "有效情绪ID：nostalgia,courage,loneliness,relief,anxiety,calm,regret,aspiration,pressure,dependence,confusion,happiness",
+      "有效情绪ID：joy,trust,fear,surprise,sadness,disgust,anger,anticipation",
       "",
       "如果 newPhase 是 \"escalation\" 或 \"turning_point\"，额外生成一个十字路口：",
       "\"crossroads\": {",
@@ -221,7 +221,7 @@
       "3. 选项文本必须以emoji开头，15字以内，用调酒师口吻",
       "4. type 只能是: atmosphere, customer, challenge, reward, narrative",
       "5. duration 只能是: immediate, current_customer, rest_of_day",
-      "6. emotionShift 只能用: nostalgia, courage, loneliness, relief, anxiety, calm, regret, aspiration, pressure, dependence, confusion, happiness",
+      "6. emotionShift 只能用: joy, trust, fear, surprise, sadness, disgust, anger, anticipation",
       "",
       "【严格限制】",
       "- effects 中只允许 trustModifier（数字）和 emotionShift（情绪ID或null）",
@@ -248,6 +248,6 @@
     "重要：emotionMask.reality 必须包含恰好2个情绪ID，不能多也不能少。",
     "",
     "返回格式：",
-    "{\"name\":\"身份·名字\",\"personality\":[\"性格1\",\"性格2\"],\"dialogueStyle\":{\"tone\":\"casual\",\"length\":\"medium\",\"features\":[\"特点1\"]},\"emotionMask\":{\"surface\":[\"calm\"],\"reality\":[\"pressure\",\"loneliness\"]},\"initialDialogue\":[\"开场白30字\"],\"backstory\":\"背景20字\"}"
+    "{\"name\":\"身份·名字\",\"personality\":[\"性格1\",\"性格2\"],\"dialogueStyle\":{\"tone\":\"casual\",\"length\":\"medium\",\"features\":[\"特点1\"]},\"emotionMask\":{\"surface\":[\"trust\"],\"reality\":[\"fear\",\"sadness\"]},\"initialDialogue\":[\"开场白30字\"],\"backstory\":\"背景20字\"}"
   ]
 }

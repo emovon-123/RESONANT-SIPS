@@ -8,7 +8,7 @@ const LOCAL_API_KEYS = {
     endpoint: 'https://api.deepseek.com/chat/completions',
   },
   gemini: {
-    apiKey: 'your api key',
+    apiKey: '',
     model: 'gemini-2.5-flash',
     endpoint: 'https://api.302.ai/v1',
     imageModel: 'gemini-2.5-flash-image',

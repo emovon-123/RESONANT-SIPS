@@ -389,8 +389,8 @@ export const useNarrativeEngine = () => {
       crossroads: returnCustomer.crossroads?.resolvedOption ? returnCustomer.crossroads : null,
       emotionMask: {
         ...returnCustomer.originalConfig.emotionMask,
-        surface: lastEmotions?.surface || returnCustomer.originalConfig.emotionMask?.surface || ['calm'],
-        reality: lastEmotions?.reality || returnCustomer.originalConfig.emotionMask?.reality || ['calm']
+        surface: lastEmotions?.surface || returnCustomer.originalConfig.emotionMask?.surface || ['trust'],
+        reality: lastEmotions?.reality || returnCustomer.originalConfig.emotionMask?.reality || ['fear']
       }
     };
   }, []);

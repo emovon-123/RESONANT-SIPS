@@ -239,8 +239,8 @@ export const useServeProgressHandlers = ({ ctx }) => {
       // 情绪变化
       {
         const allEmotionIds = Object.keys(EMOTIONS);
-        const positivePool = ['relief', 'calm', 'happiness', 'courage', 'aspiration'];
-        const negativePool = ['anxiety', 'loneliness', 'pressure', 'regret', 'confusion', 'dependence'];
+        const positivePool = ['joy', 'trust', 'anticipation', 'surprise'];
+        const negativePool = ['fear', 'sadness', 'anger', 'disgust'];
         const currentReality = [...currentEmotions.reality];
         const guessedEmotions = cocktailFlow.lastCorrectGuesses || [];
         const emotionsToReplace = currentReality.filter(e => guessedEmotions.includes(e));

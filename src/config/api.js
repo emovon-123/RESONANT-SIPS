@@ -1,5 +1,6 @@
 import promptTemplates from './promptTemplates.json';
 import LOCAL_API_KEYS from './localApiKeys.js';
+import { EMOTION_IDS_8, EMOTION_NAME_MAP_CN } from '../utils/emotionSchema.js';
 
 // AI API 配置
 
@@ -129,35 +130,9 @@ export const PROMPT_TYPES = {
   ADVANCE_CHARACTER_ARC: 'advance_character_arc'
 };
 
-const EMOTION_NAME_MAP = {
-  nostalgia: '怀旧',
-  courage: '勇气',
-  loneliness: '孤独',
-  relief: '释然',
-  anxiety: '焦虑',
-  calm: '平静',
-  regret: '遗憾',
-  aspiration: '憧憬',
-  pressure: '压力',
-  dependence: '依赖',
-  confusion: '迷茫',
-  happiness: '开心'
-};
+const EMOTION_NAME_MAP = EMOTION_NAME_MAP_CN;
 
-const VALID_EMOTION_IDS = [
-  'nostalgia',
-  'courage',
-  'loneliness',
-  'relief',
-  'anxiety',
-  'calm',
-  'regret',
-  'aspiration',
-  'pressure',
-  'dependence',
-  'confusion',
-  'happiness'
-];
+const VALID_EMOTION_IDS = [...EMOTION_IDS_8];
 
 const renderTemplate = (templateLines, values = {}) => {
   const template = templateLines.join('\n');
@@ -490,11 +465,7 @@ change 取值范围：
     }
 
     case PROMPT_TYPES.RETURN_CUSTOMER_INITIAL: {
-      const emotionNames = {
-        nostalgia: '怀旧', courage: '勇气', loneliness: '孤独', relief: '释然',
-        anxiety: '焦虑', calm: '平静', regret: '遗憾', aspiration: '憧憬',
-        pressure: '压力', dependence: '依赖', confusion: '迷茫', happiness: '开心'
-      };
+      const emotionNames = EMOTION_NAME_MAP;
       const currentEmotionNames = (params.currentEmotions || []).map(e => emotionNames[e] || e);
       return `你是${params.customer?.name || '回头客'}，之前来过这家赛博酒吧${params.visitCount || 1}次。
 
@@ -526,11 +497,7 @@ ${(() => {
     }
 
     case PROMPT_TYPES.RETURN_CUSTOMER_RESPONSE: {
-      const emotionNames2 = {
-        nostalgia: '怀旧', courage: '勇气', loneliness: '孤独', relief: '释然',
-        anxiety: '焦虑', calm: '平静', regret: '遗憾', aspiration: '憧憬',
-        pressure: '压力', dependence: '依赖', confusion: '迷茫', happiness: '开心'
-      };
+      const emotionNames2 = EMOTION_NAME_MAP;
       return `你是${params.customer?.name || '回头客'}，第${params.visitCount || 1}次来这家酒吧。
 
 共同记忆：

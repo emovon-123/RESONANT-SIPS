@@ -4,19 +4,16 @@ import './EmotionPanel.css';
 
 /**
  * 情绪识别面板组件
- * 功能：显示12种情绪、识别表面情绪、显示模糊提示让玩家推断真实情绪
+ * 功能：显示情绪候选、记录可观察线索、展示提示辅助玩家推断真实情绪
  */
 const EmotionPanel = ({ 
-  surfaceEmotions = [],  // 表面情绪 [{id, intensity, confidence}]
+  surfaceEmotions = [],  // 可观察情绪 [{id}]
   realEmotions = [],     // 真实情绪（不再自动填充，保持空）
   emotionHints = [],     // 情绪模糊提示 [{emotionId, hint, level}]
-  trustLevel = 0,        // 当前信任度
   onEmotionSelect,       // 手动标记情绪回调
   selectedEmotions = [], // 已选择用于调酒的情绪
   unlockedEmotions = [], // 已解锁的情绪
   dialogueClues = [],
-  guessReadiness = null,
-  customerRealEmotions = [], // 顾客的真实情绪ID列表（用于匹配提示）
   guessMode = false,     // 是否处于猜测模式
   guessedCorrectly = false, // 是否已猜对
   onStartGuess,          // 开始猜测回调
@@ -25,14 +22,6 @@ const EmotionPanel = ({
 }) => {
   const [activeTab, setActiveTab] = useState('all'); // all | surface | hints
   const [hoveredEmotion, setHoveredEmotion] = useState(null);
-  const readiness = guessReadiness || {};
-  const requiredTrustPercent = Math.round((readiness.requiredTrust ?? 0.3) * 100);
-  const startGuessDisabled =
-    trustLevel < (readiness.requiredTrust ?? 0.3)
-    || (typeof readiness.canGuess === 'boolean' && !readiness.canGuess);
-  const startGuessHint = trustLevel < (readiness.requiredTrust ?? 0.3)
-    ? `（需要信任度≥${requiredTrustPercent}%）`
-    : (startGuessDisabled ? `（${readiness.reason || '线索还不够'}）` : '');
   
   // 检查情绪是否已解锁
   const isEmotionUnlocked = (emotionId) => {
@@ -48,17 +37,6 @@ const EmotionPanel = ({
     return { isSurface, isReal, isSelected };
   };
 
-  // 获取情绪数据
-  const getEmotionData = (emotionId) => {
-    const surfaceData = surfaceEmotions.find(e => e.id === emotionId);
-    const realData = realEmotions.find(e => e.id === emotionId);
-    
-    return {
-      surface: surfaceData || null,
-      real: realData || null
-    };
-  };
-
   // 点击情绪卡片
   const handleEmotionClick = (emotionId) => {
     // 只在猜测模式下才能选择情绪
@@ -70,7 +48,6 @@ const EmotionPanel = ({
   // 渲染情绪卡片
   const renderEmotionCard = (emotion) => {
     const status = getEmotionStatus(emotion.id);
-    const data = getEmotionData(emotion.id);
     const isActive = status.isSurface || status.isReal;
     const isUnlocked = isEmotionUnlocked(emotion.id);
     
@@ -110,24 +87,10 @@ const EmotionPanel = ({
           </div>
         )}
         
-        {/* 表面情绪指示 */}
+        {/* 可观察情绪指示 */}
         {status.isSurface && (
           <div className="emotion-indicator surface" style={{ backgroundColor: `${emotion.color}40` }}>
-            <span className="indicator-label">表面</span>
-            {data.surface && (
-              <>
-                <div className="intensity-bar">
-                  <div 
-                    className="intensity-fill" 
-                    style={{ 
-                      width: `${data.surface.intensity * 10}%`,
-                      backgroundColor: emotion.color
-                    }}
-                  />
-                </div>
-                <span className="intensity-value">{data.surface.intensity}/10</span>
-              </>
-            )}
+            <span className="indicator-label">观察</span>
           </div>
         )}
         
@@ -135,27 +98,6 @@ const EmotionPanel = ({
         {status.isReal && (
           <div className="emotion-indicator real" style={{ backgroundColor: `${emotion.color}80` }}>
             <span className="indicator-label">真实</span>
-            {data.real && (
-              <>
-                <div className="intensity-bar">
-                  <div 
-                    className="intensity-fill" 
-                    style={{ 
-                      width: `${data.real.intensity * 10}%`,
-                      backgroundColor: emotion.color
-                    }}
-                  />
-                </div>
-                <span className="intensity-value">{data.real.intensity}/10</span>
-              </>
-            )}
-          </div>
-        )}
-        
-        {/* 信任度显示 */}
-        {(data.surface || data.real) && (
-          <div className="confidence-badge">
-            信任度: {Math.round((data.real?.confidence || data.surface?.confidence || 0) * 100)}%
           </div>
         )}
         
@@ -182,7 +124,7 @@ const EmotionPanel = ({
             className={activeTab === 'surface' ? 'active' : ''} 
             onClick={() => setActiveTab('surface')}
           >
-            表面情绪 ({surfaceEmotions.length})
+            已观察情绪 ({surfaceEmotions.length})
           </button>
           <button 
             className={activeTab === 'hints' ? 'active' : ''} 
@@ -207,32 +149,12 @@ const EmotionPanel = ({
         </div>
       )}
 
-      {!guessedCorrectly && !guessMode && guessReadiness && (
-        <div className={`guess-readiness-panel ${readiness.canGuess ? 'ready' : 'pending'}`}>
-          <div className="guess-readiness-title">
-            {readiness.canGuess ? '🧩 顾客开始露出破绽，可以尝试猜测了' : '🕵️ 继续侦察：再收集一点可读信息'}
-          </div>
-          <div className="guess-readiness-steps">
-            <span className={readiness.trustReady ? 'met' : 'unmet'}>
-              信任度 {Math.round(trustLevel * 100)}% / {requiredTrustPercent}%
-            </span>
-            <span className={readiness.turnsReady ? 'met' : 'unmet'}>
-              对话轮次 {readiness.playerTurns || 0} / {readiness.requiredTurns || 0}
-            </span>
-            <span className={readiness.clueReady ? 'met' : 'unmet'}>
-              观察线索 {readiness.clueCount || 0} / {readiness.requiredClues || 0}
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* 情绪线索区域 - 显示模糊提示 */}
       {activeTab === 'hints' && (
         <div className="emotion-hints-section">
           <div className="hints-header">
             <span className="hints-icon">🔍</span>
             <span className="hints-title">顾客真实情绪线索</span>
-            <span className="trust-badge">信任度: {Math.round(trustLevel * 100)}%</span>
           </div>
           {emotionHints.length > 0 ? (
             <div className="hints-list">
@@ -252,8 +174,8 @@ const EmotionPanel = ({
           ) : (
             <div className="no-hints">
               <div className="no-hints-icon">🤔</div>
-              <p>信任度不足，顾客不愿透露真实情绪...</p>
-              <p className="no-hints-tip">继续对话提升信任度吧！</p>
+              <p>暂未观察到稳定线索...</p>
+              <p className="no-hints-tip">继续对话，留意反复出现的表达。</p>
             </div>
           )}
         </div>
@@ -278,7 +200,7 @@ const EmotionPanel = ({
         <div className="emotion-legend">
           <div className="legend-item">
             <div className="legend-color surface"></div>
-            <span>表面情绪（可能是伪装）</span>
+            <span>已观察到的情绪线索</span>
           </div>
           <div className="legend-item">
             <div className="legend-color hint"></div>
@@ -318,7 +240,7 @@ const EmotionPanel = ({
         {!guessedCorrectly ? (
           guessMode ? (
             <div className="guess-actions">
-              <p className="guess-prompt">选择你认为的顾客真实情绪（可多选）</p>
+              <p className="guess-prompt">选择你认为的顾客真实情绪（必须选 3 个）</p>
               <div className="guess-buttons">
                 <button 
                   className="guess-btn cancel"
@@ -329,7 +251,7 @@ const EmotionPanel = ({
                 <button 
                   className="guess-btn confirm"
                   onClick={onConfirmGuess}
-                  disabled={selectedEmotions.length === 0}
+                  disabled={selectedEmotions.length < 3}
                 >
                   确认猜测 ({selectedEmotions.length})
                 </button>
@@ -339,10 +261,8 @@ const EmotionPanel = ({
             <button 
               className="start-guess-btn"
               onClick={onStartGuess}
-              disabled={startGuessDisabled}
             >
               🎯 猜测真实情绪
-              {startGuessHint && <span className="hint">{startGuessHint}</span>}
             </button>
           )
         ) : (
@@ -359,7 +279,7 @@ const EmotionPanel = ({
           <p className="tooltip-hint">
             {guessMode ? '点击选择猜测此情绪' : (guessedCorrectly ? '已识别情绪，正在调酒中' : '开始猜测模式后可选择')}
           </p>
-          {getEmotionStatus(hoveredEmotion).isSurface && <p className="tooltip-tag surface-tag">⚠️ 表面情绪（可能是伪装）</p>}
+          {getEmotionStatus(hoveredEmotion).isSurface && <p className="tooltip-tag surface-tag">⚠️ 已观察线索，不代表全部信息</p>}
         </div>
       )}
       

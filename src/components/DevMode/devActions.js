@@ -27,13 +27,14 @@ import {
   getAchievementStats,
   saveAchievementStats
 } from '../../utils/storage.js';
+import { EMOTION_IDS_8 } from '../../utils/emotionSchema.js';
 
 /**
  * 获取所有物品ID列表
  */
 const getAllItemIds = () => {
   return {
-    emotions: ['nostalgia', 'courage', 'loneliness', 'relief', 'anxiety', 'calm', 'regret', 'aspiration', 'pressure', 'dependence', 'confusion', 'happiness'],
+    emotions: [...EMOTION_IDS_8],
     glasses: Object.keys(GLASS_TYPES),
     iceTypes: Object.keys(ICE_TYPES),
     garnishes: Object.keys(GARNISH_TYPES),
@@ -195,7 +196,7 @@ export const createTestReturnCustomer = (options = {}) => {
   const category = options.categoryId || 'workplace';
   const name = options.name || `回头客${String(now).slice(-4)}`;
   const phase = options.phase || 'introduction';
-  const baseEmotions = options.realEmotions || ['pressure', 'loneliness'];
+  const baseEmotions = options.realEmotions || ['fear', 'sadness'];
 
   const customer = {
     id: `return_${category}_${name}_${now}`,
@@ -207,7 +208,7 @@ export const createTestReturnCustomer = (options = {}) => {
       personality: ['寡言', '警惕', '在试探'],
       dialogueStyle: { tone: 'casual', length: 'short', features: ['停顿多', '回答简短', '只输出台词'] },
       emotionMask: {
-        surface: ['calm'],
+        surface: ['trust'],
         reality: baseEmotions.slice(0, 2),
         trustThreshold: { low: 0.25, medium: 0.55, high: 0.75 }
       },
@@ -250,7 +251,7 @@ export const createTestReturnCustomer = (options = {}) => {
     },
     emotionTrajectory: [{
       day: 1,
-      emotions: { surface: ['calm'], reality: baseEmotions.slice(0, 2) }
+      emotions: { surface: ['trust'], reality: baseEmotions.slice(0, 2) }
     }],
     scheduling: {
       nextPossibleDay: 1,

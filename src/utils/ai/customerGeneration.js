@@ -11,6 +11,7 @@ import {
 import { getAvatarFromCache, saveAvatarToCache } from '../avatarCache.js';
 import { getStoryworldCharacterByName } from '../storyworldRepository.js';
 import { getSettings } from '../storage.js';
+import { EMOTION_IDS_8, normalizeEmotionList } from '../emotionSchema.js';
 import { extractCleanJSON, tryRepairTruncatedJSON } from './jsonUtils.js';
 import { callDeepSeekAPIHelper } from './sharedApi.js';
 
@@ -65,11 +66,7 @@ const parseCustomerJSON = (response) => {
   return null;
 };
 
-const VALID_EMOTION_IDS = [
-  'nostalgia', 'courage', 'loneliness', 'relief', 'anxiety',
-  'calm', 'regret', 'aspiration', 'pressure', 'dependence',
-  'confusion', 'happiness',
-];
+const VALID_EMOTION_IDS = [...EMOTION_IDS_8];
 
 const validateEmotions = (emotions, fallbackPool, isRealityEmotion = false) => {
   if (!emotions || !Array.isArray(emotions) || emotions.length === 0) {
@@ -78,22 +75,26 @@ const validateEmotions = (emotions, fallbackPool, isRealityEmotion = false) => {
       : pickRandomMultiple(fallbackPool, 1, 2);
   }
 
-  const validEmotions = emotions.filter((emotion) => VALID_EMOTION_IDS.includes(emotion));
+  const validEmotions = normalizeEmotionList(emotions, {
+    min: 0,
+    max: isRealityEmotion ? 2 : 2,
+    fallback: fallbackPool,
+  }).filter((emotion) => VALID_EMOTION_IDS.includes(emotion));
 
   if (validEmotions.length === 0) {
     console.warn('⚠️ 无效的情绪ID，使用降级值:', emotions);
     return isRealityEmotion
-      ? pickRandomMultiple(fallbackPool, 2, 2)
-      : pickRandomMultiple(fallbackPool, 1, 2);
+      ? normalizeEmotionList(pickRandomMultiple(fallbackPool, 2, 2), { min: 2, max: 2, fallback: ['fear', 'sadness'] })
+      : normalizeEmotionList(pickRandomMultiple(fallbackPool, 1, 2), { min: 1, max: 2, fallback: ['trust'] });
   }
 
   if (isRealityEmotion) {
     if (validEmotions.length < 2) {
-      const additionalEmotions = pickRandomMultiple(
+      const additionalEmotions = normalizeEmotionList(pickRandomMultiple(
         fallbackPool.filter((emotion) => !validEmotions.includes(emotion)),
         2 - validEmotions.length,
         2 - validEmotions.length
-      );
+      ), { min: 2 - validEmotions.length, max: 2 - validEmotions.length, fallback: ['fear', 'sadness'] });
       return [...validEmotions, ...additionalEmotions];
     }
 

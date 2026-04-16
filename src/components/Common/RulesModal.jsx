@@ -17,7 +17,7 @@ const RulesModal = ({ onClose }) => {
             <h3>🌟 无尽模式</h3>
             <ul>
               <li>每位顾客需要<strong>成功调制 3 杯</strong>鸡尾酒才会满意离开</li>
-              <li>顾客初始<strong>30% 信任度</strong>，降至 0% 会失望离开</li>
+              <li>顾客初始<strong>0% 信任度</strong>，降至 0% 会失望离开</li>
               <li>成功调酒获得<strong>💰 金币收入</strong>（金额根据配方满意度）</li>
               <li>服务完当前顾客后进入<strong>日结算</strong>，可前往商店购买道具</li>
               <li>下一天会迎来新的顾客，不断挑战！</li>

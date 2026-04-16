@@ -9,11 +9,9 @@ import { GLASS_TYPES } from '../data/emotions.js';
 import { ICE_TYPES, GARNISH_TYPES, DECORATION_TYPES } from '../data/addons.js';
 import { INGREDIENTS } from '../data/ingredients.js';
 import { ALL_CUSTOMER_TYPES } from '../data/aiCustomers.js';
+import { EMOTION_IDS_8 } from './emotionSchema.js';
 
-const ALL_EMOTION_IDS = [
-  'nostalgia', 'courage', 'loneliness', 'relief', 'anxiety', 'calm',
-  'regret', 'aspiration', 'pressure', 'dependence', 'confusion', 'happiness'
-];
+const ALL_EMOTION_IDS = [...EMOTION_IDS_8];
 
 const buildFullyUnlockedItems = (base = {}) => ({
   emotions: [...ALL_EMOTION_IDS],

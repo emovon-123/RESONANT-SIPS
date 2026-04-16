@@ -61,20 +61,11 @@ export const useCocktailFlow = ({ playSFX = () => {}, addToast = () => {} } = {}
     setTimeout(() => setTrustFlies(prev => prev.filter(f => f.id !== id)), 1000);
   }, []);
 
-  /** 开始情绪猜测 */
-  const handleStartEmotionGuess = useCallback((trustLevel, gateStatus = null) => {
-    const gate = gateStatus || guessReadiness;
-    if (trustLevel < (gate.requiredTrust ?? 0.3)) {
-      addToast('💭 信任度还不够，顾客暂时不愿意露底。', 'warning');
-      return;
-    }
-    if (!gate.canGuess) {
-      addToast(`🧩 ${gate.reason || '线索还不够，继续观察对话中的异常点。'}`, 'info');
-      return;
-    }
+  /** 开始情绪猜测（不设前置门槛） */
+  const handleStartEmotionGuess = useCallback(() => {
     setEmotionGuessMode(true);
     playSFX('click');
-  }, [addToast, playSFX, guessReadiness]);
+  }, [playSFX]);
 
   const updateGuessReadiness = useCallback((nextStatus) => {
     setGuessReadiness(prev => ({ ...prev, ...(nextStatus || {}) }));

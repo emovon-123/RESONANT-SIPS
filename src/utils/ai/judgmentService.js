@@ -1,5 +1,6 @@
 import { API_CONFIG, DEBUG_CONFIG, PROMPT_TYPES, generatePrompt, getActiveAPIType } from '../../config/api.js';
 import { callDeepSeekAPIHelper } from './sharedApi.js';
+import { normalizeEmotionList } from '../emotionSchema.js';
 
 export const callAIForCocktailJudgmentWithEmotionChange = async (params) => {
   const { aiConfig, trustLevel, emotionState, cocktailRecipe, dialogueHistory } = params;
@@ -166,15 +167,8 @@ const extractFromTruncatedCombinedJSON = (text, params) => {
  * 验证并规范化合并结果
  */
 const validateCombinedResult = (parsed, params) => {
-  const validEmotionIds = [
-    'nostalgia', 'courage', 'loneliness', 'relief', 'anxiety', 
-    'calm', 'regret', 'aspiration', 'pressure', 'dependence', 
-    'confusion', 'happiness'
-  ];
-  
   const filterValidEmotions = (emotions) => {
-    if (!emotions || !Array.isArray(emotions)) return [];
-    return emotions.filter(e => validEmotionIds.includes(e));
+    return normalizeEmotionList(emotions, { min: 0, max: 2, fallback: [] });
   };
   
   const success = typeof parsed.success === 'boolean' ? parsed.success : false;
@@ -193,8 +187,12 @@ const validateCombinedResult = (parsed, params) => {
     
     if (surface.length > 0 || reality.length > 0) {
       newEmotions = {
-        surface: surface.length > 0 ? surface : params.emotionState?.surface || ['calm'],
-        reality: reality.length > 0 ? reality : params.emotionState?.reality || ['calm']
+        surface: surface.length > 0
+          ? surface
+          : normalizeEmotionList(params.emotionState?.surface, { min: 1, max: 1, fallback: ['trust'] }),
+        reality: reality.length > 0
+          ? reality
+          : normalizeEmotionList(params.emotionState?.reality, { min: 1, max: 2, fallback: ['fear'] })
       };
     }
   }
@@ -211,15 +209,22 @@ const validateCombinedResult = (parsed, params) => {
  * 简单的降级情绪变化
  */
 const getFallbackEmotionChangeSimple = (params, wasSuccessful) => {
-  const currentSurface = params.emotionState?.surface || ['calm'];
-  const currentReality = params.emotionState?.reality || ['pressure'];
+  const currentSurface = normalizeEmotionList(params.emotionState?.surface, {
+    min: 1,
+    max: 1,
+    fallback: ['trust'],
+  });
+  const currentReality = normalizeEmotionList(params.emotionState?.reality, {
+    min: 1,
+    max: 2,
+    fallback: ['fear'],
+  });
   
   const positiveTransitions = {
-    'pressure': 'relief',
-    'anxiety': 'calm',
-    'loneliness': 'happiness',
-    'confusion': 'calm',
-    'regret': 'relief'
+    fear: 'trust',
+    sadness: 'joy',
+    anger: 'trust',
+    disgust: 'surprise',
   };
   
   let newReality = [...currentReality];
@@ -648,20 +653,8 @@ const parseEmotionChangeJSON = (response) => {
  * 验证并规范化情绪变化结果
  */
 const validateEmotionChangeResult = (parsed) => {
-  // 验证情绪ID是否有效
-  const validEmotionIds = [
-    'nostalgia', 'courage', 'loneliness', 'relief', 'anxiety', 
-    'calm', 'regret', 'aspiration', 'pressure', 'dependence', 
-    'confusion', 'happiness'
-  ];
-  
-  const filterValidEmotions = (emotions) => {
-    if (!emotions || !Array.isArray(emotions)) return [];
-    return emotions.filter(e => validEmotionIds.includes(e));
-  };
-  
-  const surface = filterValidEmotions(parsed.surface);
-  const reality = filterValidEmotions(parsed.reality);
+  const surface = normalizeEmotionList(parsed.surface, { min: 0, max: 1, fallback: [] });
+  const reality = normalizeEmotionList(parsed.reality, { min: 0, max: 2, fallback: [] });
   
   // 确保至少有一个情绪
   if (surface.length === 0 && reality.length === 0) {
@@ -669,8 +662,8 @@ const validateEmotionChangeResult = (parsed) => {
   }
   
   return {
-    surface: surface.length > 0 ? surface : ['calm'],
-    reality: reality.length > 0 ? reality : ['calm']
+    surface: surface.length > 0 ? surface : ['trust'],
+    reality: reality.length > 0 ? reality : ['fear']
   };
 };
 
@@ -681,16 +674,23 @@ const getFallbackEmotionChange = (params) => {
   const { currentEmotions, cocktailEmotions, wasSuccessful } = params;
   
   // 获取当前情绪
-  const currentSurface = currentEmotions?.surface || ['calm'];
-  const currentReality = currentEmotions?.reality || ['pressure'];
+  const currentSurface = normalizeEmotionList(currentEmotions?.surface, {
+    min: 1,
+    max: 1,
+    fallback: ['trust'],
+  });
+  const currentReality = normalizeEmotionList(currentEmotions?.reality, {
+    min: 1,
+    max: 2,
+    fallback: ['fear'],
+  });
   
   // 情绪转换映射（成功时可能的转变）
   const positiveTransitions = {
-    'pressure': 'relief',
-    'anxiety': 'calm',
-    'loneliness': 'happiness',
-    'confusion': 'calm',
-    'regret': 'relief'
+    fear: 'trust',
+    sadness: 'joy',
+    anger: 'trust',
+    disgust: 'surprise',
   };
   
   let newSurface = [...currentSurface];
@@ -712,8 +712,8 @@ const getFallbackEmotionChange = (params) => {
   } else {
     // 失败时：情绪基本保持不变，可能略微加深
     // 有小概率加入焦虑或迷茫
-    if (Math.random() > 0.7 && !currentReality.includes('anxiety')) {
-      newReality = [...currentReality.slice(0, 1), 'confusion'];
+    if (Math.random() > 0.7 && !currentReality.includes('fear')) {
+      newReality = [...currentReality.slice(0, 1), 'surprise'];
     }
   }
   

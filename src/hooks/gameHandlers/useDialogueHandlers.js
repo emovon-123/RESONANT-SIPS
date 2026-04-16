@@ -12,7 +12,7 @@ import {
   queueActiveSlotGameStateSync
 } from '../../utils/saveRepository.js';
 
-export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
+export const useDialogueHandlers = ({ ctx, refs }) => {
   const { consecutiveSilenceRef, totalSilenceRef } = refs;
   const {
     tutorial, customerFlow, dialogue, emotionSystem, cocktailFlow,
@@ -29,10 +29,9 @@ export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
 
       if (tutorial.isTutorialMode) {
         dialogue.addMessage('ai', '......有酒吗。');
-        const initialSurface = surfaceEmotionIds.map(emotionId => ({ id: emotionId, intensity: 3, confidence: 0.3 }));
+        const initialSurface = surfaceEmotionIds.map(emotionId => ({ id: emotionId }));
         emotionSystem.setSurfaceEmotions(initialSurface);
         dialogue.setQuickOptions(tutorial.getTutorialQuickOptions(1));
-        syncGuessReadiness({ clueCount: 0, playerTurns: 0 });
         dialogue.setIsLoading(false);
         return;
       }
@@ -69,9 +68,8 @@ export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
         timestamp: Date.now()
       }).catch(() => {});
 
-      const initialSurface = surfaceEmotionIds.map(emotionId => ({ id: emotionId, intensity: 3, confidence: 0.3 }));
+      const initialSurface = surfaceEmotionIds.map(emotionId => ({ id: emotionId }));
       emotionSystem.setSurfaceEmotions(initialSurface);
-      syncGuessReadiness({ clueCount: 0, playerTurns: 0 });
 
       customerFlow.generateNextCustomerInBackground();
 
@@ -90,7 +88,7 @@ export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
     } finally {
       dialogue.setIsLoading(false);
     }
-  }, [aiConfig, trustLevel, tutorial.isTutorialMode, syncGuessReadiness]);
+  }, [aiConfig, trustLevel, tutorial.isTutorialMode]);
 
   const handleSendMessage = useCallback(async (message, source) => {
     playSFX('click');
@@ -129,7 +127,7 @@ export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
           };
           response = await callAIAPI(PROMPT_TYPES.RESPONSE, {
             aiConfig: tutorialAiConfig, trustLevel,
-            emotionState: { surface: ['calm'], reality: realityEmotions },
+            emotionState: { surface: ['trust'], reality: realityEmotions },
             playerInput: message, dialogueHistory: dialogue.dialogueHistory
           });
         } catch {
@@ -210,17 +208,7 @@ export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
         addToast(`🔎 观察到线索：${addedClues[0].label}`, 'info');
       }
 
-      const wasGuessReady = cocktailFlow.guessReadiness?.canGuess === true;
       const playerMsgCount = dialogue.dialogueHistory.filter(d => d.role === 'player').length + 1;
-      const totalClueCount = (emotionSystem.observedClues?.length || 0) + addedClues.length;
-      const readiness = syncGuessReadiness({
-        clueCount: totalClueCount,
-        playerTurns: playerMsgCount
-      });
-
-      if (!wasGuessReady && readiness.canGuess && !tutorial.isTutorialMode) {
-        addToast('🧩 顾客开始露出破绽，现在可以尝试猜测真实情绪。', 'success');
-      }
 
       // 沉默特殊处理（加入连续沉默递减和惩罚机制）
       if (message === '……') {
@@ -371,96 +359,67 @@ export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
     showGameHint,
     addToast,
     tutorial.isTutorialMode,
-    cocktailFlow.guessReadiness,
-    syncGuessReadiness
+    cocktailFlow.guessReadiness
   ]);
 
   // ==================== 情绪猜测 ====================
 
   const handleConfirmGuess = useCallback(() => {
-    if (emotionSystem.selectedEmotions.length === 0) { addToast('请至少选择一种情绪', 'warning'); return; }
+    if (emotionSystem.selectedEmotions.length < 3) { addToast('请先选择 3 种情绪再确认', 'warning'); return; }
     playSFX('click');
     cocktailFlow.setGuessAttempts(prev => prev + 1);
 
     const customerRealEmotions = emotionSystem.dynamicCustomerEmotions.reality.length > 0
       ? emotionSystem.dynamicCustomerEmotions.reality : (aiConfig?.emotionMask?.reality || []);
-    const correctGuesses = emotionSystem.selectedEmotions.filter(e => customerRealEmotions.includes(e));
-    let isCorrect = correctGuesses.length > 0;
-    if (tutorial.isTutorialMode && tutorial.shouldAutoRevealAnswer) isCorrect = true;
+    const hitGuesses = emotionSystem.selectedEmotions.filter(e => customerRealEmotions.includes(e));
 
-    if (isCorrect) {
-      cocktailFlow.setGuessedCorrectly(true);
-      cocktailFlow.setEmotionGuessMode(false);
-      cocktailFlow.setLastCorrectGuesses(correctGuesses);
-      playSFX('success');
-      const clueNames = (emotionSystem.observedClues || []).slice(-2).map(item => item.label);
-      const clueText = clueNames.length > 0 ? `你抓住了：${clueNames.join('、')}` : '你抓住了关键表达差异';
-      addToast(`🎯 猜对了！${clueText}`, 'success');
-      cocktailFlow.triggerGuessCorrectAnim();
+    cocktailFlow.setGuessedCorrectly(true);
+    cocktailFlow.setEmotionGuessMode(false);
+    cocktailFlow.setLastCorrectGuesses(emotionSystem.selectedEmotions);
+    playSFX('success');
+    addToast(`🎯 已确认猜测（命中 ${hitGuesses.length}/3）`, 'success');
+    cocktailFlow.triggerGuessCorrectAnim();
 
-      if (!tutorial.isTutorialMode) {
-        const isFirstTry = cocktailFlow.guessAttempts === 0;
-        achievements.onEmotionGuessSuccess(isFirstTry, correctGuesses);
-      }
-      if (tutorial.isTutorialMode) tutorial.advanceTutorial('emotion_guessed');
+    if (!tutorial.isTutorialMode) {
+      const isFirstTry = cocktailFlow.guessAttempts === 0;
+      achievements.onEmotionGuessSuccess(isFirstTry, hitGuesses);
+    }
+    if (tutorial.isTutorialMode) tutorial.advanceTutorial('emotion_guessed');
 
-      if (tutorial.isTutorialMode) {
-        cocktailFlow.setTargetConditions(TUTORIAL_TARGET.conditions);
-        cocktailFlow.setTargetHint(TUTORIAL_TARGET.hint);
-      } else {
-        const mixingMode = chapterSystem?.currentChapter?.mixingMode || 'strict';
-
-        // expressive/master：不再依赖数值目标（直接用“态度”调酒）
-        if (mixingMode === 'master') {
-          cocktailFlow.setTargetConditions([]);
-          cocktailFlow.setTargetHint('你已经不需要提示了。感受他们的情绪，用一杯酒回应。');
-        } else if (mixingMode === 'expressive') {
-          cocktailFlow.setTargetConditions([]);
-          cocktailFlow.setTargetHint('不看目标，听这个人需要什么，然后用酒说出来。');
-        } else {
-          const primaryEmotion = correctGuesses[0];
-          const availableIngredients = unlockedItems.ingredients || INITIAL_UNLOCKED_INGREDIENTS;
-          const target = generateSolvableTarget(primaryEmotion, availableIngredients);
-          if (target) {
-            let finalConditions = target.conditions;
-            const atmosphereShift = atmosphere?.modifiers?.targetShift;
-            if (atmosphereShift) {
-              finalConditions = target.conditions.map(cond => {
-                const shift = atmosphereShift[cond.attr];
-                return (shift !== undefined && shift !== 0) ? { ...cond, value: cond.value + shift } : cond;
-              });
-            }
-            cocktailFlow.setTargetConditions(finalConditions);
-            cocktailFlow.setTargetHint(target.hint);
-          }
-        }
-      }
-      setTrustLevel(prev => Math.min(1, prev + 0.1));
-      showGameHint('emotion_guessed');
+    if (tutorial.isTutorialMode) {
+      cocktailFlow.setTargetConditions(TUTORIAL_TARGET.conditions);
+      cocktailFlow.setTargetHint(TUTORIAL_TARGET.hint);
     } else {
-      cocktailFlow.triggerGuessWrongAnim();
-      if (tutorial.isTutorialMode) {
-        tutorial.advanceTutorial('emotion_guess_wrong');
-        addToast('❌ 不太对......再想想。', 'warning');
-        emotionSystem.setSelectedEmotions([]);
+      const mixingMode = chapterSystem?.currentChapter?.mixingMode || 'strict';
+
+      // expressive/master：不再依赖数值目标（直接用“态度”调酒）
+      if (mixingMode === 'master') {
+        cocktailFlow.setTargetConditions([]);
+        cocktailFlow.setTargetHint('你已经不需要提示了。感受他们的情绪，用一杯酒回应。');
+      } else if (mixingMode === 'expressive') {
+        cocktailFlow.setTargetConditions([]);
+        cocktailFlow.setTargetHint('不看目标，听这个人需要什么，然后用酒说出来。');
       } else {
-        const penalty = 0.05 + (cocktailFlow.guessAttempts * 0.02);
-        setTrustLevel(prev => Math.max(0, prev - penalty));
-        const surfaceIds = (emotionSystem.surfaceEmotions || []).map(item => item.id);
-        const selectedSurfaceCount = emotionSystem.selectedEmotions.filter(item => surfaceIds.includes(item)).length;
-        let failDirection = '线索还不够，先继续观察顾客的回避与停顿。';
-        if (selectedSurfaceCount > 0) {
-          failDirection = '你把表面情绪当成了真实情绪，试着看顾客没说出口的部分。';
-        } else if (emotionSystem.selectedEmotions.length >= 2) {
-          failDirection = '你的猜测有点发散，优先抓“反复出现”的迹象。';
+        const primaryEmotion = emotionSystem.selectedEmotions[0];
+        const availableIngredients = unlockedItems.ingredients || INITIAL_UNLOCKED_INGREDIENTS;
+        const target = generateSolvableTarget(primaryEmotion, availableIngredients);
+        if (target) {
+          let finalConditions = target.conditions;
+          const atmosphereShift = atmosphere?.modifiers?.targetShift;
+          if (atmosphereShift) {
+            finalConditions = target.conditions.map(cond => {
+              const shift = atmosphereShift[cond.attr];
+              return (shift !== undefined && shift !== 0) ? { ...cond, value: cond.value + shift } : cond;
+            });
+          }
+          cocktailFlow.setTargetConditions(finalConditions);
+          cocktailFlow.setTargetHint(target.hint);
         }
-        addToast(`❌ 猜错了。${failDirection} 信任度-${Math.round(penalty * 100)}%`, 'error');
-        emotionSystem.setSelectedEmotions([]);
-        if (cocktailFlow.guessAttempts >= 2) showGameHint('guess_hint');
-        syncGuessReadiness();
       }
     }
-  }, [emotionSystem.selectedEmotions, emotionSystem.dynamicCustomerEmotions, emotionSystem.observedClues, emotionSystem.surfaceEmotions, aiConfig, cocktailFlow.guessAttempts, unlockedItems, atmosphere, tutorial, addToast, playSFX, showGameHint, chapterSystem, syncGuessReadiness]);
+    setTrustLevel(prev => Math.min(1, prev + 0.1));
+    showGameHint('emotion_guessed');
+  }, [emotionSystem.selectedEmotions, emotionSystem.dynamicCustomerEmotions, emotionSystem.observedClues, emotionSystem.surfaceEmotions, aiConfig, cocktailFlow.guessAttempts, unlockedItems, atmosphere, tutorial, addToast, playSFX, showGameHint, chapterSystem]);
 
   // ==================== 调酒 ====================
 

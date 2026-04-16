@@ -190,10 +190,10 @@ export const checkDissonance = (attitude, customerState) => {
   const realEmotions = customerState.realEmotions || [];
 
   const hasFragile = realEmotions.some(e =>
-    ['anxiety', 'loneliness', 'dependence', 'pressure'].includes(e)
+    ['fear', 'sadness', 'anger', 'disgust'].includes(e)
   );
   const hasPositive = realEmotions.some(e =>
-    ['happiness', 'relief', 'aspiration', 'courage'].includes(e)
+    ['joy', 'trust', 'anticipation', 'surprise'].includes(e)
   );
 
   // 规则1：顾客脆弱时，给极度激烈对抗的酒 = 失调

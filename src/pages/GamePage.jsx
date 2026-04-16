@@ -143,7 +143,7 @@ const GamePage = ({
 
   // ==================== 鍏变韩鐘舵€?====================
 
-  const [trustLevel, setTrustLevel] = useState(0.3);
+  const [trustLevel, setTrustLevel] = useState(0);
   const money = appMoney ?? 0;
   const setMoney = setAppMoney ?? (() => {});
   const unlockedItems = appUnlockedItems ?? {
@@ -418,8 +418,8 @@ const GamePage = ({
               <EmotionPanel
                 surfaceEmotions={emotionSystem.surfaceEmotions} realEmotions={[]}
                 emotionHints={tutorial.isTutorialMode && tutorial.tutorialPhase !== 'dialogue' ? [
-                  { emotionId: 'pressure', hint: '馃挱 椤惧鑲╀笂浼间箮鍘嬬潃閲嶆媴......', level: 'medium' },
-                  { emotionId: 'loneliness', hint: '馃挱 椤惧韬笂鏈夌鐤忕鎰?.....', level: 'medium' }
+                  { emotionId: 'fear', hint: '顾客语气在发紧，像在担心失去什么。', level: 'medium' },
+                  { emotionId: 'sadness', hint: '顾客停顿很多，像把难过压回去了。', level: 'medium' }
                 ] : emotionSystem.emotionHints}
                 trustLevel={trustLevel}
                 onEmotionSelect={emotionSystem.handleEmotionSelect}

@@ -112,13 +112,6 @@ export const useEmotionSystem = ({ playSFX = () => {}, showGameHint = () => {} }
 
       setEmotionHints(hintsToShow);
 
-      if (trustLevel >= 0.5) {
-        setSurfaceEmotions(prev => prev.map(e => ({
-          ...e,
-          intensity: Math.max(1, Math.floor(e.intensity * (1.2 - trustLevel))),
-          confidence: 1 - trustLevel
-        })));
-      }
     }
   }, [dynamicCustomerEmotions, emotionHints, showGameHint]);
 

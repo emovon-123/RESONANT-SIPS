@@ -16,9 +16,7 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
 
   const resetForNewCustomer = useCallback(() => {
     const nextCustomer = customerFlow.dailyCustomers[customerFlow.currentCustomerIndex + 1] || customerFlow.dailyCustomers[customerFlow.currentCustomerIndex];
-    const initTrust = nextCustomer?.config?.isReturnCustomer
-      ? Math.max(0.3, nextCustomer.config.intimacy || 0.3)
-      : 0.3;
+    const initTrust = 0;
     setTrustLevel(initTrust);
     dialogue.resetDialogue();
     emotionSystem.resetEmotionState();

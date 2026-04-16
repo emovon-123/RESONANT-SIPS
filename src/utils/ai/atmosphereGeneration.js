@@ -5,6 +5,7 @@ import {
   generatePrompt,
   getActiveAPIType,
 } from '../../config/api.js';
+import { normalizeEmotionList } from '../emotionSchema.js';
 import { extractCleanJSON, tryRepairTruncatedJSON } from './jsonUtils.js';
 import { callDeepSeekAPIHelper } from './sharedApi.js';
 
@@ -151,12 +152,6 @@ const validateAtmosphere = (parsed) => {
   const validLighting = ['bright', 'dim_warm', 'neon', 'candlelight', 'flickering'];
   const validMusic = ['jazz_slow', 'electronic', 'classical', 'silence', 'lo_fi'];
   const validCrowdLevels = ['empty', 'sparse', 'moderate', 'crowded'];
-  const validEmotionIds = [
-    'nostalgia', 'courage', 'loneliness', 'relief', 'anxiety',
-    'calm', 'regret', 'aspiration', 'pressure', 'dependence',
-    'confusion', 'happiness',
-  ];
-
   const weather = validWeathers.includes(parsed.weather) ? parsed.weather : 'clear';
   const timeOfDay = validTimesOfDay.includes(parsed.timeOfDay) ? parsed.timeOfDay : 'night';
   const lighting = validLighting.includes(parsed.lighting) ? parsed.lighting : 'dim_warm';
@@ -168,9 +163,11 @@ const validateAtmosphere = (parsed) => {
     ? Math.max(-0.03, Math.min(0.05, modifiers.trustBonus))
     : 0;
 
-  const emotionBias = Array.isArray(modifiers.emotionBias)
-    ? modifiers.emotionBias.filter((emotion) => validEmotionIds.includes(emotion)).slice(0, 2)
-    : ['calm'];
+  const emotionBias = normalizeEmotionList(modifiers.emotionBias, {
+    min: 1,
+    max: 2,
+    fallback: ['trust'],
+  });
 
   const targetShift = modifiers.targetShift || {};
   const clampShift = (value) => typeof value === 'number' ? Math.max(-1, Math.min(1, Math.round(value))) : 0;

@@ -184,9 +184,9 @@ const getHybridResonanceScore = async (attitude, customerState, mixingMode = 'ex
   let deterministicScore = 0;
   const realEmotions = customerState?.realEmotions || [];
 
-  const fragileEmotions = ['anxiety', 'loneliness', 'dependence', 'pressure'];
-  const positiveEmotions = ['happiness', 'relief', 'aspiration', 'courage'];
-  const heavyEmotions = ['regret', 'loneliness', 'nostalgia'];
+  const fragileEmotions = ['fear', 'sadness', 'anger', 'disgust'];
+  const positiveEmotions = ['joy', 'trust', 'anticipation', 'surprise'];
+  const heavyEmotions = ['sadness', 'fear', 'disgust'];
 
   const isFragile = realEmotions.some(e => fragileEmotions.includes(e));
   const isPositive = realEmotions.some(e => positiveEmotions.includes(e));

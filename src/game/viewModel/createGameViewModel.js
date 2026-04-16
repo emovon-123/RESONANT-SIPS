@@ -86,7 +86,7 @@ export const createGameViewModel = ({
     recipe: safeRecipe,
     result,
     statusText,
-    trustLevel: Number.isFinite(trustLevel) ? trustLevel : 0.3
+    trustLevel: Number.isFinite(trustLevel) ? trustLevel : 0
   };
 };
 

@@ -14,8 +14,8 @@ export const TUTORIAL_CUSTOMER = {
     features: ['话少', '停顿多', '偶尔叹气']
   },
   emotionMask: {
-    surface: ['calm'],
-    reality: ['pressure', 'loneliness'],
+    surface: ['trust'],
+    reality: ['fear', 'sadness'],
     trustThreshold: { low: 0.2, medium: 0.4, high: 0.6 }
   },
   preferences: {
@@ -91,7 +91,7 @@ export const TUTORIAL_TARGET = {
     { attr: 'sweetness', op: '>=', value: 1 },
     { attr: 'strength', op: '<=', value: 3 }
   ],
-  hint: '压力和孤独需要一杯温暖而不太烈的酒。厚实一点、甜一点，让TA感受到被包裹的安全感。'
+  hint: '恐惧和悲伤需要一杯温暖而不太烈的酒。厚实一点、甜一点，让TA感受到被包裹的安全感。'
 };
 
 /**
@@ -123,7 +123,7 @@ export const getTutorialFailHint = (conditions, mixture) => {
  * 教学模式下可见的 6 个情绪（简化版）
  */
 export const TUTORIAL_VISIBLE_EMOTIONS = [
-  'calm', 'pressure', 'loneliness', 'happiness', 'anxiety', 'relief'
+  'trust', 'fear', 'sadness', 'joy', 'anger', 'anticipation'
 ];
 
 /**
@@ -139,11 +139,11 @@ export const TUTORIAL_TOOLTIPS = {
   silence_intro: '💡 "……"是沉默。有时候不说话，比说什么都好。\n   现在可以不用管它，等你们更熟了再试试。',
 
   // 阶段 2B：猜情绪
-  emotion_guide_v2: '💡 这座城市的人习惯戴面具。\n   「平静」是他展示给你看的——但你从对话里感受到了别的。\n   选择你认为他真正藏着的 2 个情绪。',
-  emotion_guide: '💡 顾客表面看起来「平静」，但TA真正的感受可能不是这样。\n   根据对话内容，选择你认为的 2 个真实情绪。',
+  emotion_guide_v2: '💡 这座城市的人习惯戴面具。\n   「信任」是他展示给你看的——但你从对话里感受到了别的。\n   选择你认为他真正藏着的 2 个情绪。',
+  emotion_guide: '💡 顾客表面看起来「信任」，但TA真正的感受可能不是这样。\n   根据对话内容，选择你认为的 2 个真实情绪。',
   emotion_confirm: '💡 选好了？点击确认。猜对了就能为TA调酒。\n   猜错了信任度会下降，所以先观察线索再决定。',
   emotion_wrong: '💡 不太对......再想想。\n   TA说"忙了一天回到家也没人说话"——这像是什么感受？',
-  emotion_correct: '🎯 没错，TA内心真正的感受是「压力」和「孤独」。\n   现在，为TA调一杯酒吧。',
+  emotion_correct: '🎯 没错，TA内心真正的感受是「恐惧」和「悲伤」。\n   现在，为TA调一杯酒吧。',
 
   // 阶段 2C：调酒
   target_guide: '💡 右上角是目标条件。你需要调一杯满足这些条件的酒。\n   浓稠度 ≥ 1、甜度 ≥ 1、烈度 ≤ 3',

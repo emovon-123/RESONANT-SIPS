@@ -280,7 +280,7 @@ export const hydrateLegacyStorageFromGameState = (gameState) => {
   const progress = {
     day: gameState.day || 1,
     money: gameState.money || 0,
-    trustLevel: gameState.trustLevel ?? 0.3,
+    trustLevel: gameState.trustLevel ?? 0,
     stats: gameState.stats || {},
   };
 
@@ -299,7 +299,7 @@ const buildGameStateFromLocalStorage = () => {
     version: 1,
     day: progress.day || 1,
     money: progress.money || 0,
-    trustLevel: progress.trustLevel ?? 0.3,
+    trustLevel: progress.trustLevel ?? 0,
     stats: progress.stats || {},
     unlockedItems,
     legacyStorageSnapshot: collectLegacyStorageSnapshot(),
