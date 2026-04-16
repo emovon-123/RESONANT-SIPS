@@ -7,7 +7,7 @@ import { saveShortMemory, saveGameSession, getGameSession, clearGameSession, get
 import { generateQuickOptions } from '../utils/aiService.js';
 import audioManager from '../utils/audioManager.js';
 import { TUTORIAL_CUSTOMER } from '../data/tutorialData.js';
-import { generateFallbackCustomers, generateCustomerWithCharacterPool } from '../utils/aiService.js';
+import { generateCustomerWithCharacterPool } from '../utils/aiService.js';
 
 /**
  * @param {Object} ctx - 上下文对象，包含所有需要的 hook 引用和状态
@@ -140,9 +140,16 @@ export const useGameInit = (ctx) => {
           id: `${day}-0`, type: firstCustomer.categoryId, config: firstCustomer
         }]);
       } catch (error) {
-        console.error('❌ 第一位顾客生成失败:', error);
-        const fallbackCustomers = generateFallbackCustomers(day);
-        customerFlow.setDailyCustomers([fallbackCustomers[0]]);
+        console.error('❌ 第一位顾客生成失败（仅自定义角色模式）:', error);
+        const isNoActiveCharacters = error?.message === 'no_active_characters';
+        if (isNoActiveCharacters) {
+          customerFlow.setDailyCustomers([]);
+          customerFlow.setCustomerLoadingProgress('未找到首位顾客，请返回新游戏配置重新添加并启用角色 ID。');
+          addToast('未找到首位顾客，请返回新游戏配置重新添加并启用角色 ID。', 'error');
+        } else {
+          customerFlow.setDailyCustomers([]);
+          addToast('第一位顾客生成失败，请检查 AI 设置后重试。', 'error');
+        }
       }
       customerFlow.setIsLoadingCustomers(false);
       customerFlow.setIsGameReady(true);

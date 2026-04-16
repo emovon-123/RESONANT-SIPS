@@ -249,6 +249,9 @@ export const collectLegacyStorageSnapshot = () => {
 export const hydrateLegacyStorageFromGameState = (gameState) => {
   if (!gameState || typeof gameState !== 'object') return;
 
+  const preservedCustomCharacterIds = localStorage.getItem('bartender_custom_character_ids');
+  const preservedActiveCharacterIds = localStorage.getItem('bartender_active_character_ids');
+
   // 先清空 legacy 键，避免新槽位被上一个槽位的遗留会话/状态污染
   LEGACY_KEYS.forEach((key) => {
     try {
@@ -266,6 +269,13 @@ export const hydrateLegacyStorageFromGameState = (gameState) => {
       // noop
     }
   });
+
+  if (!Object.prototype.hasOwnProperty.call(snapshot, 'bartender_custom_character_ids') && preservedCustomCharacterIds !== null) {
+    localStorage.setItem('bartender_custom_character_ids', preservedCustomCharacterIds);
+  }
+  if (!Object.prototype.hasOwnProperty.call(snapshot, 'bartender_active_character_ids') && preservedActiveCharacterIds !== null) {
+    localStorage.setItem('bartender_active_character_ids', preservedActiveCharacterIds);
+  }
 
   const progress = {
     day: gameState.day || 1,

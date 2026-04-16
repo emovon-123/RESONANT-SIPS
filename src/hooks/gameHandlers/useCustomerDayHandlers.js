@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { generateFallbackCustomers, generateCustomerWithCharacterPool } from '../../utils/aiService.js';
+import { generateCustomerWithCharacterPool } from '../../utils/aiService.js';
 import { clearGameSession, getActiveCharacterIds, getReturnCustomers, saveGameProgress } from '../../utils/storage.js';
 import { appendActiveNpcEvent, queueActiveSlotGameStateSync, setActiveNpcId } from '../../utils/saveRepository.js';
 
@@ -322,9 +322,9 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
           id: `${nextDay}-0`, type: firstCustomer.categoryId, config: firstCustomer
         }]);
       } catch (error) {
-        console.error('❌ 顾客生成失败:', error);
-        const fallbackCustomers = generateFallbackCustomers(nextDay);
-        customerFlow.setDailyCustomers([fallbackCustomers[0]]);
+        console.error('❌ 顾客生成失败（仅自定义角色模式）:', error);
+        customerFlow.setDailyCustomers([]);
+        addToast('未找到可用角色，请回到新游戏配置页启用至少一个角色。', 'error');
       }
       customerFlow.setIsLoadingCustomers(false);
     }

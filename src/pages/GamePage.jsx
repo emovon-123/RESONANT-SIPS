@@ -80,6 +80,7 @@ const GamePage = ({
   aiType = 'workplace',
   activeSlotId = null,
   onBack,
+  onBackToSetup,
   money: appMoney,
   setMoney: setAppMoney,
   unlockedItems: appUnlockedItems,
@@ -327,13 +328,22 @@ const GamePage = ({
   ) : null;
   // ???????????????
   const hasHighPriorityOverlay = ['ending', 'chapter_transition', 'memory_fragment', 'tutorial_complete', 'day_transition'].includes(activeOverlay);
+  const showNoCustomerRecoveryActions = !customerFlow.isLoadingCustomers
+    && customerFlow.dailyCustomers.length === 0
+    && String(customerFlow.customerLoadingProgress || '').includes('未找到首位顾客');
 
   if ((!customerFlow.isGameReady || customerFlow.dailyCustomers.length === 0 || customerFlow.isLoadingCustomers) && !hasHighPriorityOverlay) {
     return (
       <div className="game-page">
         <AmbientGameCanvas viewModel={gameViewModel} />
         <div className="game-page-ui">
-          <GameLoadingScreen isLoadingCustomers={customerFlow.isLoadingCustomers} progress={customerFlow.customerLoadingProgress} />
+          <GameLoadingScreen
+            isLoadingCustomers={customerFlow.isLoadingCustomers}
+            progress={customerFlow.customerLoadingProgress}
+            showRecoveryActions={showNoCustomerRecoveryActions}
+            onBack={onBack}
+            onBackToSetup={onBackToSetup}
+          />
           <AtmosphereOverlay atmosphere={atmosphere} day={customerFlow.currentDay} onStart={dismissAtmosphereOverlay} isVisible={showAtmosphereOverlay && !customerFlow.isLoadingCustomers} />
           {dayTransitionOverlay}
         </div>

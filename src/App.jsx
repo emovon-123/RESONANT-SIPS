@@ -8,7 +8,6 @@ import {
   saveGameProgress,
   saveUnlockedItems,
 } from './utils/storage.js';
-import { pickRandom } from './data/aiCustomers.js';
 import { getActiveAPIConfig, getActiveAPIType } from './config/api.js';
 import {
   createSlot,
@@ -82,17 +81,21 @@ function App() {
 
     Promise.all([
       import('./utils/aiService.js'),
-      import('./data/aiCustomers.js'),
     ])
-      .then(async ([aiService, customerData]) => {
+      .then(async ([aiService]) => {
         const activeCharacterIds = getActiveCharacterIds();
         if (activeCharacterIds.length > 0) {
-          const roleId = pickRandom(activeCharacterIds);
+          const roleId = activeCharacterIds[Math.floor(Math.random() * activeCharacterIds.length)];
           return aiService.generateCustomerFromCharacterId(roleId);
         }
-        return aiService.generateCustomer(customerData.pickRandom(customerData.ALL_CATEGORY_IDS));
+        return null;
       })
       .then((customer) => {
+        if (!customer) {
+          console.log('ℹ️ 未配置启用角色，跳过首页顾客预加载');
+          setPreloadedFirstCustomer(null);
+          return;
+        }
         setPreloadedFirstCustomer(customer);
         console.log('✅ 第一个顾客预加载完成:', customer.name);
       })
@@ -125,7 +128,7 @@ function App() {
     const config = getActiveAPIConfig();
 
     if (apiType === 'mock') {
-      return true;
+      return { ok: true, message: '' };
     }
 
     try {
@@ -146,22 +149,64 @@ function App() {
           }),
         });
       } else {
-        const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
+        if (config.openaiCompatible) {
+          const endpoint = String(config.endpoint || '').replace(/\/$/, '');
+          response = await fetch(`${endpoint}/chat/completions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${config.apiKey}`,
+            },
+            signal: AbortSignal.timeout(10000),
+            body: JSON.stringify({
+              model: config.model,
+              messages: [{ role: 'user', content: 'Reply with OK.' }],
+              max_tokens: 16,
+            }),
+          });
+        } else {
+          const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
 
-        response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          signal: AbortSignal.timeout(10000),
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: 'hi' }] }],
-            generationConfig: { maxOutputTokens: 16 },
-          }),
-        });
+          response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(10000),
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: 'hi' }] }],
+              generationConfig: { maxOutputTokens: 16 },
+            }),
+          });
+        }
       }
 
-      return response.ok;
-    } catch {
-      return false;
+      if (response.ok) {
+        return { ok: true, message: '' };
+      }
+
+      let details = '';
+      try {
+        const raw = await response.text();
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            details = parsed?.error?.message_cn || parsed?.error?.message || parsed?.message || raw;
+          } catch {
+            details = raw;
+          }
+        }
+      } catch {
+        // ignore parsing failures
+      }
+
+      return {
+        ok: false,
+        message: details || `HTTP ${response.status}`,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        message: error?.message || 'network_error',
+      };
     }
   }, []);
 
@@ -170,9 +215,10 @@ function App() {
     setIsEnteringGame(true);
 
     try {
-      const isApiReady = await checkAIConnectivity();
-      if (!isApiReady) {
-        window.alert('AI 连接失败，请检查 API 设置后重试。');
+      const connectivity = await checkAIConnectivity();
+      if (!connectivity.ok) {
+        const details = connectivity.message ? `\n\n原因：${connectivity.message}` : '';
+        window.alert(`AI 连接失败，请检查 API 设置后重试。${details}`);
         return false;
       }
 
@@ -207,6 +253,12 @@ function App() {
 
   const handleStartNewGame = useCallback(async () => {
     if (isEnteringGame) return;
+
+    const activeCharacterIds = getActiveCharacterIds();
+    if (!Array.isArray(activeCharacterIds) || activeCharacterIds.length === 0) {
+      window.alert('请先在新游戏配置中添加并启用至少一个角色 ID。');
+      return;
+    }
 
     try {
       setIsEnteringGame(true);
@@ -281,6 +333,7 @@ function App() {
             aiType={selectedAI}
             activeSlotId={activeSlotId}
             onBack={handleBackToHome}
+            onBackToSetup={handleOpenNewGameSetup}
             money={money}
             setMoney={setMoney}
             unlockedItems={unlockedItems}

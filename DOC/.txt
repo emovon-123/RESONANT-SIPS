@@ -1,0 +1,50 @@
+ℹ️ 未配置启用角色，跳过首页顾客预加载
+:5173/api/save/slots/slot_1776315095661/game-state:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)了解此错误
+saveRepository.js:309 syncActiveSlotGameState failed: ENOENT: no such file or directory, rename 'D:\MScIME25\SD5976-AI Tools For X\心灵特调\saves\slot_1776315095661\game_state.json.tmp-19784-1776315098991' -> 'D:\MScIME25\SD5976-AI Tools For X\心灵特调\saves\slot_1776315095661\game_state.json'
+（匿名） @ saveRepository.js:309了解此警告
+useGameInit.js:120 🔄 初始化第 1 天...
+useBarAtmosphere.js:54 🌍 开始为第1天生成氛围...
+atmosphereGeneration.js:12 🌍 开始生成第1天的氛围...
+atmosphereGeneration.js:22 === Atmosphere Prompt ===
+atmosphereGeneration.js:23 你是赛博朋克酒吧"未来酒馆"的世界模拟器。
+
+现在是第1天。请为今晚生成独特的酒吧氛围。
+
+【约束条件】
+- weather 只能是: clear, rainy, stormy, foggy, snowy, heatwave
+- timeOfDay 只能是: evening, night, late_night, dawn
+- lighting 只能是: bright, dim_warm, neon, candlelight, flickering
+- music 只能是: jazz_slow, electronic, classical, silence, lo_fi
+- crowdLevel 只能是: empty, sparse, moderate, crowded
+- emotionBias 只能从以下选取1-2个: nostalgia, courage, loneliness, relief, anxiety, calm, regret, aspiration, pressure, dependence, confusion, happiness
+- trustBonus 范围: -0.03 到 +0.05
+- targetShift 每项范围: -1 到 +1
+- priceMultiplier 范围: 0.8 到 1.5
+
+【历史氛围（避免重复）】
+无
+
+【近期酒吧故事（可选择性融入氛围叙述中）】
+无
+
+【创意要求】
+- narrative 要有画面感，50-80字，赛博朋克风格
+- scent 是酒吧内的气味描述，15-25字
+- 氛围要影响玩法（例如暴风雨夜 → 顾客偏好烈酒，人多时 → 信任度更难建立）
+- 保持内在逻辑一致性（雨天不应该是 heatwave）
+
+返回纯JSON：
+{"weather":"...","timeOfDay":"...","season":"...","lighting":"...","music":"...","crowdLevel":"...","scent":"...","narrative":"...","modifiers":{"trustBonus":0,"emotionBias":["..."],"targetShift":{"thickness":0,"sweetness":0,"strength":0},"priceMultiplier":1.0,"customerCountMod":0}}
+atmosphereGeneration.js:24 ========================
+api.302.ai/v1/gemini-2.5-flash:generateContent?key=sk-uCuUlhZ8aO1uVQZNhmZKt7cutxq6ztflekASQNcjNC77Ismi:1  Failed to load resource: the server responded with a status of 500 ()了解此错误
+atmosphereGeneration.js:38 ❌ 氛围生成失败: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
+    at callGeminiAPIForAtmosphere (atmosphereGeneration.js:76:38)
+    at async generateDailyAtmosphere (atmosphereGeneration.js:27:22)
+    at async useBarAtmosphere.js:55:22
+    at async initializeFirstCustomer (useGameInit.js:121:7)
+（匿名） @ atmosphereGeneration.js:38了解此错误
+useBarAtmosphere.js:78 ⚠️ 使用降级氛围模板: clear
+useGameInit.js:143 ❌ 第一位顾客生成失败（仅自定义角色模式）: Error: no_active_characters
+    at generateCustomerWithCharacterPool (customerGeneration.js:444:11)
+    at initializeFirstCustomer (useGameInit.js:138:37)
+（匿名） @ useGameInit.js:143了解此错误

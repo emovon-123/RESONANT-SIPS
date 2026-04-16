@@ -722,3 +722,21 @@
   border-radius: 12px;
   box-shadow: none;
 }
+
+.thinking-ellipsis {
+  display: inline-block;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.78);
+  animation: thinkingPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes thinkingPulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.95;
+    transform: translateY(-1px);
+  }
+}

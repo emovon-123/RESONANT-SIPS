@@ -73,7 +73,13 @@ const callGeminiAPIForAtmosphere = async (prompt) => {
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
+    const raw = await response.text();
+    let errorData = raw;
+    try {
+      errorData = raw ? JSON.parse(raw) : { message: 'empty_error_body' };
+    } catch {
+      // Keep raw text when body is not valid JSON.
+    }
     console.error('❌ Gemini API错误:', errorData);
     throw new Error(`Gemini API调用失败: ${response.status}`);
   }

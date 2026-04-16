@@ -14,6 +14,7 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
   const [customCharacterIds, setCustomCharacterIds] = useState([]);
   const [activeCharacterIds, setActiveCharacterIds] = useState([]);
   const [toastList, setToastList] = useState([]);
+  const hasActiveCharacters = activeCharacterIds.length > 0;
 
   useEffect(() => {
     setCustomCharacterIds(getCustomCharacterIds());
@@ -60,11 +61,19 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
     setActiveCharacterIds(saved);
   };
 
+  const handleConfirmStart = () => {
+    if (!hasActiveCharacters) {
+      pushToast('请至少启用一个角色ID后再开始。', 'warning');
+      return;
+    }
+    onConfirmStart?.();
+  };
+
   return (
     <div className="newgame-setup-page">
       <div className="newgame-setup-panel">
         <h1 className="newgame-setup-title">新游戏配置</h1>
-        <p className="newgame-setup-desc">先配置可出现角色，再开始新游戏。未勾选角色不会被优先选中。</p>
+        <p className="newgame-setup-desc">先配置可出现角色，再开始新游戏。当前为仅自定义角色模式。</p>
 
         <section className="newgame-role-panel">
           <div className="newgame-role-title">角色池管理</div>
@@ -83,7 +92,7 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
 
           <div className="newgame-role-list">
             {customCharacterIds.length === 0 && (
-              <div className="newgame-role-empty">暂无已添加角色，系统将使用随机角色。</div>
+              <div className="newgame-role-empty">暂无已添加角色。请先添加至少一个角色ID。</div>
             )}
             {customCharacterIds.map((id) => (
               <div className="newgame-role-item" key={id}>
@@ -110,7 +119,7 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
 
         <div className="newgame-actions">
           <button className="newgame-back-btn" onClick={onBack} disabled={loading}>返回</button>
-          <button className="newgame-start-btn" onClick={onConfirmStart} disabled={loading}>
+          <button className="newgame-start-btn" onClick={handleConfirmStart} disabled={loading || !hasActiveCharacters}>
             {loading ? '创建中...' : '开始新游戏'}
           </button>
         </div>

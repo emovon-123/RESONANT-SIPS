@@ -45,16 +45,23 @@ export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
         intimacy: aiConfig.intimacy || 0, crossroads: aiConfig.crossroads || null
       } : {};
 
-      // 流式输出开场白
-      dialogue.addMessage('ai', '');
+      // 流式输出开场白：先展示思考省略号，避免空白气泡
+      dialogue.addMessage('ai', '……', false, { isThinking: true });
       dialogue.setIsLoading(false);
+
+      let gotFirstChunk = false;
 
       const initialMessage = await callAIAPI(initialPromptType, {
         aiConfig, trustLevel, emotionState: { surface: [], reality: realityEmotions }, ...returnParams
       }, (accumulated) => {
+        if (!gotFirstChunk) {
+          gotFirstChunk = true;
+          dialogue.updateLastMessageMeta?.({ isThinking: false });
+        }
         dialogue.updateLastMessage(accumulated);
       });
       dialogue.updateLastMessage(initialMessage);
+      dialogue.updateLastMessageMeta?.({ isThinking: false });
       appendActiveNpcEvent({
         role: 'ai',
         type: 'dialogue_opening',
@@ -165,9 +172,11 @@ export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
         dialogueStyle: runtimeAiConfig.dialogueStyle
       } : {};
 
-      // 流式输出：先添加空的 AI 消息占位，再逐步更新
-      dialogue.addMessage('ai', '', false);
+      // 流式输出：先显示思考省略号，再逐步更新
+      dialogue.addMessage('ai', '……', false, { isThinking: true });
       dialogue.setIsLoading(false); // 隐藏打字指示器，由实际文字替代
+
+      let gotFirstChunk = false;
 
       const response = await callAIAPI(promptType, {
         aiConfig: runtimeAiConfig, trustLevel, emotionState: currentEmotionState,
@@ -175,11 +184,16 @@ export const useDialogueHandlers = ({ ctx, refs, syncGuessReadiness }) => {
         memoryContext, ...extraParams
       }, (accumulated) => {
         // 流式回调：实时更新最后一条消息
+        if (!gotFirstChunk) {
+          gotFirstChunk = true;
+          dialogue.updateLastMessageMeta?.({ isThinking: false });
+        }
         dialogue.updateLastMessage(accumulated);
       });
 
       // 流式结束后用最终清理过的文本覆盖
       dialogue.updateLastMessage(response);
+      dialogue.updateLastMessageMeta?.({ isThinking: false });
       appendActiveNpcEvent({
         role: 'ai',
         type: 'dialogue_ai',

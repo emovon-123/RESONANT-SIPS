@@ -17,7 +17,13 @@ const LOADING_TIPS = [
 /**
  * 游戏加载界面 — 沉浸式赛博朋克风格
  */
-const GameLoadingScreen = ({ isLoadingCustomers = false, progress = '' }) => {
+const GameLoadingScreen = ({
+  isLoadingCustomers = false,
+  progress = '',
+  showRecoveryActions = false,
+  onBack = null,
+  onBackToSetup = null,
+}) => {
   const [tip] = useState(() => LOADING_TIPS[Math.floor(Math.random() * LOADING_TIPS.length)]);
   const [dots, setDots] = useState('');
 
@@ -153,6 +159,21 @@ const GameLoadingScreen = ({ isLoadingCustomers = false, progress = '' }) => {
 
         {progress && (
           <p className="loading-subtext">{progress}</p>
+        )}
+
+        {showRecoveryActions && (
+          <div className="loading-actions">
+            {typeof onBackToSetup === 'function' && (
+              <button type="button" className="loading-action-btn loading-action-primary" onClick={onBackToSetup}>
+                返回新游戏配置
+              </button>
+            )}
+            {typeof onBack === 'function' && (
+              <button type="button" className="loading-action-btn loading-action-secondary" onClick={onBack}>
+                返回上一级
+              </button>
+            )}
+          </div>
         )}
 
         {/* 进度条 */}

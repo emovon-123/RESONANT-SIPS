@@ -10,8 +10,7 @@
  * - 后台生成下一个顾客
  */
 import { useState, useRef, useCallback } from 'react';
-import { generateCustomer, generateCustomerWithCharacterPool, generateFallbackCustomers } from '../utils/aiService.js';
-import { pickRandom, ALL_CATEGORY_IDS } from '../data/aiCustomers.js';
+import { generateCustomerWithCharacterPool } from '../utils/aiService.js';
 import { getGameProgress } from '../utils/storage.js';
 import { getActiveCharacterIds } from '../utils/storage.js';
 
@@ -89,15 +88,25 @@ export const useCustomerFlow = () => {
         console.log('🔄 今日顾客已满，开始预加载下一天的顾客...');
         setIsPreloadingNextDay(true);
         try {
-          const customers = await Promise.all([
-            generateCustomer(pickRandom(ALL_CATEGORY_IDS)),
-            generateCustomer(pickRandom(ALL_CATEGORY_IDS))
-          ]);
-          setPreloadedNextDayCustomer(customers[0]);
-          setPreloadedSecondCustomer(customers[1]);
-          console.log('✅ 下一天2位顾客预加载完成:', customers[0].name, ',', customers[1].name);
+          const activeCharacterIds = getActiveCharacterIds();
+          const usedCharacterIds = dailyCustomers
+            .map((item) => item?.config?.customCharacterId)
+            .filter(Boolean);
+
+          const first = await generateCustomerWithCharacterPool({
+            activeCharacterIds,
+            usedCharacterIds,
+          });
+          const second = await generateCustomerWithCharacterPool({
+            activeCharacterIds,
+            usedCharacterIds: [...usedCharacterIds, first?.customCharacterId].filter(Boolean),
+          });
+
+          setPreloadedNextDayCustomer(first);
+          setPreloadedSecondCustomer(second);
+          console.log('✅ 下一天2位顾客预加载完成:', first.name, ',', second.name);
         } catch (error) {
-          console.error('❌ 预加载下一天顾客失败:', error);
+          console.error('❌ 预加载下一天顾客失败（仅自定义角色模式）:', error);
         } finally {
           setIsPreloadingNextDay(false);
         }
@@ -123,12 +132,7 @@ export const useCustomerFlow = () => {
       setDailyCustomers(prev => [...prev, newCustomer]);
       console.log('✅ 下一个顾客生成完成:', newCustomer.config.name);
     } catch (error) {
-      console.error('❌ 后台生成顾客失败:', error);
-      const fallbackCustomers = generateFallbackCustomers(currentDay);
-      const fallbackCustomer = fallbackCustomers[0];
-      fallbackCustomer.id = `${currentDay}-${nextIndex}`;
-      setDailyCustomers(prev => [...prev, fallbackCustomer]);
-      console.log('⚠️ 使用降级顾客:', fallbackCustomer.config.name);
+      console.error('❌ 后台生成顾客失败（仅自定义角色模式）:', error);
     }
   }, [currentCustomerIndex, currentDay, dailyCustomers.length, isPreloadingNextDay, preloadedNextDayCustomer]);
 

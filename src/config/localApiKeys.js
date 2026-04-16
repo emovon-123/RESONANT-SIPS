@@ -10,13 +10,13 @@ const LOCAL_API_KEYS = {
   gemini: {
     apiKey: 'your api key',
     model: 'gemini-2.5-flash',
-    endpoint: 'https://generativelanguage.googleapis.com/v1/models',
+    endpoint: 'https://api.302.ai/v1',
     imageModel: 'gemini-2.5-flash-image',
     imageEndpoint: 'https://generativelanguage.googleapis.com/v1beta/models',
   },
   // Optional: set to 'deepseek' or 'gemini' to force provider.
   // Keep empty to auto-select by available key.
-  provider: '',
+  provider: 'gemini',
 };
 
 export default LOCAL_API_KEYS;

@@ -337,6 +337,10 @@ const callDeepSeekAPIStreaming = async (prompt, onStreamChunk) => {
 const callGeminiAPI = async (prompt, onStreamChunk = null) => {
   const config = API_CONFIG.gemini;
   try {
+    if (config.openaiCompatible) {
+      return await callGeminiViaOpenAICompatible(prompt, onStreamChunk);
+    }
+
     // 如果提供了流式回调，使用流式API
     if (onStreamChunk) {
       return await callGeminiAPIStreaming(prompt, onStreamChunk);
@@ -515,6 +519,105 @@ const callGeminiAPI = async (prompt, onStreamChunk = null) => {
   }
 };
 
+const callGeminiViaOpenAICompatible = async (prompt, onStreamChunk = null) => {
+  const config = API_CONFIG.gemini;
+  const endpoint = String(config.endpoint || '').replace(/\/$/, '');
+  const url = `${endpoint}/chat/completions`;
+
+  if (onStreamChunk) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: config.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.75,
+        max_tokens: 4096,
+        frequency_penalty: 0.4,
+        presence_penalty: 0.2,
+        stream: true,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gemini(OpenAI兼容)调用失败: ${response.status} ${errorText}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const payload = line.slice(6).trim();
+          if (!payload || payload === '[DONE]') continue;
+          try {
+            const data = JSON.parse(payload);
+            const chunk = data?.choices?.[0]?.delta?.content || '';
+            if (!chunk) continue;
+            fullText += chunk;
+            onStreamChunk(fullText, chunk);
+          } catch {
+            // ignore parse errors
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    let text = fullText.trim();
+    text = text.replace(/^(我说|我回答|我：|回复：|["“])\s*/g, '');
+    text = text.replace(/["”]$/g, '');
+    if (!/[。！？.!?…]$/.test(text)) text += '。';
+    return stripNarration(text);
+  }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${config.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: config.model,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.75,
+      max_tokens: 4096,
+      frequency_penalty: 0.4,
+      presence_penalty: 0.2,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Gemini(OpenAI兼容)调用失败: ${response.status} ${errorText}`);
+  }
+
+  const data = await response.json();
+  let text = data?.choices?.[0]?.message?.content || '';
+  text = String(text).trim();
+  text = text.replace(/^(我说|我回答|我：|回复：|["“])\s*/g, '');
+  text = text.replace(/["”]$/g, '');
+  if (!/[。！？.!?…]$/.test(text)) text += '。';
+  text = stripNarration(text);
+  if (!text) throw new Error('Gemini(OpenAI兼容)返回空内容');
+  return text;
+};
+
 // Google Gemini 流式API调用
 const callGeminiAPIStreaming = async (prompt, onStreamChunk) => {
   const config = API_CONFIG.gemini;
@@ -671,4 +774,3 @@ export {
   callAIForTrustJudgment,
 } from './ai/judgmentService.js';
 export { generateQuickOptions } from './ai/quickOptions.js';
-export { generateFallbackCustomers } from './ai/fallbackCustomers.js';

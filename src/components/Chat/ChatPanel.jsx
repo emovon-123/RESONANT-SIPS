@@ -65,7 +65,11 @@ const ChatPanel = ({
   };
 
   // 高亮情绪线索句
-  const renderMessageContent = (content, hasEmotionClue) => {
+  const renderMessageContent = (content, hasEmotionClue, isThinking = false) => {
+    if (isThinking) {
+      return <span className="thinking-ellipsis" aria-label="思考中">……</span>;
+    }
+
     return (
       <span className={hasEmotionClue ? 'emotion-clue' : ''}>
         {content}
@@ -133,13 +137,15 @@ const ChatPanel = ({
               )}
             </div>
             <div className="message-bubble">
-              {renderMessageContent(msg.content, msg.hasEmotionClue)}
-              <span className="message-time">
-                {new Date(msg.timestamp).toLocaleTimeString('zh-CN', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                })}
-              </span>
+              {renderMessageContent(msg.content, msg.hasEmotionClue, msg.isThinking)}
+              {!msg.isThinking && (
+                <span className="message-time">
+                  {new Date(msg.timestamp).toLocaleTimeString('zh-CN', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
+              )}
             </div>
           </div>
         ))}

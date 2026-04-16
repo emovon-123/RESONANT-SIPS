@@ -2,6 +2,7 @@ import http from 'node:http';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getCharacterByName, searchCharacters } from './storyworld-service.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -105,7 +106,7 @@ const readJson = async (file, fallback = null) => {
 
 const writeJsonAtomic = async (file, data) => {
   await ensureDir(path.dirname(file));
-  const tmp = `${file}.tmp-${process.pid}-${Date.now()}`;
+  const tmp = `${file}.tmp-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const payload = `${JSON.stringify(data, null, 2)}\n`;
   await fs.writeFile(tmp, payload, 'utf8');
   await fs.rename(tmp, file);
@@ -483,6 +484,44 @@ const handlers = {
     const meta = await readJson(slotMetaPath(slotId), null);
     return json(201, { ok: true, slotId, meta });
   },
+
+  async getCharacterByName(req, requestUrl) {
+    const queryFromUrl = requestUrl.searchParams.get('query') || requestUrl.searchParams.get('code') || requestUrl.searchParams.get('name');
+    let query = queryFromUrl;
+
+    if (!query && (req.method || 'GET') !== 'GET') {
+      const body = await parseBody(req);
+      query = body?.query || body?.code || body?.name || null;
+    }
+
+    const character = await getCharacterByName({ rootDir: ROOT, query });
+    if (!character) {
+      return json(404, { error: 'character_not_found' });
+    }
+
+    return json(200, { character });
+  },
+
+  async searchCharacters(req, requestUrl) {
+    const queryFromUrl = requestUrl.searchParams.get('query') || requestUrl.searchParams.get('q') || '';
+    const limitFromUrl = requestUrl.searchParams.get('limit');
+    let query = queryFromUrl;
+    let limit = limitFromUrl;
+
+    if ((req.method || 'GET') !== 'GET') {
+      const body = await parseBody(req);
+      query = body?.query ?? body?.q ?? query;
+      limit = body?.limit ?? limit;
+    }
+
+    const results = await searchCharacters({
+      rootDir: ROOT,
+      query,
+      limit,
+    });
+
+    return json(200, { results });
+  },
 };
 
 const route = async (req) => {
@@ -495,6 +534,13 @@ const route = async (req) => {
   if (pathname === '/api/save/slots' && method === 'GET') return handlers.listSlots();
   if (pathname === '/api/save/slots' && method === 'POST') return handlers.createSlot(req);
   if (pathname === '/api/save/migrate/localstorage' && method === 'POST') return handlers.migrateLegacy(req);
+
+  if (pathname === '/api/mcp/character/get_by_name' && (method === 'GET' || method === 'POST')) {
+    return handlers.getCharacterByName(req, requestUrl);
+  }
+  if (pathname === '/api/mcp/character/search' && (method === 'GET' || method === 'POST')) {
+    return handlers.searchCharacters(req, requestUrl);
+  }
 
   const slotMatch = pathname.match(/^\/api\/save\/slots\/([a-zA-Z0-9_-]+)$/);
   if (slotMatch) {

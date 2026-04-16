@@ -9,6 +9,7 @@ import {
   randomInRange,
 } from '../../data/aiCustomers.js';
 import { getAvatarFromCache, saveAvatarToCache } from '../avatarCache.js';
+import { getStoryworldCharacterByName } from '../storyworldRepository.js';
 import { getSettings } from '../storage.js';
 import { extractCleanJSON, tryRepairTruncatedJSON } from './jsonUtils.js';
 import { callDeepSeekAPIHelper } from './sharedApi.js';
@@ -213,6 +214,19 @@ const hashCharacterId = (text) => {
   return Math.abs(hash);
 };
 
+const splitListLikeText = (value) => {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item || '').trim()).filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    return value
+      .split(/[;,，、]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+};
+
 const buildAvatarPrompt = (customerConfig) => {
   const category = customerConfig.categoryId || 'workplace';
   const appearance = CATEGORY_APPEARANCE[category] || CATEGORY_APPEARANCE.workplace;
@@ -359,20 +373,46 @@ export const generateCustomerFromCharacterId = async (characterId) => {
     throw new Error('invalid_character_id');
   }
 
-  const categoryId = ALL_CATEGORY_IDS[hashCharacterId(roleId) % ALL_CATEGORY_IDS.length] || 'workplace';
+  let context = null;
+  try {
+    context = await getStoryworldCharacterByName(roleId);
+  } catch (error) {
+    console.warn('⚠️ Storyworld角色读取失败，降级为占位角色:', error?.message || error);
+  }
+
+  const mappedCategoryId = String(context?.categoryId || '').trim();
+  const categoryId = ALL_CATEGORY_IDS.includes(mappedCategoryId)
+    ? mappedCategoryId
+    : (ALL_CATEGORY_IDS[hashCharacterId(roleId) % ALL_CATEGORY_IDS.length] || 'workplace');
+
   const categoryConfig = getCategoryConfig(categoryId);
+  const personality = splitListLikeText(context?.profile?.personality);
+  const dialogueFeatures = splitListLikeText(context?.dialogueStyle?.features);
+  const openingLines = Array.isArray(context?.dialogueStyle?.openingLines)
+    ? context.dialogueStyle.openingLines.map((line) => String(line || '').trim()).filter(Boolean)
+    : [];
+
   const base = completeCustomerConfig({
-    name: roleId,
-    backstory: `来自角色库的角色 ${roleId}，今晚来到酒吧。`,
-    initialDialogue: [
-      `我是 ${roleId}。`,
-      '今晚想找个人说说话。',
-      '给我一杯适合我现在心情的酒吧。'
-    ]
+    name: context?.displayName || roleId,
+    personality,
+    dialogueStyle: {
+      tone: context?.dialogueStyle?.tone || undefined,
+      length: 'medium',
+      features: dialogueFeatures,
+    },
+    backstory: context?.background?.backstory || `来自角色库的角色 ${roleId}，今晚来到酒吧。`,
+    initialDialogue: openingLines.length > 0
+      ? openingLines
+      : [
+        `我是 ${context?.displayName || roleId}。`,
+        '今晚想找个人说说话。',
+        '给我一杯适合我现在心情的酒。'
+      ],
   }, categoryConfig);
 
   base.customCharacterId = roleId;
   base.isCustomCharacter = true;
+  base.customCharacterSource = context?.source || null;
 
   base.avatarBase64 = null;
   base.avatarCacheKey = `custom_${roleId}_${Date.now()}`;
@@ -399,15 +439,17 @@ export const generateCustomerWithCharacterPool = async ({
       .map((item) => String(item || '').trim())
       .filter((item) => CHARACTER_ID_PATTERN.test(item))
     : [];
+
+  if (validIds.length === 0) {
+    throw new Error('no_active_characters');
+  }
+
   const used = new Set((Array.isArray(usedCharacterIds) ? usedCharacterIds : []).map((item) => String(item || '').trim()));
 
   const remainingCustom = validIds.filter((id) => !used.has(id));
-  if (remainingCustom.length > 0) {
-    const chosen = pickRandom(remainingCustom);
-    return generateCustomerFromCharacterId(chosen);
-  }
-
-  return generateCustomer(pickRandom(ALL_CATEGORY_IDS));
+  const candidatePool = remainingCustom.length > 0 ? remainingCustom : validIds;
+  const chosen = pickRandom(candidatePool);
+  return generateCustomerFromCharacterId(chosen);
 };
 
 const callGeminiAPIForCustomer = async (prompt) => {
@@ -427,6 +469,35 @@ const callGeminiAPIForCustomer = async (prompt) => {
   }
 
   const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
+
+  if (config.openaiCompatible) {
+    const endpoint = String(config.endpoint || '').replace(/\/$/, '');
+    const response = await fetch(`${endpoint}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: config.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.9,
+        max_tokens: 8192,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gemini(OpenAI兼容)调用失败: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    const text = data?.choices?.[0]?.message?.content;
+    if (!text) {
+      throw new Error('Gemini(OpenAI兼容)返回格式异常');
+    }
+    return text;
+  }
 
   const response = await fetch(url, {
     method: 'POST',
