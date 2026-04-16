@@ -1,0 +1,31 @@
+code: 5738g
+name: Captain Quick
+categoryId: workplace
+personality:
+  - Charismatic
+  - sunny "pop-star" vibe
+  - media darling
+  - confident
+  - reckless
+  - protective
+  - driven by survivor's guilt
+  - obsessive about truth
+backstory: >-
+  Captain Quick (born as an abandoned orphan) was raised by a dedicated
+  firefighter adoptive father. Lacking companionship, Quick grew up rebellious.
+  A childhood prank with fire turned tragic, killing his father who died saving
+  him. The scar on his brow is a permanent reminder. To atone, he became a
+  firefighter relying on agility, heavy tech gear, and Dr. Goat's potions
+  (Strength/Speed/Jump). He acts outwardly sunny and cocky ("Catch me if you
+  can!"), but is internally driven by guilt. Now a celebrated "City Hero," he
+  has recently discovered a clue about his biological parents, pulling him into
+  a conspiracy.
+dialogueStyle:
+  tone: tired
+  openingLines:
+    - 我是 Captain Quick。
+    - 今晚想找个人说说话。
+    - 给我一杯适合我现在心情的酒。
+source:
+  type: preset
+  path: seeds/characters/presets/5738g/source.yaml

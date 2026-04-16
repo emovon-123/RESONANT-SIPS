@@ -1,4 +1,4 @@
-import preset5738g from '../../../seeds/characters/presets/5738g.json';
+import preset5738g from '../../../seeds/characters/presets/5738g/profile.json';
 
 export const DEFAULT_PRESET_CHARACTERS = [preset5738g]
   .filter(Boolean)

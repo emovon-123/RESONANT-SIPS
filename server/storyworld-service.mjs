@@ -39,6 +39,12 @@ const normalizeCode = (value) => {
 
 const toRelativePath = (root, absolutePath) => path.relative(root, absolutePath).replace(/\\/g, '/');
 
+const getFilePriority = (filePath) => {
+  if (JSON_EXT_RE.test(filePath)) return 3;
+  if (YAML_EXT_RE.test(filePath)) return 1;
+  return 0;
+};
+
 const ensureDir = async (dir) => {
   await fs.mkdir(dir, { recursive: true });
 };
@@ -54,6 +60,48 @@ const fileExists = async (target) => {
 
 const getPresetCharacterDir = (rootDir) => path.join(rootDir, 'seeds', 'characters', 'presets');
 const getAddedCharacterDir = (rootDir) => path.join(rootDir, 'seeds', 'characters', 'added');
+
+const getAddedCharacterAssetDir = (rootDir, code) => {
+  const normalized = normalizeCode(code);
+  if (!normalized) return null;
+  return path.join(getAddedCharacterDir(rootDir), normalized);
+};
+
+const getPresetCharacterProfilePath = (rootDir, code) => {
+  const normalized = normalizeCode(code);
+  if (!normalized) return null;
+  return path.join(getPresetCharacterDir(rootDir), normalized, 'profile.json');
+};
+
+const getLegacyPresetCharacterProfilePath = (rootDir, code) => {
+  const normalized = normalizeCode(code);
+  if (!normalized) return null;
+  return path.join(getPresetCharacterDir(rootDir), `${normalized}.json`);
+};
+
+const getAddedCharacterProfilePath = (rootDir, code) => {
+  const normalized = normalizeCode(code);
+  if (!normalized) return null;
+  return path.join(getAddedCharacterDir(rootDir), normalized, 'profile.json');
+};
+
+const getAddedCharacterYamlPath = (rootDir, code) => {
+  const normalized = normalizeCode(code);
+  if (!normalized) return null;
+  return path.join(getAddedCharacterDir(rootDir), normalized, 'source.yaml');
+};
+
+const getLegacyAddedCharacterProfilePath = (rootDir, code) => {
+  const normalized = normalizeCode(code);
+  if (!normalized) return null;
+  return path.join(getAddedCharacterDir(rootDir), `${normalized}.json`);
+};
+
+const getLegacyAddedCharacterYamlPath = (rootDir, code) => {
+  const normalized = normalizeCode(code);
+  if (!normalized) return null;
+  return path.join(getAddedCharacterDir(rootDir), `${normalized}.yaml`);
+};
 
 const toCharacterProfileDocument = ({ code, character, preset = false }) => ({
   version: 1,
@@ -131,7 +179,8 @@ const writeRemoteCharacterCache = async ({ rootDir, code, rawYaml }) => {
   const normalizedCode = normalizeCode(code);
   if (!rootDir || !normalizedCode || typeof rawYaml !== 'string' || !rawYaml.trim()) return null;
 
-  const cacheDir = getAddedCharacterDir(rootDir);
+  const cacheDir = getAddedCharacterAssetDir(rootDir, normalizedCode);
+  if (!cacheDir) return null;
   await ensureDir(cacheDir);
 
   const data = YAML.parse(rawYaml);
@@ -143,13 +192,51 @@ const writeRemoteCharacterCache = async ({ rootDir, code, rawYaml }) => {
     sourceUrl: null,
   });
 
-  const targetFile = path.join(cacheDir, `${normalizedCode}.json`);
+  const targetFile = getAddedCharacterProfilePath(rootDir, normalizedCode);
+  const yamlFile = getAddedCharacterYamlPath(rootDir, normalizedCode);
   const profileDoc = toCharacterProfileDocument({ code: normalizedCode, character, preset: false });
+  await fs.writeFile(yamlFile, rawYaml, 'utf8');
   await fs.writeFile(targetFile, `${JSON.stringify(profileDoc, null, 2)}\n`, 'utf8');
+
+  // Remove legacy flat files after successful write to keep one canonical layout.
+  const legacyProfileFile = getLegacyAddedCharacterProfilePath(rootDir, normalizedCode);
+  const legacyYamlFile = getLegacyAddedCharacterYamlPath(rootDir, normalizedCode);
+  if (legacyProfileFile && await fileExists(legacyProfileFile)) {
+    await fs.rm(legacyProfileFile, { force: true });
+  }
+  if (legacyYamlFile && await fileExists(legacyYamlFile)) {
+    await fs.rm(legacyYamlFile, { force: true });
+  }
 
   cache.localIndex.ts = 0;
   cache.localContextByFile.delete(targetFile);
+  cache.localContextByFile.delete(yamlFile);
+  if (legacyProfileFile) cache.localContextByFile.delete(legacyProfileFile);
+  if (legacyYamlFile) cache.localContextByFile.delete(legacyYamlFile);
   return targetFile;
+};
+
+const findLocalProfileByCode = async (rootDir, code) => {
+  const normalizedCode = normalizeCode(code);
+  if (!normalizedCode) return null;
+
+  const profileCandidates = [
+    getAddedCharacterProfilePath(rootDir, normalizedCode),
+    getLegacyAddedCharacterProfilePath(rootDir, normalizedCode),
+    getPresetCharacterProfilePath(rootDir, normalizedCode),
+    getLegacyPresetCharacterProfilePath(rootDir, normalizedCode),
+  ].filter(Boolean);
+
+  for (const candidate of profileCandidates) {
+    if (!(await fileExists(candidate))) continue;
+    try {
+      return await loadProfileCharacterFromFile(rootDir, candidate, normalizedCode);
+    } catch {
+      // try next profile candidate
+    }
+  }
+
+  return null;
 };
 
 const parseNameList = (value) => {
@@ -367,18 +454,33 @@ const buildLocalIndex = async (rootDir) => {
     if (await fileExists(dir)) existingRoots.push(dir);
   }
 
-  const entries = [];
+  const entryByCode = new Map();
+  const fallbackEntries = [];
   for (const baseDir of existingRoots) {
     const characterFiles = await walkCharacterFiles(baseDir);
     for (const filePath of characterFiles) {
       const code = guessCodeFromFile(filePath);
-      entries.push({
-        code,
-        filePath,
-        baseDir,
-      });
+      const nextEntry = { code, filePath, baseDir };
+      if (!code) {
+        fallbackEntries.push(nextEntry);
+        continue;
+      }
+
+      const prev = entryByCode.get(code);
+      if (!prev) {
+        entryByCode.set(code, nextEntry);
+        continue;
+      }
+
+      const prevPriority = getFilePriority(prev.filePath);
+      const nextPriority = getFilePriority(filePath);
+      if (nextPriority > prevPriority) {
+        entryByCode.set(code, nextEntry);
+      }
     }
   }
+
+  const entries = [...entryByCode.values(), ...fallbackEntries];
 
   cache.localIndex = { ts: now, entries };
   return entries;
@@ -539,6 +641,9 @@ export const getCharacterByName = async ({ rootDir, query, cacheRemote = false }
     error.code = 'invalid_character_query';
     throw error;
   }
+
+  const byCodeFromProfile = await findLocalProfileByCode(rootDir, normalizedQuery);
+  if (byCodeFromProfile) return byCodeFromProfile;
 
   const byCode = await findLocalByCode(rootDir, normalizedQuery);
   if (byCode) return byCode;

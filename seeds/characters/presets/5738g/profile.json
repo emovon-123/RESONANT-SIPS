@@ -41,7 +41,7 @@
     },
     "source": {
       "type": "preset",
-      "path": "seeds/characters/presets/5738g.json",
+      "path": "seeds/characters/presets/5738g/profile.json",
       "url": null
     }
   }
