@@ -200,11 +200,11 @@ const SettingsPage = ({ onBack }) => {
           <div className="api-status">
             <div className="status-item">
               <span className="status-label">当前模式</span>
-              <span className={`status-badge ${getActiveAPIType() === 'deepseek' ? 'gemini' : (getActiveAPIType() === 'gemini' ? 'gemini' : 'mock')}`}>
-                {getActiveAPIType() !== 'mock' ? 'Google Gemini' : '模拟模式'}
+              <span className={`status-badge ${getActiveAPIType() === 'none' ? 'mock' : 'gemini'}`}>
+                {getActiveAPIType() === 'none' ? '未配置' : getActiveAPIName()}
               </span>
             </div>
-            {getActiveAPIType() !== 'mock' && (
+            {getActiveAPIType() !== 'none' && (
               <div className="status-item">
                 <span className="status-label">模型</span>
                 <span className="status-badge gemini">
@@ -215,9 +215,9 @@ const SettingsPage = ({ onBack }) => {
           </div>
 
           <p className="api-info">
-            {getActiveAPIType() !== 'mock'
+            {getActiveAPIType() !== 'none'
               ? <>✅ 当前使用 <strong>{getActiveAPIName()}</strong>（{getActiveAPIConfig()?.model || '-'}）。</>
-              : <>当前为模拟模式。</>}
+              : <>⚠️ 未配置可用 API Key，请在 <strong>.env.local</strong> 中配置后重启。</>}
             <br />
             AI回应将由真实的大语言模型生成，体验更加智能自然。
           </p>

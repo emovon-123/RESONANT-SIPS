@@ -72,7 +72,7 @@ const getAIResonanceJudgment = async (attitude, customerState) => {
   const apiType = getActiveAPIType();
   const config = getActiveAPIConfig();
 
-  if (apiType === 'mock' || !config?.apiKey) {
+  if (apiType === 'none' || !config?.apiKey) {
     return 'shallow';
   }
 

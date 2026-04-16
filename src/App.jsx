@@ -8,7 +8,7 @@ import {
   saveGameProgress,
   saveUnlockedItems,
 } from './utils/storage.js';
-import { getActiveAPIConfig, getActiveAPIType } from './config/api.js';
+import { getActiveAPIConfig, getActiveAPIType, getAPIUnavailableReason } from './config/api.js';
 import {
   createSlot,
   hydrateLegacyStorageFromGameState,
@@ -127,8 +127,8 @@ function App() {
     const apiType = getActiveAPIType();
     const config = getActiveAPIConfig();
 
-    if (apiType === 'mock') {
-      return { ok: true, message: '' };
+    if (apiType === 'none' || !config?.apiKey) {
+      return { ok: false, message: getAPIUnavailableReason() || '未配置可用 API Key。' };
     }
 
     try {

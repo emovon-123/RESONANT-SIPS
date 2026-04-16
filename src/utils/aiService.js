@@ -44,78 +44,15 @@ const stripNarration = (text) => {
   return cleaned;
 };
 
-// 模拟AI回应（用于测试）
-const mockAIResponse = async (prompt, aiConfig, trustLevel) => {
-  // 模拟网络延迟
-  await new Promise(resolve => setTimeout(resolve, API_CONFIG.mock.responseDelay));
-  
-  // 根据AI类型和信任度生成不同回应
-  const responses = {
-    workplace: {
-      low: [
-        "工作上的事情，都在正常推进，没什么特别的。",
-        "我处理得很好，不用担心。谢谢关心。",
-        "只是有点累，休息一下就好了。"
-      ],
-      medium: [
-        "其实...最近项目压力确实有点大，但我能应付。",
-        "有时候会觉得，这样的生活是不是少了点什么。",
-        "不太想承认，但偶尔确实会感到孤独。"
-      ],
-      high: [
-        "我已经很久没有好好休息了，每天都在追赶deadline。",
-        "说实话，我有时候会问自己，这么拼命到底是为了什么。",
-        "我也想找个人聊聊，但办公室里谁会真的关心这些呢。"
-      ]
-    },
-    artistic: {
-      low: [
-        "灯光在酒杯里折射，像是被困住的时光碎片...",
-        "你说人的记忆会像酒一样，越久越醇吗？",
-        "有些话说出来就变味了，所以我宁愿藏在心里。"
-      ],
-      medium: [
-        "我总是在想，如果当年选择了另一条路，现在会是什么样子。",
-        "梦想这种东西，是不是就像海市蜃楼，越追越远？",
-        "过去的事就像老照片，看得见摸不着，却总是让人怀念。"
-      ],
-      high: [
-        "我其实一直活在过去的影子里，不敢面对现在的自己。",
-        "那些未完成的梦想，每天晚上都会来找我，问我为什么放弃。",
-        "我想要的未来和怀念的过去，在心里拉扯，让我无法前进。"
-      ]
-    },
-    newbie: {
-      low: [
-        "呜呜我真的好慌啊！老板你这里看起来好安全...",
-        "我是不是特别笨啊？为什么别人都做得好好的，就我不行...",
-        "你会觉得我很烦吗？我、我不是故意的..."
-      ],
-      medium: [
-        "其实我也知道自己太依赖别人了，但是我就是害怕一个人面对...",
-        "每次遇到困难我就想逃，我是不是永远也长不大了？",
-        "我好羡慕那些什么都不怕的人，他们是怎么做到的呀？"
-      ],
-      high: [
-        "我真的很害怕失败，害怕被别人嘲笑，害怕证明自己真的很没用...",
-        "老板，我能一直躲在这里吗？外面的世界好可怕...",
-        "我知道总要自己面对，但是...你能陪着我吗？哪怕一小会儿..."
-      ]
-    }
-  };
-  
-  const level = trustLevel < 0.3 ? 'low' : trustLevel < 0.6 ? 'medium' : 'high';
-  const aiResponses = responses[aiConfig.id] || responses.workplace;
-  const responseList = aiResponses[level];
-  
-  return responseList[Math.floor(Math.random() * responseList.length)];
-};
-
 // 调用AI API（支持流式响应）
 // onStreamChunk: (fullText, newChunk) => void - 可选的流式回调函数
 export const callAIAPI = async (type, params, onStreamChunk = null) => {
   const apiType = getActiveAPIType();
   const prompt = generatePrompt(type, params);
+
+  if (apiType === 'none') {
+    throw new Error('未配置可用 API Key，请先配置 .env.local');
+  }
   
   if (DEBUG_CONFIG.logPrompts) {
     console.log('=== AI Prompt ===');
@@ -133,17 +70,6 @@ export const callAIAPI = async (type, params, onStreamChunk = null) => {
     } else if (apiType === 'gemini') {
       // Google Gemini API（支持流式）
       return await callGeminiAPI(prompt, onStreamChunk);
-    } else if (apiType === 'mock') {
-      // 模拟模式（模拟流式效果）
-      const response = await mockAIResponse(prompt, params.aiConfig, params.trustLevel);
-      if (onStreamChunk) {
-        // 模拟逐字输出效果
-        for (let i = 0; i < response.length; i++) {
-          await new Promise(r => setTimeout(r, 30));
-          onStreamChunk(response.slice(0, i + 1), response[i]);
-        }
-      }
-      return response;
     } else if (apiType === 'xunfei') {
       // 讯飞星火API
       return await callXunfeiAPI(prompt);
@@ -153,8 +79,7 @@ export const callAIAPI = async (type, params, onStreamChunk = null) => {
     }
   } catch (error) {
     console.error('AI API调用失败:', error);
-    // 失败时降级为模拟模式
-    return await mockAIResponse(prompt, params.aiConfig, params.trustLevel || 0.5);
+    throw error;
   }
 };
 
@@ -726,8 +651,8 @@ const callGeminiAPIStreaming = async (prompt, onStreamChunk) => {
 const callXunfeiAPI = async (prompt) => {
   // TODO: 实现讯飞星火API调用
   // 这里需要WebSocket连接和签名验证
-  console.warn('讯飞星火API尚未实现，使用模拟模式');
-  return await mockAIResponse(prompt, {}, 0.5);
+  console.warn('讯飞星火API尚未实现');
+  throw new Error('xunfei_api_not_implemented');
 };
 
 // 百度文心一言API调用

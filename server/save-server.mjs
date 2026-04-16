@@ -487,14 +487,17 @@ const handlers = {
 
   async getCharacterByName(req, requestUrl) {
     const queryFromUrl = requestUrl.searchParams.get('query') || requestUrl.searchParams.get('code') || requestUrl.searchParams.get('name');
+    const cacheFromUrl = requestUrl.searchParams.get('cacheRemote') || requestUrl.searchParams.get('cache');
     let query = queryFromUrl;
+    let cacheRemote = cacheFromUrl === '1' || cacheFromUrl === 'true';
 
     if (!query && (req.method || 'GET') !== 'GET') {
       const body = await parseBody(req);
       query = body?.query || body?.code || body?.name || null;
+      cacheRemote = Boolean(body?.cacheRemote || body?.cache);
     }
 
-    const character = await getCharacterByName({ rootDir: ROOT, query });
+    const character = await getCharacterByName({ rootDir: ROOT, query, cacheRemote });
     if (!character) {
       return json(404, { error: 'character_not_found' });
     }

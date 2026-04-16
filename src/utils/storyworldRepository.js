@@ -20,9 +20,16 @@ const request = async (method, url, body) => {
   return data || {};
 };
 
-export const getStoryworldCharacterByName = async (query) => {
-  const data = await request('POST', '/api/mcp/character/get_by_name', { query });
+export const getStoryworldCharacterByName = async (query, options = {}) => {
+  const data = await request('POST', '/api/mcp/character/get_by_name', {
+    query,
+    cacheRemote: Boolean(options?.cacheRemote),
+  });
   return data.character || null;
+};
+
+export const ensureStoryworldCharacterCached = async (query) => {
+  return getStoryworldCharacterByName(query, { cacheRemote: true });
 };
 
 export const searchStoryworldCharacters = async (query, limit = 20) => {

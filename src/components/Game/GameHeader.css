@@ -54,6 +54,8 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 3001;
 }
 
 /* ---- 顾客进度（紧凑版） ---- */
@@ -136,7 +138,7 @@
   border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-  z-index: 100;
+  z-index: 3100;
   animation: atmoDetailIn 0.15s ease;
 }
 

@@ -4,6 +4,7 @@ import YAML from 'yaml';
 
 const VALID_IDENTIFIER = /^[A-Za-z0-9_-]{2,64}$/;
 const YAML_EXT_RE = /\.(yaml|yml)$/i;
+const JSON_EXT_RE = /\.json$/i;
 
 const SKIP_DIRS = new Set([
   '.git',
@@ -38,6 +39,10 @@ const normalizeCode = (value) => {
 
 const toRelativePath = (root, absolutePath) => path.relative(root, absolutePath).replace(/\\/g, '/');
 
+const ensureDir = async (dir) => {
+  await fs.mkdir(dir, { recursive: true });
+};
+
 const fileExists = async (target) => {
   try {
     await fs.access(target);
@@ -45,6 +50,106 @@ const fileExists = async (target) => {
   } catch {
     return false;
   }
+};
+
+const getPresetCharacterDir = (rootDir) => path.join(rootDir, 'seeds', 'characters', 'presets');
+const getAddedCharacterDir = (rootDir) => path.join(rootDir, 'seeds', 'characters', 'added');
+
+const toCharacterProfileDocument = ({ code, character, preset = false }) => ({
+  version: 1,
+  id: String(code || character?.code || '').trim().toLowerCase(),
+  name: String(character?.displayName || character?.profile?.name || code || '').trim(),
+  preset,
+  lockedUntilUserAdded: Boolean(preset),
+  enabledByDefault: Boolean(preset),
+  character: {
+    code: String(character?.code || code || '').trim().toLowerCase(),
+    displayName: String(character?.displayName || character?.profile?.name || code || '').trim(),
+    categoryId: character?.categoryId || null,
+    profile: {
+      name: String(character?.profile?.name || character?.displayName || code || '').trim(),
+      age: character?.profile?.age ?? null,
+      personality: parseNameList(character?.profile?.personality || []),
+      appearance: String(character?.profile?.appearance || '').trim(),
+      occupation: String(character?.profile?.occupation || '').trim(),
+    },
+    background: {
+      backstory: String(character?.background?.backstory || '').trim(),
+      origin: String(character?.background?.origin || '').trim(),
+    },
+    dialogueStyle: {
+      tone: String(character?.dialogueStyle?.tone || '').trim(),
+      features: parseNameList(character?.dialogueStyle?.features || []),
+      openingLines: Array.isArray(character?.dialogueStyle?.openingLines)
+        ? character.dialogueStyle.openingLines.map((line) => String(line || '').trim()).filter(Boolean)
+        : [],
+    },
+    source: {
+      type: character?.source?.type || 'local_profile',
+      path: character?.source?.path || null,
+      url: character?.source?.url || null,
+    },
+  },
+});
+
+const mapProfileToCharacter = ({ doc, code, sourcePath = null }) => {
+  const embedded = doc?.character || {};
+  const normalizedCode = normalizeCode(embedded?.code || doc?.id || code) || 'unknown';
+  const displayName = String(embedded?.displayName || doc?.name || embedded?.profile?.name || normalizedCode).trim();
+
+  return {
+    code: normalizedCode,
+    displayName,
+    categoryId: String(embedded?.categoryId || '').trim() || null,
+    profile: {
+      name: String(embedded?.profile?.name || displayName).trim(),
+      age: embedded?.profile?.age ?? null,
+      personality: parseNameList(embedded?.profile?.personality || []),
+      appearance: String(embedded?.profile?.appearance || '').trim(),
+      occupation: String(embedded?.profile?.occupation || '').trim(),
+    },
+    background: {
+      backstory: String(embedded?.background?.backstory || '').trim(),
+      origin: String(embedded?.background?.origin || '').trim(),
+    },
+    dialogueStyle: {
+      tone: String(embedded?.dialogueStyle?.tone || '').trim(),
+      features: parseNameList(embedded?.dialogueStyle?.features || []),
+      openingLines: Array.isArray(embedded?.dialogueStyle?.openingLines)
+        ? embedded.dialogueStyle.openingLines.map((line) => String(line || '').trim()).filter(Boolean)
+        : [],
+    },
+    source: {
+      type: 'local_profile',
+      path: sourcePath,
+      url: null,
+    },
+  };
+};
+
+const writeRemoteCharacterCache = async ({ rootDir, code, rawYaml }) => {
+  const normalizedCode = normalizeCode(code);
+  if (!rootDir || !normalizedCode || typeof rawYaml !== 'string' || !rawYaml.trim()) return null;
+
+  const cacheDir = getAddedCharacterDir(rootDir);
+  await ensureDir(cacheDir);
+
+  const data = YAML.parse(rawYaml);
+  const character = mapYamlToCharacter({
+    data,
+    code: normalizedCode,
+    sourceType: 'remote',
+    sourcePath: null,
+    sourceUrl: null,
+  });
+
+  const targetFile = path.join(cacheDir, `${normalizedCode}.json`);
+  const profileDoc = toCharacterProfileDocument({ code: normalizedCode, character, preset: false });
+  await fs.writeFile(targetFile, `${JSON.stringify(profileDoc, null, 2)}\n`, 'utf8');
+
+  cache.localIndex.ts = 0;
+  cache.localContextByFile.delete(targetFile);
+  return targetFile;
 };
 
 const parseNameList = (value) => {
@@ -185,7 +290,34 @@ const loadYamlCharacterFromFile = async (rootDir, filePath, codeHint = null) => 
   return character;
 };
 
-const walkYamlFiles = async (startDir) => {
+const loadProfileCharacterFromFile = async (rootDir, filePath, codeHint = null) => {
+  const stat = await fs.stat(filePath);
+  const cached = cache.localContextByFile.get(filePath);
+  if (cached && cached.mtimeMs === stat.mtimeMs) {
+    return cached.character;
+  }
+
+  const raw = await fs.readFile(filePath, 'utf8');
+  const doc = JSON.parse(raw);
+  const code = normalizeCode(codeHint) || guessCodeFromFile(filePath);
+  const character = mapProfileToCharacter({
+    doc,
+    code,
+    sourcePath: toRelativePath(rootDir, filePath),
+  });
+
+  cache.localContextByFile.set(filePath, { mtimeMs: stat.mtimeMs, character });
+  return character;
+};
+
+const loadCharacterFromFile = async (rootDir, filePath, codeHint = null) => {
+  if (JSON_EXT_RE.test(filePath)) {
+    return loadProfileCharacterFromFile(rootDir, filePath, codeHint);
+  }
+  return loadYamlCharacterFromFile(rootDir, filePath, codeHint);
+};
+
+const walkCharacterFiles = async (startDir) => {
   const stack = [startDir];
   const files = [];
 
@@ -207,7 +339,7 @@ const walkYamlFiles = async (startDir) => {
         continue;
       }
 
-      if (entry.isFile() && YAML_EXT_RE.test(entry.name)) {
+      if (entry.isFile() && (YAML_EXT_RE.test(entry.name) || JSON_EXT_RE.test(entry.name))) {
         files.push(entryPath);
       }
     }
@@ -223,6 +355,8 @@ const buildLocalIndex = async (rootDir) => {
   }
 
   const candidateRoots = [
+    getPresetCharacterDir(rootDir),
+    getAddedCharacterDir(rootDir),
     path.join(rootDir, 'polyu-storyworld'),
     path.join(rootDir, 'story', 'repo'),
     path.join(rootDir, 'storyworld', 'repo'),
@@ -235,8 +369,8 @@ const buildLocalIndex = async (rootDir) => {
 
   const entries = [];
   for (const baseDir of existingRoots) {
-    const yamlFiles = await walkYamlFiles(baseDir);
-    for (const filePath of yamlFiles) {
+    const characterFiles = await walkCharacterFiles(baseDir);
+    for (const filePath of characterFiles) {
       const code = guessCodeFromFile(filePath);
       entries.push({
         code,
@@ -292,7 +426,7 @@ const buildRemoteIndex = async () => {
   }
 };
 
-const fetchRemoteByCode = async (code) => {
+const fetchRemoteByCode = async ({ rootDir, code, cacheRemote = false }) => {
   const normalizedCode = normalizeCode(code);
   if (!normalizedCode) return null;
 
@@ -309,6 +443,13 @@ const fetchRemoteByCode = async (code) => {
       if (!response.ok) continue;
       const raw = await response.text();
       const data = YAML.parse(raw);
+      if (cacheRemote) {
+        try {
+          await writeRemoteCharacterCache({ rootDir, code: normalizedCode, rawYaml: raw });
+        } catch {
+          // cache write failure should not break main flow
+        }
+      }
       return mapYamlToCharacter({
         data,
         code: normalizedCode,
@@ -329,6 +470,13 @@ const fetchRemoteByCode = async (code) => {
     if (!response.ok) return null;
     const raw = await response.text();
     const data = YAML.parse(raw);
+    if (cacheRemote) {
+      try {
+        await writeRemoteCharacterCache({ rootDir, code: normalizedCode, rawYaml: raw });
+      } catch {
+        // cache write failure should not break main flow
+      }
+    }
     return mapYamlToCharacter({
       data,
       code: normalizedCode,
@@ -350,7 +498,7 @@ const findLocalByCode = async (rootDir, code) => {
   if (!matched?.filePath) return null;
 
   try {
-    return await loadYamlCharacterFromFile(rootDir, matched.filePath, normalizedCode);
+    return await loadCharacterFromFile(rootDir, matched.filePath, normalizedCode);
   } catch {
     return null;
   }
@@ -366,13 +514,13 @@ const findLocalByName = async (rootDir, nameOrCode) => {
   for (const entry of localIndex) {
     const localCode = String(entry.code || '').toLowerCase();
     if (localCode && localCode === keyword) {
-      return loadYamlCharacterFromFile(rootDir, entry.filePath, entry.code);
+      return loadCharacterFromFile(rootDir, entry.filePath, entry.code);
     }
   }
 
   for (const entry of localIndex) {
     try {
-      const character = await loadYamlCharacterFromFile(rootDir, entry.filePath, entry.code);
+      const character = await loadCharacterFromFile(rootDir, entry.filePath, entry.code);
       if (matchText(character?.displayName, keyword) || matchText(character?.profile?.name, keyword)) {
         return character;
       }
@@ -384,7 +532,7 @@ const findLocalByName = async (rootDir, nameOrCode) => {
   return null;
 };
 
-export const getCharacterByName = async ({ rootDir, query }) => {
+export const getCharacterByName = async ({ rootDir, query, cacheRemote = false }) => {
   const normalizedQuery = normalizeQuery(query);
   if (!normalizedQuery) {
     const error = new Error('invalid_character_query');
@@ -398,7 +546,7 @@ export const getCharacterByName = async ({ rootDir, query }) => {
   const byName = await findLocalByName(rootDir, normalizedQuery);
   if (byName) return byName;
 
-  return fetchRemoteByCode(normalizedQuery);
+  return fetchRemoteByCode({ rootDir, code: normalizedQuery, cacheRemote });
 };
 
 export const searchCharacters = async ({ rootDir, query = '', limit = 20 }) => {
@@ -421,7 +569,7 @@ export const searchCharacters = async ({ rootDir, query = '', limit = 20 }) => {
     if (!localCode) continue;
     if (keyword && !localCode.includes(keyword)) {
       try {
-        const character = await loadYamlCharacterFromFile(rootDir, entry.filePath, entry.code);
+        const character = await loadCharacterFromFile(rootDir, entry.filePath, entry.code);
         const byName = matchText(character?.displayName, keyword) || matchText(character?.profile?.name, keyword);
         if (!byName) continue;
         pushResult({

@@ -19,18 +19,28 @@ npm install
 
 ## 配置 API Key
 
-像模板一样，直接填上即用：
+推荐方式（可安全上传 GitHub）：
 
-1. 打开 `src/config/localApiKeys.js`
-2. 把 `your api key` 改成你的真实 key
-3. 保存文件后直接运行 `npm run dev`
+1. 复制一份 `.env.example` 并命名为 `.env.local`
+2. 在 `.env.local` 中填写真实 key
+3. 运行 `npm run dev`
 
 说明：
-- 不需要理解或设置 `CONFIG.provider`。
-- 默认会自动选择已填写 key 的模型。
-- 如果两个 key 都没填，会自动回退到 `mock`。
+- `.env.local` 已在忽略列表中，不会被提交到 Git。
+- `src/config/localApiKeys.js` 建议只保留占位值。
+- 不需要手动设置 provider，系统会自动选择可用 key。
+- 如果两个 key 都没填，系统会阻止 AI 调用并提示先配置 key。
 
-`mock` 是模拟模式：不调用真实大模型、不消耗 API 额度，用于本地调试流程。
+### 如何把同一个 Key 给同伴用
+
+建议流程：
+
+1. 你的真实 key 只放在你本机 `.env.local`
+2. 通过私密渠道发给同伴（密码管理器、加密聊天、私有共享库等）
+3. 同伴基于 `.env.example` 在本机创建自己的 `.env.local`
+4. 不要把真实 key 提交到任何受 Git 跟踪的文件
+
+如果出现 AI 不可用，请先配置 `.env.local` 后重启开发服务。
 
 ## 本地启动
 

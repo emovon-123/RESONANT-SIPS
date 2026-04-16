@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import Toast from '../components/Common/Toast.jsx';
 import {
   addCustomCharacterId,
+  canDisableCharacter,
   getActiveCharacterIds,
   getCustomCharacterIds,
   removeCustomCharacterId,
   saveActiveCharacterIds,
 } from '../utils/storage.js';
+import { isPresetCharacterId } from '../config/defaultCharacters/index.js';
+import { ensureStoryworldCharacterCached } from '../utils/storyworldRepository.js';
 import './NewGameSetupPage.css';
 
 const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
@@ -26,8 +29,31 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
     setToastList((prev) => [...prev, { id, message, type }]);
   };
 
-  const handleAddCharacter = () => {
-    const result = addCustomCharacterId(customCharacterInput);
+  const handleAddCharacter = async () => {
+    const candidateId = String(customCharacterInput || '').trim();
+    if (!candidateId) {
+      pushToast('请输入角色ID', 'warning');
+      return;
+    }
+
+    if (customCharacterIds.includes(candidateId)) {
+      pushToast('该角色已添加', 'warning');
+      return;
+    }
+
+    try {
+      await ensureStoryworldCharacterCached(candidateId);
+    } catch (error) {
+      const reason = String(error?.message || '');
+      if (reason.includes('character_not_found')) {
+        pushToast('未找到该角色ID，请确认后重试', 'warning');
+      } else {
+        pushToast(`角色读取失败：${reason || '未知错误'}`, 'error');
+      }
+      return;
+    }
+
+    const result = addCustomCharacterId(candidateId);
     if (!result.ok) {
       if (result.reason === 'invalid_format') {
         pushToast('角色ID仅允许字母、数字、下划线和短横线', 'warning');
@@ -46,6 +72,10 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
   };
 
   const handleRemoveCharacter = (id) => {
+    if (!canDisableCharacter(id, customCharacterIds)) {
+      pushToast('请先添加至少一个非预置角色，再取消默认角色。', 'warning');
+      return;
+    }
     removeCustomCharacterId(id);
     setCustomCharacterIds(getCustomCharacterIds());
     setActiveCharacterIds(getActiveCharacterIds());
@@ -53,6 +83,10 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
   };
 
   const handleToggleCharacter = (id, checked) => {
+    if (!checked && !canDisableCharacter(id, customCharacterIds)) {
+      pushToast('请先添加至少一个非预置角色，再取消默认角色。', 'warning');
+      return;
+    }
     const current = getActiveCharacterIds();
     const next = checked
       ? Array.from(new Set([...current, id]))
@@ -94,26 +128,30 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
             {customCharacterIds.length === 0 && (
               <div className="newgame-role-empty">暂无已添加角色。请先添加至少一个角色ID。</div>
             )}
-            {customCharacterIds.map((id) => (
-              <div className="newgame-role-item" key={id}>
-                <label className="newgame-role-main">
-                  <input
-                    type="checkbox"
-                    checked={activeCharacterIds.includes(id)}
-                    onChange={(event) => handleToggleCharacter(id, event.target.checked)}
-                    disabled={loading}
-                  />
-                  <span>{id}</span>
-                </label>
-                <button
-                  className="newgame-role-remove-btn"
-                  onClick={() => handleRemoveCharacter(id)}
-                  disabled={loading}
-                >
-                  移除
-                </button>
-              </div>
-            ))}
+            {customCharacterIds.map((id) => {
+              const locked = !canDisableCharacter(id, customCharacterIds);
+              const isPreset = isPresetCharacterId(id);
+              return (
+                <div className="newgame-role-item" key={id}>
+                  <label className="newgame-role-main">
+                    <input
+                      type="checkbox"
+                      checked={activeCharacterIds.includes(id)}
+                      onChange={(event) => handleToggleCharacter(id, event.target.checked)}
+                      disabled={loading || (locked && activeCharacterIds.includes(id))}
+                    />
+                    <span>{id}{isPreset ? '（默认）' : ''}</span>
+                  </label>
+                  <button
+                    className="newgame-role-remove-btn"
+                    onClick={() => handleRemoveCharacter(id)}
+                    disabled={loading || locked}
+                  >
+                    移除
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </section>
 

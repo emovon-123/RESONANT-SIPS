@@ -8,7 +8,7 @@ const LOCAL_API_KEYS = {
     endpoint: 'https://api.deepseek.com/chat/completions',
   },
   gemini: {
-    apiKey: '',
+    apiKey: 'your api key',
     model: 'gemini-2.5-flash',
     endpoint: 'https://api.302.ai/v1',
     imageModel: 'gemini-2.5-flash-image',
@@ -16,7 +16,7 @@ const LOCAL_API_KEYS = {
   },
   // Optional: set to 'deepseek' or 'gemini' to force provider.
   // Keep empty to auto-select by available key.
-  provider: 'gemini',
+  provider: '',
 };
 
 export default LOCAL_API_KEYS;

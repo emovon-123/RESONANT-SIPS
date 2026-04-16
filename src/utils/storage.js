@@ -10,6 +10,11 @@ import { ICE_TYPES, GARNISH_TYPES, DECORATION_TYPES } from '../data/addons.js';
 import { INGREDIENTS } from '../data/ingredients.js';
 import { ALL_CUSTOMER_TYPES } from '../data/aiCustomers.js';
 import { EMOTION_IDS_8 } from './emotionSchema.js';
+import {
+  DEFAULT_PRESET_CHARACTER_IDS,
+  isPresetCharacterId,
+  isPresetCharacterLockedUntilUserAdded,
+} from '../config/defaultCharacters/index.js';
 
 const ALL_EMOTION_IDS = [...EMOTION_IDS_8];
 
@@ -53,6 +58,7 @@ const STORAGE_KEYS = {
   // 🆕 自定义角色池
   CUSTOM_CHARACTER_IDS: 'bartender_custom_character_ids',
   ACTIVE_CHARACTER_IDS: 'bartender_active_character_ids',
+  ADDED_CHARACTER_IDS: 'bartender_added_character_ids',
   // 游戏会话状态（刷新恢复用）
   GAME_SESSION: 'bartender_game_session',
   // 序幕已观看标记
@@ -60,6 +66,12 @@ const STORAGE_KEYS = {
 };
 
 const CHARACTER_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
+const DEFAULT_INITIAL_CHARACTER_IDS = [...DEFAULT_PRESET_CHARACTER_IDS];
+
+const hasAnyUserAddedCharacter = (ids) => {
+  const normalized = normalizeCharacterIds(ids);
+  return normalized.some((id) => !isPresetCharacterId(id));
+};
 
 const normalizeCharacterIds = (ids) => {
   if (!Array.isArray(ids)) return [];
@@ -71,6 +83,40 @@ const normalizeCharacterIds = (ids) => {
     dedup.add(value);
   });
   return Array.from(dedup);
+};
+
+const getKnownAddedCharacterIds = () => {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.ADDED_CHARACTER_IDS) || '[]');
+    return normalizeCharacterIds(raw).filter((id) => !isPresetCharacterId(id));
+  } catch {
+    return [];
+  }
+};
+
+const saveKnownAddedCharacterIds = (ids) => {
+  try {
+    const normalized = normalizeCharacterIds(ids).filter((id) => !isPresetCharacterId(id));
+    localStorage.setItem(STORAGE_KEYS.ADDED_CHARACTER_IDS, JSON.stringify(normalized));
+    return normalized;
+  } catch {
+    return [];
+  }
+};
+
+const rememberAddedCharacterId = (id) => {
+  const value = String(id || '').trim();
+  if (!value || isPresetCharacterId(value)) return;
+  const known = getKnownAddedCharacterIds();
+  if (known.includes(value)) return;
+  saveKnownAddedCharacterIds([...known, value]);
+};
+
+const forgetAddedCharacterId = (id) => {
+  const value = String(id || '').trim();
+  if (!value || isPresetCharacterId(value)) return;
+  const known = getKnownAddedCharacterIds();
+  saveKnownAddedCharacterIds(known.filter((item) => item !== value));
 };
 
 // 短期记忆：当前AI顾客的对话、情绪判断、调酒记录
@@ -297,11 +343,14 @@ export const getSettings = () => {
 // ========== 自定义角色池 ==========
 export const getCustomCharacterIds = () => {
   try {
-    const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.CUSTOM_CHARACTER_IDS) || '[]');
-    return normalizeCharacterIds(raw);
+    const raw = localStorage.getItem(STORAGE_KEYS.CUSTOM_CHARACTER_IDS);
+    if (raw === null) {
+      return normalizeCharacterIds([...DEFAULT_INITIAL_CHARACTER_IDS, ...getKnownAddedCharacterIds()]);
+    }
+    return normalizeCharacterIds(JSON.parse(raw));
   } catch (error) {
     console.error('读取自定义角色失败:', error);
-    return [];
+    return normalizeCharacterIds([...DEFAULT_INITIAL_CHARACTER_IDS, ...getKnownAddedCharacterIds()]);
   }
 };
 
@@ -312,7 +361,12 @@ export const saveCustomCharacterIds = (ids) => {
 
     // active 列表必须是 custom 列表子集
     const currentActive = getActiveCharacterIds();
-    const nextActive = currentActive.filter((id) => normalized.includes(id));
+    let nextActive = currentActive.filter((id) => normalized.includes(id));
+    const hasUserCharacters = hasAnyUserAddedCharacter(normalized);
+    if (!hasUserCharacters) {
+      const lockedPresetIds = normalized.filter((id) => isPresetCharacterLockedUntilUserAdded(id));
+      nextActive = Array.from(new Set([...nextActive, ...lockedPresetIds]));
+    }
     localStorage.setItem(STORAGE_KEYS.ACTIVE_CHARACTER_IDS, JSON.stringify(nextActive));
 
     queueActiveSlotGameStateSync('save_custom_character_ids');
@@ -337,12 +391,19 @@ export const addCustomCharacterId = (id) => {
   const next = saveCustomCharacterIds([...current, value]);
   const active = getActiveCharacterIds();
   saveActiveCharacterIds([...active, value]);
+  rememberAddedCharacterId(value);
   return { ok: true, ids: next };
 };
 
 export const removeCustomCharacterId = (id) => {
   const value = String(id || '').trim();
-  const next = saveCustomCharacterIds(getCustomCharacterIds().filter((item) => item !== value));
+  const current = getCustomCharacterIds();
+  const hasUserCharacters = hasAnyUserAddedCharacter(current);
+  if (!hasUserCharacters && isPresetCharacterLockedUntilUserAdded(value)) {
+    return current;
+  }
+  const next = saveCustomCharacterIds(current.filter((item) => item !== value));
+  forgetAddedCharacterId(value);
   return next;
 };
 
@@ -362,7 +423,12 @@ export const getActiveCharacterIds = () => {
 export const saveActiveCharacterIds = (ids) => {
   try {
     const custom = getCustomCharacterIds();
-    const normalized = normalizeCharacterIds(ids).filter((id) => custom.includes(id));
+    let normalized = normalizeCharacterIds(ids).filter((id) => custom.includes(id));
+    const hasUserCharacters = hasAnyUserAddedCharacter(custom);
+    if (!hasUserCharacters) {
+      const lockedPresetIds = custom.filter((id) => isPresetCharacterLockedUntilUserAdded(id));
+      normalized = Array.from(new Set([...normalized, ...lockedPresetIds]));
+    }
     localStorage.setItem(STORAGE_KEYS.ACTIVE_CHARACTER_IDS, JSON.stringify(normalized));
     queueActiveSlotGameStateSync('save_active_character_ids');
     return normalized;
@@ -370,6 +436,12 @@ export const saveActiveCharacterIds = (ids) => {
     console.error('保存可出现角色失败:', error);
     return [];
   }
+};
+
+export const canDisableCharacter = (id, customIds = null) => {
+  const current = Array.isArray(customIds) ? normalizeCharacterIds(customIds) : getCustomCharacterIds();
+  if (hasAnyUserAddedCharacter(current)) return true;
+  return !isPresetCharacterLockedUntilUserAdded(id);
 };
 
 // 清除所有缓存

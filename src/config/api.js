@@ -37,10 +37,9 @@ const isOpenAICompatibleEndpoint = (endpoint) => {
 const resolveProvider = () => {
   if (requestedProvider === 'deepseek' && deepseekApiKey) return 'deepseek';
   if (requestedProvider === 'gemini' && geminiApiKey) return 'gemini';
-  if (requestedProvider === 'mock') return 'mock';
   if (deepseekApiKey) return 'deepseek';
   if (geminiApiKey) return 'gemini';
-  return 'mock';
+  return 'none';
 };
 
 const activeProvider = resolveProvider();
@@ -82,15 +81,15 @@ export const API_CONFIG = {
   },
 
   mock: {
-    enabled: activeProvider === 'mock',
-    responseDelay: 1000
+    enabled: false,
+    responseDelay: 0
   }
 };
 
 export const getActiveAPIType = () => {
   if (API_CONFIG.deepseek.enabled) return 'deepseek';
   if (API_CONFIG.gemini.enabled) return 'gemini';
-  return 'mock';
+  return 'none';
 };
 
 export const getActiveAPIConfig = () => {
@@ -102,10 +101,15 @@ export const getActiveAPIName = () => {
   const type = getActiveAPIType();
   if (type === 'deepseek') return 'DeepSeek';
   if (type === 'gemini') return 'Google Gemini';
-  return 'Mock';
+  return '未配置';
 };
 
-export const hasUsableAPI = () => getActiveAPIType() !== 'mock';
+export const hasUsableAPI = () => getActiveAPIType() !== 'none';
+
+export const getAPIUnavailableReason = () => {
+  if (hasUsableAPI()) return '';
+  return '未检测到可用 API Key。请在 .env.local 中配置 VITE_DEEPSEEK_API_KEY 或 VITE_GEMINI_API_KEY。';
+};
 
 export const PROMPT_TYPES = {
   INITIAL: 'initial',

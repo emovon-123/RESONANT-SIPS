@@ -19,18 +19,28 @@ npm install
 
 ## API Key Setup
 
-Template-style setup: fill and use directly.
+Recommended setup (safe for GitHub):
 
-1. Open `src/config/localApiKeys.js`
-2. Replace `your api key` with your real key
-3. Save and run `npm run dev`
+1. Copy `.env.example` to `.env.local`
+2. Fill real keys in `.env.local`
+3. Run `npm run dev`
 
 Notes:
-- No need to set provider manually.
-- The app auto-selects a provider from available keys.
-- If both keys are empty, it falls back to `mock` mode.
+- `.env.local` is ignored by Git and will not be uploaded.
+- `src/config/localApiKeys.js` should stay as placeholders only.
+- No need to set provider manually; app auto-selects from available keys.
+- If both keys are empty, the app will block AI calls and ask you to configure keys.
 
-`mock` is simulation mode: it does not call real LLM APIs and does not consume API quota, useful for local flow testing.
+### Share One Key With Teammates
+
+Use this process:
+
+1. Keep real key only in your local `.env.local`
+2. Share key to teammates via private channel (password manager, encrypted chat, 1Password vault, etc.)
+3. Teammates create their own `.env.local` from `.env.example`
+4. Never commit real key into tracked files
+
+If AI is unavailable, configure `.env.local` and restart dev server.
 
 ## Run Locally
 

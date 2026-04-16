@@ -89,6 +89,8 @@
   background: rgba(0, 0, 0, 0.3);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   gap: 15px;
+  position: relative;
+  z-index: 3000;
 }
 
 .back-button {
@@ -488,6 +490,7 @@
   align-items: center;
   gap: 8px;
   position: relative;
+  z-index: 3001;
 }
 
 .audio-btn {
@@ -541,7 +544,7 @@
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-  z-index: 100;
+  z-index: 3100;
   animation: settingsSlideDown 0.2s ease;
 }
 
