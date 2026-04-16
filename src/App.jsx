@@ -25,6 +25,8 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'));
 const SaveSlotsPage = lazy(() => import('./pages/SaveSlotsPage.jsx'));
 const DevPanel = lazy(() => import('./components/DevMode/DevPanel.jsx'));
 
+const ENCYCLOPEDIA_ENABLED = false;
+
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedAI, setSelectedAI] = useState('workplace');
@@ -268,7 +270,17 @@ function App() {
           />
         );
       case 'encyclopedia':
-        return <EncyclopediaPage onBack={handleBackToHome} />;
+        return ENCYCLOPEDIA_ENABLED
+          ? <EncyclopediaPage onBack={handleBackToHome} />
+          : (
+            <HomePage
+              onNewGame={handleNewGame}
+              onLoadGame={() => handleNavigate('save_slots')}
+              onNavigate={handleNavigate}
+              money={money}
+              onToggleDevMode={handleToggleDevMode}
+            />
+          );
       case 'settings':
         return <SettingsPage onBack={handleBackToHome} />;
       default:

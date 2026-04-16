@@ -11,6 +11,9 @@ import { TUTORIAL_COCKTAIL_FEEDBACK, TUTORIAL_TARGET, getTutorialFailHint } from
 import { buildStrictJudgmentExplanation } from './helpers.js';
 import { appendActiveNpcEvent, queueActiveSlotGameStateSync } from '../../utils/saveRepository.js';
 
+// 先聚焦核心玩法：暂时关闭图鉴联动（黄金组合发现）
+const ENCYCLOPEDIA_ENABLED = false;
+
 export const useServeProgressHandlers = ({ ctx }) => {
   const {
     tutorial, progress, customerFlow, dialogue, emotionSystem, cocktailFlow,
@@ -44,13 +47,15 @@ export const useServeProgressHandlers = ({ ctx }) => {
     try {
       saveCocktailRecipe({ aiType, aiName: aiConfig.name, ...recipe });
 
-      const matchedCombos = checkComboBonus(recipe);
-      matchedCombos.forEach(combo => {
-        const isNew = saveDiscoveredCombo(combo.id, {
-          name: combo.name, icon: combo.icon, description: combo.description, bonus: combo.bonus, requires: combo.requires
+      if (ENCYCLOPEDIA_ENABLED) {
+        const matchedCombos = checkComboBonus(recipe);
+        matchedCombos.forEach(combo => {
+          const isNew = saveDiscoveredCombo(combo.id, {
+            name: combo.name, icon: combo.icon, description: combo.description, bonus: combo.bonus, requires: combo.requires
+          });
+          if (isNew) addToast(`🎊 发现黄金组合：${combo.icon} ${combo.name}！已加入图鉴`, 'success');
         });
-        if (isNew) addToast(`🎊 发现黄金组合：${combo.icon} ${combo.name}！已加入图鉴`, 'success');
-      });
+      }
 
       const currentEmotions = {
         surface: emotionSystem.dynamicCustomerEmotions.surface.length > 0

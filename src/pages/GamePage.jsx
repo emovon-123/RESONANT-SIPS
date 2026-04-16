@@ -304,9 +304,9 @@ const GamePage = ({
   // ==================== 瑕嗙洊灞備紭鍏堢骇绠＄悊 ====================
   // 鍚屼竴鏃堕棿鍙樉绀轰紭鍏堢骇鏈€楂樼殑鍏ㄥ睆瑕嗙洊灞傦紝閬垮厤澶氫釜椤甸潰浜掔浉閬尅
   const activeOverlay = (() => {
-    if (chapterSystem.pendingEnding) return 'ending';
-    if (chapterSystem.pendingChapterTransition) return 'chapter_transition';
-    if (chapterSystem.pendingFragment) return 'memory_fragment';
+    if (chapterSystem.storylineEnabled && chapterSystem.pendingEnding) return 'ending';
+    if (chapterSystem.storylineEnabled && chapterSystem.pendingChapterTransition) return 'chapter_transition';
+    if (chapterSystem.storylineEnabled && chapterSystem.pendingFragment) return 'memory_fragment';
     if (tutorial.showTutorialComplete) return 'tutorial_complete';
     if (customerFlow.showDayTransition) return 'day_transition';
     if (customerFlow.showDayEnd) return 'day_end';
@@ -441,7 +441,9 @@ const GamePage = ({
       ))}
 
       <GameHintPanel hint={gameHint} onClose={closeGameHint} />
-      <AchievementNotification achievement={currentAchievementNotif} onClose={() => setCurrentAchievementNotif(null)} isVisible={!!currentAchievementNotif} />
+      {achievements.enabled && (
+        <AchievementNotification achievement={currentAchievementNotif} onClose={() => setCurrentAchievementNotif(null)} isVisible={!!currentAchievementNotif} />
+      )}
       {progress.showRules && <RulesModal onClose={() => progress.setShowRules(false)} />}
 
       {cocktailFlow.showServeAnim && <div className="serve-animation">馃嵏</div>}
@@ -512,7 +514,7 @@ const GamePage = ({
       )}
 
       {/* 鐏绯荤粺鍙犲姞灞?*/}
-      {activeOverlay === 'chapter_transition' && (
+      {chapterSystem.storylineEnabled && activeOverlay === 'chapter_transition' && (
         <ChapterTransition
           chapter={chapterSystem.pendingChapterTransition.chapter}
           openingNarrative={chapterSystem.pendingChapterTransition.openingNarrative}
@@ -520,14 +522,14 @@ const GamePage = ({
         />
       )}
 
-      {activeOverlay === 'memory_fragment' && (
+      {chapterSystem.storylineEnabled && activeOverlay === 'memory_fragment' && (
         <MemoryFragment
           fragment={chapterSystem.pendingFragment}
           onDismiss={chapterSystem.dismissFragment}
         />
       )}
 
-      {activeOverlay === 'ending' && (
+      {chapterSystem.storylineEnabled && activeOverlay === 'ending' && (
         <EndingScreen
           narrative={chapterSystem.pendingEnding.narrative}
           onFreeMode={() => chapterSystem.enterFreeMode()}

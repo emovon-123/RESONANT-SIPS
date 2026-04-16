@@ -5,6 +5,8 @@ import { getAchievements } from '../utils/storage.js';
 import audioManager from '../utils/audioManager.js';
 import './HomePage.css';
 
+const ENCYCLOPEDIA_ENABLED = false;
+
 const COPY = {
   titleIcon: '\u{1F378}',
   startIcon: '\u{1F378}',
@@ -43,7 +45,9 @@ const HomePage = ({
   const [splashPhase, setSplashPhase] = useState(showSplash ? 'intro' : null);
   const [splashLift, setSplashLift] = useState(0);
 
-  const unseenAchievements = Object.values(getAchievements()).filter((achievement) => !achievement.seen).length;
+  const unseenAchievements = ENCYCLOPEDIA_ENABLED
+    ? Object.values(getAchievements()).filter((achievement) => !achievement.seen).length
+    : 0;
 
   useEffect(() => {
     if (!showTransition) return undefined;
@@ -210,14 +214,16 @@ const HomePage = ({
             </button>
 
           <div className={`home-nav-buttons ${isSplashHiding ? 'splash-hidden' : isSplashRevealing ? 'splash-reveal-delay2' : ''}`}>
-            <button
-              className="nav-button encyclopedia"
-              onClick={() => onNavigate && onNavigate('encyclopedia')}
-            >
-              <span className="nav-icon">{COPY.encyclopediaIcon}</span>
-              <span className="nav-text">{COPY.encyclopedia}</span>
-              {unseenAchievements > 0 && <span className="nav-badge">{unseenAchievements}</span>}
-            </button>
+            {ENCYCLOPEDIA_ENABLED && (
+              <button
+                className="nav-button encyclopedia"
+                onClick={() => onNavigate && onNavigate('encyclopedia')}
+              >
+                <span className="nav-icon">{COPY.encyclopediaIcon}</span>
+                <span className="nav-text">{COPY.encyclopedia}</span>
+                {unseenAchievements > 0 && <span className="nav-badge">{unseenAchievements}</span>}
+              </button>
+            )}
             <button
               className="nav-button settings"
               onClick={() => onNavigate && onNavigate('settings')}

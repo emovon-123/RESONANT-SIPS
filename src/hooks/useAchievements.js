@@ -6,6 +6,9 @@ import { EMOTIONS, GLASS_TYPES } from '../data/emotions.js';
 import { ICE_TYPES, GARNISH_TYPES, DECORATION_TYPES, COMBO_BONUS } from '../data/addons.js';
 import { CUSTOMER_CATEGORIES } from '../data/aiCustomers.js';
 
+// 先聚焦核心玩法：暂时关闭成就系统
+const ACHIEVEMENTS_ENABLED = false;
+
 function compareValue(actual, op, expected) {
   switch (op) {
     case '>=': return actual >= expected;
@@ -281,7 +284,34 @@ export const useAchievements = () => {
     if (trustLevel < 0.1) triggerEventAchievement('save_customer_low_trust');
   }, [triggerEventAchievement]);
 
+  if (!ACHIEVEMENTS_ENABLED) {
+    return {
+      enabled: false,
+      unlockedAchievements,
+      stats,
+      pendingNotifications: [],
+      popNotification: () => null,
+      markAsSeen: () => {},
+      getUnseenCount: () => 0,
+      onCocktailSuccess: () => {},
+      onCocktailFail: () => {},
+      onEmotionGuessSuccess: () => {},
+      onCustomerLeave: () => {},
+      onMoneyEarned: () => {},
+      onMoneySpent: () => {},
+      onEventChoice: () => {},
+      onDayEnd: () => {},
+      checkTrustLevel: () => {},
+      checkUnlockAchievements: () => {},
+      checkComboAchievements: () => {},
+      checkMidnightAchievement: () => {},
+      onSaveFromLowTrust: () => {},
+      triggerEventAchievement: () => {}
+    };
+  }
+
   return {
+    enabled: true,
     unlockedAchievements, stats, pendingNotifications,
     popNotification, markAsSeen, getUnseenCount,
     onCocktailSuccess, onCocktailFail, onEmotionGuessSuccess,

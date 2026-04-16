@@ -7,6 +7,9 @@ import { getChapterState, saveChapterState, getMemoryFragments, saveMemoryFragme
 import { CHAPTERS, FALLBACK_CHAPTER_OPENINGS, FALLBACK_FRAGMENTS, FALLBACK_ENDING_TEMPLATE, getFragmentClarity, BAR_LEVELS } from '../data/chapterMilestones.js';
 import { API_CONFIG } from '../config/api.js';
 
+// 先聚焦核心玩法：暂时关闭主线叙事（章节推进/回忆碎片/结局）
+const STORYLINE_ENABLED = false;
+
 /**
  * 调用 AI 生成文本（内部工具函数）
  */
@@ -622,6 +625,10 @@ ${returnCustomers.slice(0, 3).map(c =>
    * 在 GamePage 的 dayEnd 逻辑中调用
    */
   const processDayEnd = useCallback(async (currentDay, context = {}) => {
+    if (!STORYLINE_ENABLED) {
+      return null;
+    }
+
     const stats = getAchievementStats();
     const totalCustomersServed = stats.totalCustomersServed || 0;
 
@@ -654,6 +661,7 @@ ${returnCustomers.slice(0, 3).map(c =>
     pendingChapterTransition,
     pendingFragment,
     pendingEnding,
+    storylineEnabled: STORYLINE_ENABLED,
 
     // 查询
     getBarLevelInfo,
