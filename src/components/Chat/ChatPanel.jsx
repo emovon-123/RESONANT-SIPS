@@ -1,66 +1,108 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import CustomerAvatar from '../Avatar/CustomerAvatar.jsx';
-import { useTTS } from '../../hooks/useTTS.js'; // 导入语音模块
+import { useTTS } from '../../hooks/useTTS.js';
 import './ChatPanel.css';
 
-/**
- * 对话面板组件
- * 功能：展示AI与玩家对话、快捷选项、自定义输入
- */
-const ChatPanel = ({ 
-  aiConfig, 
-  trustLevel, 
-  dialogueHistory, 
+const mixingEntryStyles = {
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 14,
+    padding: '14px 20px',
+    background: 'rgba(255, 255, 255, 0.03)',
+    borderTop: '1px solid rgba(255, 255, 255, 0.05)'
+  },
+  copy: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+    minWidth: 0
+  },
+  eyebrow: {
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    color: 'rgba(147, 185, 255, 0.8)'
+  },
+  text: {
+    fontSize: 14,
+    color: 'rgba(241, 244, 255, 0.88)'
+  },
+  button: (disabled) => ({
+    flexShrink: 0,
+    minWidth: 144,
+    padding: '11px 16px',
+    border: 'none',
+    borderRadius: 12,
+    background: 'linear-gradient(135deg, #88b4ff, #6c8fff)',
+    color: '#0b1324',
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    opacity: disabled ? 0.5 : 1
+  })
+};
+
+const ChatPanel = ({
+  aiConfig,
+  trustLevel,
+  dialogueHistory,
   onSendMessage,
+  onEnterMixing,
   quickOptions = [],
   isLoading = false
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(null);
+  const [trustAnim, setTrustAnim] = useState('');
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
+  const prevTrustRef = useRef(trustLevel);
   const lastSpokenSignature = useRef('');
   const speakTimerRef = useRef(null);
-
   const { speak, stopTTS } = useTTS();
 
-  // 🆕 信任度变化脉冲动画
-  const [trustAnim, setTrustAnim] = useState('');
-  const prevTrustRef = useRef(trustLevel);
-
   useEffect(() => {
-    // 流式输出期间会不断改写同一条消息；等文本稳定后再播报，避免只读到前几个字。
-    if (!Array.isArray(dialogueHistory) || dialogueHistory.length === 0) return;
+    if (!Array.isArray(dialogueHistory) || dialogueHistory.length === 0) {
+      return;
+    }
+
     const lastMsg = dialogueHistory[dialogueHistory.length - 1];
-    if (lastMsg.role !== 'ai' || lastMsg.isThinking) return;
+    if (lastMsg.role !== 'ai' || lastMsg.isThinking) {
+      return;
+    }
 
     const content = String(lastMsg.content || '').trim();
-    if (!content || content === '……' || content === '...') return;
+    if (!content || content === '...' || content === '……') {
+      return;
+    }
 
     const signature = `${String(lastMsg.id || 'no-id')}::${content}`;
-    if (signature === lastSpokenSignature.current) return;
+    if (signature === lastSpokenSignature.current) {
+      return;
+    }
 
     if (speakTimerRef.current) {
       window.clearTimeout(speakTimerRef.current);
     }
 
     speakTimerRef.current = window.setTimeout(() => {
-      // 如果同一条消息还在流式更新，等下一个稳定窗口再播
-      if (isLoading) return;
-      if (signature === lastSpokenSignature.current) return;
+      if (isLoading || signature === lastSpokenSignature.current) {
+        return;
+      }
+
       lastSpokenSignature.current = signature;
       speak(content, aiConfig);
     }, 450);
   }, [dialogueHistory, aiConfig, speak, isLoading]);
 
-  // 组件卸载时停止语音播报
-  useEffect(() => {
-    return () => {
-      if (speakTimerRef.current) {
-        window.clearTimeout(speakTimerRef.current);
-      }
-      stopTTS();
-    };
+  useEffect(() => () => {
+    if (speakTimerRef.current) {
+      window.clearTimeout(speakTimerRef.current);
+    }
+    stopTTS();
   }, [stopTTS]);
 
   useEffect(() => {
@@ -69,34 +111,32 @@ const ChatPanel = ({
     } else if (trustLevel < prevTrustRef.current) {
       setTrustAnim('trust-down');
     }
+
     prevTrustRef.current = trustLevel;
     const timer = setTimeout(() => setTrustAnim(''), 600);
     return () => clearTimeout(timer);
   }, [trustLevel]);
 
-  // 自动滚动到底部
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [dialogueHistory]);
 
-  // 发送消息
   const handleSend = () => {
-    if (inputValue.trim()) {
-      onSendMessage(inputValue.trim(), 'custom');
-      setInputValue('');
-      inputRef.current?.focus();
+    if (!inputValue.trim()) {
+      return;
     }
+
+    onSendMessage(inputValue.trim(), 'custom');
+    setInputValue('');
+    inputRef.current?.focus();
   };
 
-  // 快捷选项点击
   const handleQuickOption = (option, index) => {
     onSendMessage(option, 'quick');
-    // 短暂高亮效果
     setHighlightedIndex(index);
     setTimeout(() => setHighlightedIndex(null), 300);
   };
 
-  // 回车发送
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -104,7 +144,6 @@ const ChatPanel = ({
     }
   };
 
-  // 高亮情绪线索句
   const renderMessageContent = (content, hasEmotionClue, isThinking = false) => {
     if (isThinking) {
       return <span className="thinking-ellipsis" aria-label="思考中">……</span>;
@@ -119,7 +158,6 @@ const ChatPanel = ({
 
   return (
     <div className="chat-panel">
-      {/* 顶部AI信息栏 */}
       <div className="chat-header">
         <div className="ai-avatar">
           <CustomerAvatar
@@ -132,7 +170,7 @@ const ChatPanel = ({
         <div className="ai-info">
           <h3>{aiConfig.name}</h3>
           <div className="ai-personality">
-            {aiConfig.personality.map((trait, i) => (
+            {(aiConfig.personality || []).map((trait, i) => (
               <span key={i} className="trait-tag">{trait}</span>
             ))}
           </div>
@@ -140,9 +178,9 @@ const ChatPanel = ({
         <div className="trust-indicator">
           <span className="trust-label">信任度</span>
           <div className="trust-bar">
-            <div 
+            <div
               className={`trust-fill ${trustAnim}`}
-              style={{ 
+              style={{
                 width: `${trustLevel * 100}%`,
                 backgroundColor: trustLevel < 0.3 ? '#E63946' : trustLevel < 0.6 ? '#FFB703' : '#06FFA5'
               }}
@@ -152,22 +190,21 @@ const ChatPanel = ({
         </div>
       </div>
 
-      {/* 对话区域 */}
       <div className="chat-messages">
         {dialogueHistory.length === 0 && (
           <div className="welcome-message">
             <p>欢迎来到 Mixologist</p>
-            <p className="subtitle">通过对话了解顾客的真实情绪，为TA调制专属鸡尾酒</p>
+            <p className="subtitle">通过对话了解顾客的真实情绪，再为 TA 调制专属鸡尾酒</p>
           </div>
         )}
-        
+
         {dialogueHistory.map((msg, index) => (
-          <div 
-            key={msg.id || `msg-${index}`} 
+          <div
+            key={msg.id || `msg-${index}`}
             className={`message ${msg.role === 'player' ? 'player-message' : 'ai-message'}`}
           >
             <div className="message-avatar">
-              {msg.role === 'player' ? '🧑' : (
+              {msg.role === 'player' ? '🫖' : (
                 <CustomerAvatar
                   avatarBase64={aiConfig.avatarBase64}
                   emoji={aiConfig.avatar}
@@ -189,7 +226,7 @@ const ChatPanel = ({
             </div>
           </div>
         ))}
-        
+
         {isLoading && (
           <div className="message ai-message">
             <div className="message-avatar">
@@ -209,11 +246,10 @@ const ChatPanel = ({
             </div>
           </div>
         )}
-        
+
         <div ref={chatEndRef} />
       </div>
 
-      {/* 快捷选项 */}
       {quickOptions.length > 0 && (
         <div className="quick-options">
           {quickOptions.map((option, index) => (
@@ -229,7 +265,21 @@ const ChatPanel = ({
         </div>
       )}
 
-      {/* 输入框 */}
+      <div style={mixingEntryStyles.container}>
+        <div style={mixingEntryStyles.copy}>
+          <span style={mixingEntryStyles.eyebrow}>Mixing</span>
+          <span style={mixingEntryStyles.text}>进入猜情绪和调酒界面</span>
+        </div>
+        <button
+          type="button"
+          onClick={onEnterMixing}
+          disabled={isLoading}
+          style={mixingEntryStyles.button(isLoading)}
+        >
+          前往调酒台
+        </button>
+      </div>
+
       <div className="chat-input-container">
         <textarea
           ref={inputRef}
@@ -241,8 +291,8 @@ const ChatPanel = ({
           disabled={isLoading}
           rows={2}
         />
-        <button 
-          className="send-button" 
+        <button
+          className="send-button"
           onClick={handleSend}
           disabled={isLoading || !inputValue.trim()}
         >

@@ -385,12 +385,16 @@ const GamePage = ({
         onShowHelp={() => setShowHelp(true)}
       />
 
-      <div className={`game-content ${isMixingStage ? 'mixing-mode' : ''}`}>
+      <div className={`game-content ${isMixingStage ? 'mixing-mode' : 'dialogue-mode'}`}>
         <div className="left-section">
           {!isMixingStage ? (
             <ChatPanel
               aiConfig={aiConfig} trustLevel={trustLevel} dialogueHistory={dialogue.dialogueHistory}
               onSendMessage={handlers.handleSendMessage} quickOptions={dialogue.quickOptions} isLoading={dialogue.isLoading}
+              onEnterMixing={() => {
+                emotionSystem.setSelectedEmotions([]);
+                cocktailFlow.handleStartEmotionGuess();
+              }}
             />
           ) : (
             <BartenderPanel
@@ -412,109 +416,92 @@ const GamePage = ({
           )}
         </div>
 
-        <div className="right-section">
-          {cocktailFlow.guessedCorrectly ? (
-            <div className="target-section">
-              {['strict', 'transitional'].includes(chapterSystem.currentChapter?.mixingMode || 'strict') && (
-                <TargetDisplay currentValues={cocktailFlow.currentMixtureValues} conditions={cocktailFlow.targetConditions} showHint={true} />
-              )}
-              <CocktailPreview
-                recipe={recipePreview.recipe}
-                totalPortions={recipePreview.totalPortions}
-                maxPortions={recipePreview.maxPortions}
-              />
-            </div>
-          ) : (
-            <div className="target-section">
-              {aiConfig?.isReturnCustomer && (
-                <SharedMemoryPanel
-                  sharedHistory={aiConfig.sharedHistory} intimacy={aiConfig.intimacy || 0}
-                  currentPhase={aiConfig.characterArc?.currentPhase || 'introduction'}
-                  crossroads={aiConfig.crossroads}
-                />
-              )}
-              <div className="dialogue-prep-panel">
-                <div className="dialogue-prep-panel__eyebrow">
-                  {isMixingStage ? 'Mixing Prep' : 'Observation'}
-                </div>
-                <h4>{isMixingStage ? '线索留在右侧，判断留在左侧' : '对话阶段不再出现猜测界面'}</h4>
-                <p>
-                  {isMixingStage
-                    ? '左侧调酒台已经进入情绪步骤。根据这些线索，直接在 Step 0 里选择 3 种情绪。'
-                    : '先把注意力留给对话。准备好了再进入调酒台，在同一界面里完成情绪选择和配方调制。'}
-                </p>
-
-                {surfaceEmotionLabels.length > 0 && (
-                  <div className="dialogue-prep-panel__block">
-                    <div className="dialogue-prep-panel__label">表面情绪</div>
-                    <div className="dialogue-prep-panel__chips">
-                      {surfaceEmotionLabels.map((label) => (
-                        <span key={label} className="dialogue-prep-panel__chip">{label}</span>
-                      ))}
-                    </div>
-                  </div>
+        {isMixingStage && (
+          <div className="right-section">
+            {cocktailFlow.guessedCorrectly ? (
+              <div className="target-section">
+                {['strict', 'transitional'].includes(chapterSystem.currentChapter?.mixingMode || 'strict') && (
+                  <TargetDisplay currentValues={cocktailFlow.currentMixtureValues} conditions={cocktailFlow.targetConditions} showHint={true} />
                 )}
+                <CocktailPreview
+                  recipe={recipePreview.recipe}
+                  totalPortions={recipePreview.totalPortions}
+                  maxPortions={recipePreview.maxPortions}
+                />
+              </div>
+            ) : (
+              <div className="target-section">
+                {aiConfig?.isReturnCustomer && (
+                  <SharedMemoryPanel
+                    sharedHistory={aiConfig.sharedHistory} intimacy={aiConfig.intimacy || 0}
+                    currentPhase={aiConfig.characterArc?.currentPhase || 'introduction'}
+                    crossroads={aiConfig.crossroads}
+                  />
+                )}
+                <div className="dialogue-prep-panel">
+                  <div className="dialogue-prep-panel__eyebrow">Mixing Prep</div>
+                  <h4>线索留在右侧，判断留在左侧</h4>
+                  <p>左侧调酒台已经进入情绪步骤。根据这些线索，直接在 Step 0 里选择 3 种情绪。</p>
 
-                <div className="dialogue-prep-panel__block">
-                  <div className="dialogue-prep-panel__label">情绪提示</div>
-                  {sidebarHints.length > 0 ? (
-                    <div className="dialogue-prep-panel__list">
-                      {sidebarHints.map((item, index) => (
-                        <div key={`${item.emotionId}-${index}`} className="dialogue-prep-panel__item">
-                          <span className="dialogue-prep-panel__item-title">
-                            {EMOTIONS[item.emotionId]?.name || item.emotionId}
-                          </span>
-                          <span className="dialogue-prep-panel__item-body">{item.hint}</span>
-                        </div>
-                      ))}
+                  {surfaceEmotionLabels.length > 0 && (
+                    <div className="dialogue-prep-panel__block">
+                      <div className="dialogue-prep-panel__label">表面情绪</div>
+                      <div className="dialogue-prep-panel__chips">
+                        {surfaceEmotionLabels.map((label) => (
+                          <span key={label} className="dialogue-prep-panel__chip">{label}</span>
+                        ))}
+                      </div>
                     </div>
-                  ) : (
-                    <div className="dialogue-prep-panel__empty">继续对话，线索会慢慢浮出来。</div>
                   )}
-                </div>
 
-                <div className="dialogue-prep-panel__block">
-                  <div className="dialogue-prep-panel__label">已观察到的说话破绽</div>
-                  {sidebarClues.length > 0 ? (
-                    <div className="dialogue-prep-panel__list">
-                      {sidebarClues.map((clue) => (
-                        <div key={clue.id} className="dialogue-prep-panel__item">
-                          <span className="dialogue-prep-panel__item-title">{clue.label}</span>
-                          <span className="dialogue-prep-panel__item-body">{clue.snippet || '顾客刚刚露出一点真实反应。'}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="dialogue-prep-panel__empty">还没有明显破绽，先听对方怎么说。</div>
-                  )}
-                </div>
+                  <div className="dialogue-prep-panel__block">
+                    <div className="dialogue-prep-panel__label">情绪提示</div>
+                    {sidebarHints.length > 0 ? (
+                      <div className="dialogue-prep-panel__list">
+                        {sidebarHints.map((item, index) => (
+                          <div key={`${item.emotionId}-${index}`} className="dialogue-prep-panel__item">
+                            <span className="dialogue-prep-panel__item-title">
+                              {EMOTIONS[item.emotionId]?.name || item.emotionId}
+                            </span>
+                            <span className="dialogue-prep-panel__item-body">{item.hint}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="dialogue-prep-panel__empty">继续对话，线索会慢慢浮出来。</div>
+                    )}
+                  </div>
 
-                {!isMixingStage ? (
-                  <button
-                    className="dialogue-prep-panel__action"
-                    type="button"
-                    onClick={() => {
-                      emotionSystem.setSelectedEmotions([]);
-                      cocktailFlow.handleStartEmotionGuess();
-                    }}
-                  >
-                    前往调酒台
-                  </button>
-                ) : (
+                  <div className="dialogue-prep-panel__block">
+                    <div className="dialogue-prep-panel__label">已观察到的说话破绽</div>
+                    {sidebarClues.length > 0 ? (
+                      <div className="dialogue-prep-panel__list">
+                        {sidebarClues.map((clue) => (
+                          <div key={clue.id} className="dialogue-prep-panel__item">
+                            <span className="dialogue-prep-panel__item-title">{clue.label}</span>
+                            <span className="dialogue-prep-panel__item-body">{clue.snippet || '顾客刚刚露出一点真实反应。'}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="dialogue-prep-panel__empty">还没有明显破绽，先听对方怎么说。</div>
+                    )}
+                  </div>
+
                   <div className="dialogue-prep-panel__footnote">
                     在左侧 Step 0 选择完 3 种情绪后，就会进入正式调酒步骤。
                   </div>
-                )}
-              </div>
+                </div>
 
-              <CocktailPreview
-                recipe={recipePreview.recipe}
-                totalPortions={recipePreview.totalPortions}
-                maxPortions={recipePreview.maxPortions}
-              />
-            </div>
-          )}
-        </div>
+                <CocktailPreview
+                  recipe={recipePreview.recipe}
+                  totalPortions={recipePreview.totalPortions}
+                  maxPortions={recipePreview.maxPortions}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 淇′换搴﹂瀛?*/}
