@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import CustomerAvatar from '../Avatar/CustomerAvatar.jsx';
+import { useTTS } from '../../hooks/useTTS.js'; // 导入语音模块
 import './ChatPanel.css';
 
 /**
@@ -18,10 +19,31 @@ const ChatPanel = ({
   const [highlightedIndex, setHighlightedIndex] = useState(null);
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
+  const lastSpokenMsgId = useRef(null);
+
+  const { speak, stopTTS } = useTTS();
 
   // 🆕 信任度变化脉冲动画
   const [trustAnim, setTrustAnim] = useState('');
   const prevTrustRef = useRef(trustLevel);
+
+  useEffect(() => {
+    // 监听 TTS 播报新消息（忽略旁白和玩家说话）
+    if (dialogueHistory && dialogueHistory.length > 0) {
+      const lastMsg = dialogueHistory[dialogueHistory.length - 1];
+      if (lastMsg.role === 'ai' && !lastMsg.isThinking && lastMsg.id !== lastSpokenMsgId.current) {
+        lastSpokenMsgId.current = lastMsg.id;
+        speak(lastMsg.content, aiConfig);
+      }
+    }
+  }, [dialogueHistory, aiConfig, speak]);
+
+  // 组件卸载时停止语音播报
+  useEffect(() => {
+    return () => {
+      stopTTS();
+    };
+  }, [stopTTS]);
 
   useEffect(() => {
     if (trustLevel > prevTrustRef.current) {
