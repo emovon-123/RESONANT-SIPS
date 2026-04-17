@@ -17,7 +17,7 @@ const RulesModal = ({ onClose }) => {
             <h3>🌟 无尽模式</h3>
             <ul>
               <li>每位顾客需要<strong>成功调制 3 杯</strong>鸡尾酒才会满意离开</li>
-              <li>顾客初始<strong>0% 信任度</strong>，降至 0% 会失望离开</li>
+              <li>顾客初始<strong>0% 信任度</strong>，对话与调酒表现会持续影响后续交流</li>
               <li>成功调酒获得<strong>💰 金币收入</strong>（金额根据配方满意度）</li>
               <li>服务完当前顾客后进入<strong>日结算</strong>，可前往商店购买道具</li>
               <li>下一天会迎来新的顾客，不断挑战！</li>
@@ -176,7 +176,7 @@ const RulesModal = ({ onClose }) => {
               <li><strong>回应太短或重复</strong>会降低信任度（-3%~-8%）</li>
               <li><strong>调酒失败</strong>会降低信任度（-10%）</li>
               <li><strong>猜错情绪</strong>会降低信任度（-5%~-7%，连续猜错递增）</li>
-              <li><strong>信任度降至 0%</strong> → 顾客会失望离开，损失潜在收入</li>
+              <li><strong>低信任度</strong>会让顾客更难敞开心扉，也会影响调酒反馈</li>
               <li>建议先充分交流建立信任，获取线索后再猜测情绪</li>
             </ul>
           </section>

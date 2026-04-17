@@ -239,9 +239,6 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
 
         setTrustLevel(prev => Math.max(0, Math.min(1, prev + silenceChange)));
         cocktailFlow.addTrustFly(silenceChange);
-        if (silenceChange > 0) addToast('🤫 沉默中传递了默契', 'success');
-        else if (silenceChange < -0.05) addToast('😶 持续的沉默让气氛变得很僵...', 'warning');
-        else if (silenceChange < 0) addToast('😶 沉默让气氛有些尴尬...', 'info');
       } else {
         // 发送了正常消息，重置连续沉默计数
         consecutiveSilenceRef.current = 0;
@@ -285,18 +282,12 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
             if (change !== 0) {
               setTrustLevel(prev => Math.max(0, Math.min(1, prev + change)));
               cocktailFlow.addTrustFly(change);
-              if (change >= 0.08) addToast(`💝 ${reason}，信任度大幅提升！`, 'success');
-              else if (change >= 0.03) addToast(`💬 ${reason}`, 'success');
-              else if (change >= 0.01) addToast(`💬 ${reason}`, 'info');
-              else if (change <= -0.08) { addToast(`😔 ${reason}，信任度大幅下降...`, 'warning'); showGameHint('reply_poor'); }
-              else if (change <= -0.03) { addToast(`💭 ${reason}`, 'info'); showGameHint('reply_poor'); }
-              // -0.01 ~ -0.02 的轻微扣分不弹toast，减少负面反馈轰炸
             }
           }
         } catch {
           const isGoodResponse = dialogue.analyzePlayerResponse(message, dialogue.dialogueHistory);
           if (isGoodResponse) setTrustLevel(prev => Math.min(1, prev + (source === 'custom' ? 0.05 : 0.03)));
-          else { setTrustLevel(prev => Math.max(0, prev - 0.03)); showGameHint('reply_poor'); } // 降级判定也减轻惩罚：0.05→0.03
+                      else { setTrustLevel(prev => Math.max(0, prev - 0.03)); } // 降级判定也减轻惩罚：0.05→0.03
         }
       }
 

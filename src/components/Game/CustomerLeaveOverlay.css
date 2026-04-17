@@ -71,17 +71,17 @@
   }
 }
 
-/* 🆕 失望离场 - 灰度 */
-.customer-leave-modal.disappointed .leave-avatar {
-  animation: disappointedLeave 1.2s ease-in forwards;
+/* 🆕 普通离场 - 中性淡出 */
+.customer-leave-modal.neutral .leave-avatar {
+  animation: neutralLeave 1.1s ease-in forwards;
 }
 
-@keyframes disappointedLeave {
+@keyframes neutralLeave {
   0% { transform: translateX(0); opacity: 1; filter: none; }
-  50% { filter: grayscale(0.6); }
+  60% { opacity: 0.75; }
   100% {
-    transform: translateX(-60px);
+    transform: translateX(-40px);
     opacity: 0;
-    filter: grayscale(1);
+    filter: grayscale(0.35);
   }
 }

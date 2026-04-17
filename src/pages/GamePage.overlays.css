@@ -762,24 +762,24 @@
   }
 }
 
-/* ---- 顾客不满离开 - 沉重阴影 ---- */
-.customer-unsatisfied-leave {
-  animation: unsatisfiedFadeOut 1.2s ease-out forwards;
+/* ---- 顾客普通离开 - 中性淡出 ---- */
+.customer-neutral-leave {
+  animation: neutralFadeOut 1.2s ease-out forwards;
 }
 
-@keyframes unsatisfiedFadeOut {
+@keyframes neutralFadeOut {
   0% {
     opacity: 1;
     transform: translateX(0);
     filter: brightness(1) saturate(1);
   }
   50% {
-    filter: brightness(0.7) saturate(0.5);
+    filter: brightness(0.85) saturate(0.85);
   }
   100% {
     opacity: 0;
-    transform: translateX(-50px);
-    filter: brightness(0.3) saturate(0);
+    transform: translateX(-40px);
+    filter: brightness(0.65) saturate(0.35);
   }
 }
 

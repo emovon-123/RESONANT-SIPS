@@ -22,7 +22,6 @@ export const useNarrativeEngine = () => {
     if (customerRecord.trustLevel >= 0.7) score += 25;
     if (customerRecord.backstory?.length > 50) score += 15;
     if (customerRecord.parting === 'satisfied') score += 20;
-    if (customerRecord.parting === 'disappointed') score += 10;
     if (customerRecord.dialogueRounds >= 6) score += 10;
 
     if (score < 50) return false;

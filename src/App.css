@@ -871,11 +871,11 @@ input, textarea {
   );
 }
 
-/* 不满离开 - 偏红 */
-.customer-leave-ripple.unsatisfied::after {
+/* 普通离开 - 中性淡出 */
+.customer-leave-ripple.neutral::after {
   background: radial-gradient(
     circle,
-    rgba(231, 57, 70, 0.3) 0%,
+    rgba(180, 190, 210, 0.24) 0%,
     transparent 70%
   );
 }

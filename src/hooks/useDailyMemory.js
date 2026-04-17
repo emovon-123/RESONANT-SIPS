@@ -25,7 +25,7 @@ export const useDailyMemory = () => {
       category: customerConfig.categoryId || 'workplace',
       realEmotions: customerConfig.emotionMask?.reality || [],
       keyStory: (customerConfig.backstory || '').slice(0, 50) || '一位顾客来过',
-      parting, // 'satisfied' | 'neutral' | 'disappointed' | 'left_early'
+      parting, // 'satisfied' | 'neutral' | 'left_early'
       memorableQuote,
       trustLevel: trustLevel || 0,
       dialogueRounds: dialogueHistory.length
@@ -221,7 +221,7 @@ function updatePlayerProfile(day, dailyMemory) {
     const cat = record.category || 'workplace';
     if (profile.proficiency.customerTypeScores[cat]) {
       const s = profile.proficiency.customerTypeScores[cat];
-      const score = record.parting === 'satisfied' ? 80 : record.parting === 'disappointed' ? 30 : 50;
+      const score = record.parting === 'satisfied' ? 80 : 50;
       s.avgResonance = Math.round((s.avgResonance * s.count + score) / (s.count + 1));
       s.count += 1;
     }

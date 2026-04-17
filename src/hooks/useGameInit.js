@@ -201,13 +201,6 @@ export const useGameInit = (ctx) => {
     }
   }, [customerFlow.currentCustomerIndex, customerFlow.currentDay, customerFlow.dailyCustomers]);
 
-  // 信任度归零检测
-  useEffect(() => {
-    if (trustLevel <= 0 && customerFlow.currentCustomer) {
-      customerFlow.handleCustomerLeaveRef.current('trust_zero');
-    }
-  }, [trustLevel]);
-
   // 当今日没有下一位顾客时，自动推进到下一天，避免停在日结算弹窗等待点击。
   useEffect(() => {
     if (!customerFlow.showDayEnd || progress.autoTestRunning) {
@@ -235,7 +228,7 @@ export const useGameInit = (ctx) => {
   useEffect(() => {
     const cocktailCount = customerFlow.customerCocktailCount;
     if (cocktailCount >= customerFlow.MAX_COCKTAILS_PER_CUSTOMER && !progress.autoTestRunning) {
-      const parting = customerFlow.customerSuccessCount > 0 ? 'success_complete' : 'trust_zero';
+      const parting = customerFlow.customerSuccessCount > 0 ? 'success_complete' : 'served_complete';
       const timer = setTimeout(() => {
         customerFlow.handleCustomerLeaveRef.current(parting);
       }, 1000);
@@ -244,7 +237,7 @@ export const useGameInit = (ctx) => {
     if (cocktailCount >= customerFlow.MAX_COCKTAILS_PER_CUSTOMER && progress.autoTestRunning) {
       // 自动测试：不走离场动画，但仍需记录顾客数据和评估回头客
       const config = customerFlow.currentCustomer?.config;
-      const parting = customerFlow.customerSuccessCount > 0 ? 'satisfied' : 'disappointed';
+      const parting = customerFlow.customerSuccessCount > 0 ? 'satisfied' : 'neutral';
       if (config && !config.isTutorialCustomer && ctx.recordCustomer && ctx.evaluateReturnPotential) {
         ctx.recordCustomer(config, dialogue.dialogueHistory, parting, trustLevel);
         if (!config.isReturnCustomer) {
