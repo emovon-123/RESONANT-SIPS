@@ -259,7 +259,7 @@ const SettingsPage = ({ onBack }) => {
           <h2>ℹ️ 关于游戏</h2>
           
           <div className="about-info">
-            <p><strong>Mixologist</strong></p>
+            <p><strong>Resonant Sips</strong></p>
             <p>版本：1.1.0</p>
             <p className="about-description">
               通过与AI顾客的多轮对话，识别其真实情绪，

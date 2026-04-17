@@ -190,7 +190,7 @@ const ChatPanel = ({
       <div className="chat-messages">
         {dialogueHistory.length === 0 && (
           <div className="welcome-message">
-            <p>欢迎来到 Mixologist</p>
+            <p>欢迎来到 Resonant Sips</p>
             <p className="subtitle">通过对话了解顾客的真实情绪，再为 TA 调制专属鸡尾酒</p>
           </div>
         )}
