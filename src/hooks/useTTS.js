@@ -112,6 +112,17 @@ export const useTTS = () => {
     async (cleanText) => {
       if (!remoteTtsEnabled || !remoteTtsApiKey || !cleanText) return false;
 
+      const verbatimInstruction = [
+        'You are a text-to-speech renderer.',
+        'Read the provided text verbatim.',
+        'Do not add, remove, summarize, paraphrase, translate, explain, roleplay, or answer.',
+        'Speak exactly the text between <verbatim> and </verbatim>.',
+        'If the text contains punctuation, preserve it only as natural speech pauses.',
+        'Output audio only for that exact text.'
+      ].join(' ');
+
+      const verbatimPayload = `<verbatim>${cleanText}</verbatim>`;
+
       for (const model of remoteTtsModels) {
         const controller = new AbortController();
         activeFetchRef.current = controller;
@@ -127,12 +138,17 @@ export const useTTS = () => {
             },
             body: JSON.stringify({
               model,
-              messages: [{ role: 'user', content: cleanText }],
+              messages: [
+                { role: 'system', content: verbatimInstruction },
+                { role: 'user', content: verbatimPayload }
+              ],
               modalities: ['text', 'audio'],
               audio: {
                 voice: remoteTtsVoice,
                 format: remoteTtsFormat === 'mp3' ? 'mp3' : 'pcm16',
               },
+              temperature: 0,
+              max_tokens: Math.max(64, Math.ceil(cleanText.length * 1.5)),
               stream: true,
             }),
             signal: controller.signal,
