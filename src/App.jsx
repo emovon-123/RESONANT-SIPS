@@ -247,6 +247,7 @@ function App() {
 
   const handleOpenNewGameSetup = useCallback(() => {
     if (isEnteringGame) return;
+    setPreloadedFirstCustomer(null);
     startTransition(() => {
       setCurrentPage('new_game_setup');
     });
@@ -263,6 +264,7 @@ function App() {
 
     try {
       setIsEnteringGame(true);
+      setPreloadedFirstCustomer(null);
       const created = await createSlot();
       const slotId = created?.slotId;
       if (!slotId) {
@@ -317,6 +319,7 @@ function App() {
           <NewGameSetupPage
             onBack={handleBackToHome}
             onConfirmStart={handleStartNewGame}
+            onCharacterPoolChange={() => setPreloadedFirstCustomer(null)}
             loading={isEnteringGame}
           />
         );

@@ -12,7 +12,7 @@ import { isPresetCharacterId } from '../config/defaultCharacters/index.js';
 import { ensureStoryworldCharacterCached } from '../utils/storyworldRepository.js';
 import './NewGameSetupPage.css';
 
-const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
+const NewGameSetupPage = ({ onBack, onConfirmStart, onCharacterPoolChange, loading = false }) => {
   const [customCharacterInput, setCustomCharacterInput] = useState('');
   const [customCharacterIds, setCustomCharacterIds] = useState([]);
   const [activeCharacterIds, setActiveCharacterIds] = useState([]);
@@ -68,6 +68,7 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
     setCustomCharacterIds(getCustomCharacterIds());
     setActiveCharacterIds(getActiveCharacterIds());
     setCustomCharacterInput('');
+    onCharacterPoolChange?.();
     pushToast('角色已添加并默认启用', 'success');
   };
 
@@ -79,6 +80,7 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
     removeCustomCharacterId(id);
     setCustomCharacterIds(getCustomCharacterIds());
     setActiveCharacterIds(getActiveCharacterIds());
+    onCharacterPoolChange?.();
     pushToast(`已移除角色 ${id}`, 'info');
   };
 
@@ -93,6 +95,7 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, loading = false }) => {
       : current.filter((item) => item !== id);
     const saved = saveActiveCharacterIds(next);
     setActiveCharacterIds(saved);
+    onCharacterPoolChange?.();
   };
 
   const handleConfirmStart = () => {
