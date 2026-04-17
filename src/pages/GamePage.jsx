@@ -2,7 +2,6 @@
 
 // 缁勪欢瀵煎叆
 import ChatPanel from '../components/Chat/ChatPanel.jsx';
-import EmotionPanel from '../components/Emotion/EmotionPanel.jsx';
 import BartenderPanel from '../components/Bartender/BartenderPanel.jsx';
 import TargetDisplay from '../components/Bartender/TargetDisplay.jsx';
 import CocktailPreview from '../components/Bartender/CocktailPreview.jsx';
@@ -56,7 +55,7 @@ import { useAdvancedGuides } from '../hooks/useAdvancedGuides.js';
 
 // 鏁版嵁瀵煎叆
 import { getAIConfig } from '../data/aiCustomers.js';
-import { INITIAL_UNLOCKED_EMOTIONS, GLASS_TYPES } from '../data/emotions.js';
+import { EMOTIONS, INITIAL_UNLOCKED_EMOTIONS, GLASS_TYPES } from '../data/emotions.js';
 import { INITIAL_UNLOCKED_INGREDIENTS } from '../data/ingredients.js';
 import { TUTORIAL_VISIBLE_EMOTIONS } from '../data/tutorialData.js';
 import { clearAllCache } from '../utils/storage.js';
@@ -190,6 +189,27 @@ const GamePage = ({
     recipePreview,
     trustLevel
   ]);
+
+  const isMixingStage = cocktailFlow.emotionGuessMode || cocktailFlow.guessedCorrectly;
+  const sidebarHints = tutorial.isTutorialMode && tutorial.tutorialPhase !== 'dialogue'
+    ? [
+        { emotionId: 'fear', hint: '顾客语气在发紧，像在担心失去什么。', level: 'medium' },
+        { emotionId: 'sadness', hint: '顾客停顿很多，像把难过压回去了。', level: 'medium' }
+      ]
+    : emotionSystem.emotionHints;
+  const sidebarClues = (emotionSystem.observedClues || []).slice(-4).reverse();
+  const surfaceEmotionLabels = (emotionSystem.surfaceEmotions || [])
+    .map((emotion) => EMOTIONS[emotion.id]?.name || emotion.id)
+    .filter(Boolean);
+  const handleBackFromMixing = () => {
+    mixingSession.handleReset();
+    cocktailFlow.setGuessedCorrectly(false);
+    cocktailFlow.setEmotionGuessMode(false);
+    cocktailFlow.setTargetConditions([]);
+    cocktailFlow.setTargetHint('');
+    cocktailFlow.setCurrentMixtureValues({ thickness: 0, sweetness: 0, strength: 0 });
+    emotionSystem.setSelectedEmotions([]);
+  };
 
   // 馃啎 DevPanel 闇€瑕佺殑娓告垙鍐呰皟璇曚笂涓嬫枃锛圓I璐ㄩ噺娴嬭瘯鍙帮級
   const devGame = {
@@ -365,9 +385,9 @@ const GamePage = ({
         onShowHelp={() => setShowHelp(true)}
       />
 
-      <div className={`game-content ${cocktailFlow.guessedCorrectly ? 'mixing-mode' : ''}`}>
+      <div className={`game-content ${isMixingStage ? 'mixing-mode' : ''}`}>
         <div className="left-section">
-          {!cocktailFlow.guessedCorrectly ? (
+          {!isMixingStage ? (
             <ChatPanel
               aiConfig={aiConfig} trustLevel={trustLevel} dialogueHistory={dialogue.dialogueHistory}
               onSendMessage={handlers.handleSendMessage} quickOptions={dialogue.quickOptions} isLoading={dialogue.isLoading}
@@ -381,6 +401,13 @@ const GamePage = ({
               unlockedDecorations={unlockedItems.decorations || []}
               disabled={false} hideTargetInPanel={true}
               mixingMode={chapterSystem.currentChapter?.mixingMode || 'strict'}
+              guessedCorrectly={cocktailFlow.guessedCorrectly}
+              selectedEmotions={emotionSystem.selectedEmotions}
+              unlockedEmotions={tutorial.isTutorialMode ? TUTORIAL_VISIBLE_EMOTIONS : unlockedItems.emotions}
+              onEmotionSelect={emotionSystem.handleEmotionSelect}
+              onCancelEmotionGuess={handleBackFromMixing}
+              onConfirmEmotionGuess={handlers.handleConfirmGuess}
+              onBackToDialogue={handleBackFromMixing}
             />
           )}
         </div>
@@ -398,7 +425,7 @@ const GamePage = ({
               />
             </div>
           ) : (
-            <div className={`emotion-section emotion-section-full ${cocktailFlow.emotionFlash} ${cocktailFlow.emotionCardAnim}`} style={{ position: 'relative', flex: 1 }}>
+            <div className="target-section">
               {aiConfig?.isReturnCustomer && (
                 <SharedMemoryPanel
                   sharedHistory={aiConfig.sharedHistory} intimacy={aiConfig.intimacy || 0}
@@ -406,28 +433,84 @@ const GamePage = ({
                   crossroads={aiConfig.crossroads}
                 />
               )}
-              {tutorial.isTutorialMode && !tutorial.visibleAreas.includes('emotion') && (
-                <div className="tutorial-section-mask"><div className="mask-label">?? ???????</div></div>
-              )}
-              <EmotionPanel
-                surfaceEmotions={emotionSystem.surfaceEmotions} realEmotions={[]}
-                emotionHints={tutorial.isTutorialMode && tutorial.tutorialPhase !== 'dialogue' ? [
-                  { emotionId: 'fear', hint: '顾客语气在发紧，像在担心失去什么。', level: 'medium' },
-                  { emotionId: 'sadness', hint: '顾客停顿很多，像把难过压回去了。', level: 'medium' }
-                ] : emotionSystem.emotionHints}
-                trustLevel={trustLevel}
-                onEmotionSelect={emotionSystem.handleEmotionSelect}
-                selectedEmotions={emotionSystem.selectedEmotions}
-                unlockedEmotions={tutorial.isTutorialMode ? TUTORIAL_VISIBLE_EMOTIONS : unlockedItems.emotions}
-                dialogueClues={emotionSystem.observedClues}
-                guessReadiness={cocktailFlow.guessReadiness}
-                customerRealEmotions={emotionSystem.dynamicCustomerEmotions.reality.length > 0
-                  ? emotionSystem.dynamicCustomerEmotions.reality : (aiConfig?.emotionMask?.reality || [])}
-                guessMode={cocktailFlow.emotionGuessMode}
-                guessedCorrectly={cocktailFlow.guessedCorrectly}
-                onStartGuess={() => cocktailFlow.handleStartEmotionGuess(trustLevel, cocktailFlow.guessReadiness)}
-                onCancelGuess={() => { cocktailFlow.handleCancelGuess(); emotionSystem.setSelectedEmotions([]); }}
-                onConfirmGuess={handlers.handleConfirmGuess}
+              <div className="dialogue-prep-panel">
+                <div className="dialogue-prep-panel__eyebrow">
+                  {isMixingStage ? 'Mixing Prep' : 'Observation'}
+                </div>
+                <h4>{isMixingStage ? '线索留在右侧，判断留在左侧' : '对话阶段不再出现猜测界面'}</h4>
+                <p>
+                  {isMixingStage
+                    ? '左侧调酒台已经进入情绪步骤。根据这些线索，直接在 Step 0 里选择 3 种情绪。'
+                    : '先把注意力留给对话。准备好了再进入调酒台，在同一界面里完成情绪选择和配方调制。'}
+                </p>
+
+                {surfaceEmotionLabels.length > 0 && (
+                  <div className="dialogue-prep-panel__block">
+                    <div className="dialogue-prep-panel__label">表面情绪</div>
+                    <div className="dialogue-prep-panel__chips">
+                      {surfaceEmotionLabels.map((label) => (
+                        <span key={label} className="dialogue-prep-panel__chip">{label}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="dialogue-prep-panel__block">
+                  <div className="dialogue-prep-panel__label">情绪提示</div>
+                  {sidebarHints.length > 0 ? (
+                    <div className="dialogue-prep-panel__list">
+                      {sidebarHints.map((item, index) => (
+                        <div key={`${item.emotionId}-${index}`} className="dialogue-prep-panel__item">
+                          <span className="dialogue-prep-panel__item-title">
+                            {EMOTIONS[item.emotionId]?.name || item.emotionId}
+                          </span>
+                          <span className="dialogue-prep-panel__item-body">{item.hint}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="dialogue-prep-panel__empty">继续对话，线索会慢慢浮出来。</div>
+                  )}
+                </div>
+
+                <div className="dialogue-prep-panel__block">
+                  <div className="dialogue-prep-panel__label">已观察到的说话破绽</div>
+                  {sidebarClues.length > 0 ? (
+                    <div className="dialogue-prep-panel__list">
+                      {sidebarClues.map((clue) => (
+                        <div key={clue.id} className="dialogue-prep-panel__item">
+                          <span className="dialogue-prep-panel__item-title">{clue.label}</span>
+                          <span className="dialogue-prep-panel__item-body">{clue.snippet || '顾客刚刚露出一点真实反应。'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="dialogue-prep-panel__empty">还没有明显破绽，先听对方怎么说。</div>
+                  )}
+                </div>
+
+                {!isMixingStage ? (
+                  <button
+                    className="dialogue-prep-panel__action"
+                    type="button"
+                    onClick={() => {
+                      emotionSystem.setSelectedEmotions([]);
+                      cocktailFlow.handleStartEmotionGuess();
+                    }}
+                  >
+                    前往调酒台
+                  </button>
+                ) : (
+                  <div className="dialogue-prep-panel__footnote">
+                    在左侧 Step 0 选择完 3 种情绪后，就会进入正式调酒步骤。
+                  </div>
+                )}
+              </div>
+
+              <CocktailPreview
+                recipe={recipePreview.recipe}
+                totalPortions={recipePreview.totalPortions}
+                maxPortions={recipePreview.maxPortions}
               />
             </div>
           )}
@@ -565,6 +648,3 @@ const GamePage = ({
 };
 
 export default GamePage;
-
-
-

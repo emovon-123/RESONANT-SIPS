@@ -427,6 +427,7 @@ export const generateCustomerFromCharacterId = async (characterId) => {
   base.customCharacterId = roleId;
   base.isCustomCharacter = true;
   base.customCharacterSource = context?.source || null;
+  base.avatarCacheKey = `custom_${roleId}`;
 
   if (emotionAnalysis && typeof emotionAnalysis === 'object') {
     const top3 = Array.isArray(emotionAnalysis.top3)
@@ -448,14 +449,18 @@ export const generateCustomerFromCharacterId = async (characterId) => {
     base.currentEmotionTop3 = top3;
   }
 
-  base.avatarBase64 = null;
-  base.avatarCacheKey = `custom_${roleId}_${Date.now()}`;
+  const portraitDataUrl = String(context?.portrait?.dataUrl || '').trim();
+  base.avatarBase64 = portraitDataUrl || null;
   try {
-    const cachedAvatar = await getAvatarFromCache(base.avatarCacheKey);
-    if (cachedAvatar) {
-      base.avatarBase64 = cachedAvatar;
+    if (base.avatarBase64) {
+      await saveAvatarToCache(base.avatarCacheKey, base.avatarBase64);
     } else {
-      generateAndCacheAvatar(base).catch(() => {});
+      const cachedAvatar = await getAvatarFromCache(base.avatarCacheKey);
+      if (cachedAvatar) {
+        base.avatarBase64 = cachedAvatar;
+      } else {
+        generateAndCacheAvatar(base).catch(() => {});
+      }
     }
   } catch {
     // ignore avatar errors

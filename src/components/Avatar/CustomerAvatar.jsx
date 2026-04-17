@@ -13,6 +13,9 @@ import './CustomerAvatar.css';
  */
 const CustomerAvatar = ({ avatarBase64, emoji = '👤', size = 48, customerId, className = '' }) => {
   const [imageSrc, setImageSrc] = useState(avatarBase64);
+  const resolvedSrc = imageSrc
+    ? (String(imageSrc).startsWith('data:') ? imageSrc : `data:image/png;base64,${imageSrc}`)
+    : null;
 
   // 挂载时：如果没有 avatarBase64 但有 customerId，主动从 IndexedDB 缓存加载
   useEffect(() => {
@@ -48,14 +51,14 @@ const CustomerAvatar = ({ avatarBase64, emoji = '👤', size = 48, customerId, c
     if (avatarBase64) setImageSrc(avatarBase64);
   }, [avatarBase64]);
 
-  if (imageSrc) {
+  if (resolvedSrc) {
     return (
       <div
         className={`customer-avatar-img has-image ${className}`}
         style={{ width: size, height: size }}
       >
         <img
-          src={`data:image/png;base64,${imageSrc}`}
+          src={resolvedSrc}
           onError={() => setImageSrc(null)}
           alt="customer avatar"
           width={size}

@@ -34,12 +34,151 @@
   min-height: 0;
 }
 
+.bartender-emotion-step {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  padding: 22px 18px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(108, 148, 255, 0.16), transparent 34%),
+    linear-gradient(180deg, rgba(18, 24, 42, 0.96) 0%, rgba(8, 11, 24, 0.96) 100%);
+  border: 1px solid rgba(126, 150, 255, 0.18);
+}
+
+.bartender-emotion-step__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.bartender-emotion-step__eyebrow {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(153, 182, 255, 0.82);
+  letter-spacing: 0.08em;
+}
+
+.bartender-emotion-step__header h4 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  color: #f7f8ff;
+}
+
+.bartender-emotion-step__header p {
+  margin: 0;
+  max-width: 720px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(232, 236, 255, 0.72);
+}
+
+.bartender-emotion-step__count {
+  min-width: 78px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.bartender-emotion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.bartender-emotion-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 128px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  color: #f2f5ff;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.bartender-emotion-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bartender-emotion-card.selected {
+  background: rgba(124, 161, 255, 0.14);
+}
+
+.bartender-emotion-card__icon {
+  font-size: 30px;
+}
+
+.bartender-emotion-card__name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.bartender-emotion-step__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.bartender-emotion-step__ghost,
+.bartender-emotion-step__confirm {
+  min-width: 132px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+}
+
+.bartender-emotion-step__ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.bartender-emotion-step__confirm {
+  background: linear-gradient(135deg, rgba(100, 146, 255, 0.95), rgba(124, 104, 255, 0.95));
+  color: #09111f;
+}
+
+.bartender-emotion-step__ghost:hover,
+.bartender-emotion-step__confirm:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.bartender-emotion-step__confirm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* 头部 */
 .bartender-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+}
+
+.bartender-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .bartender-header h3 {

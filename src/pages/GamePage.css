@@ -193,6 +193,116 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.dialogue-prep-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 18px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top right, rgba(98, 166, 255, 0.14), transparent 30%),
+    linear-gradient(180deg, rgba(18, 22, 44, 0.92), rgba(10, 12, 28, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dialogue-prep-panel__eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(144, 188, 255, 0.8);
+  text-transform: uppercase;
+}
+
+.dialogue-prep-panel h4 {
+  margin: 0;
+  font-size: 22px;
+  color: #f5f7ff;
+}
+
+.dialogue-prep-panel p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(232, 237, 255, 0.74);
+}
+
+.dialogue-prep-panel__block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dialogue-prep-panel__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.dialogue-prep-panel__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dialogue-prep-panel__chip {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+  color: rgba(242, 245, 255, 0.9);
+}
+
+.dialogue-prep-panel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dialogue-prep-panel__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dialogue-prep-panel__item-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f7f9ff;
+}
+
+.dialogue-prep-panel__item-body,
+.dialogue-prep-panel__empty,
+.dialogue-prep-panel__footnote {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(225, 230, 250, 0.72);
+}
+
+.dialogue-prep-panel__action {
+  align-self: flex-start;
+  min-width: 148px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #86b8ff, #6d8dff);
+  color: #091120;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.dialogue-prep-panel__action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(109, 141, 255, 0.24);
+}
+
 /* 响应式设计 */
 @media (max-width: 1200px) {
   .game-content {
@@ -823,4 +933,3 @@
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
 }
-

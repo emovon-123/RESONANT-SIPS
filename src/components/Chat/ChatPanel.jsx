@@ -19,7 +19,8 @@ const ChatPanel = ({
   const [highlightedIndex, setHighlightedIndex] = useState(null);
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
-  const lastSpokenMsgId = useRef(null);
+  const lastSpokenSignature = useRef('');
+  const speakTimerRef = useRef(null);
 
   const { speak, stopTTS } = useTTS();
 
@@ -28,19 +29,36 @@ const ChatPanel = ({
   const prevTrustRef = useRef(trustLevel);
 
   useEffect(() => {
-    // 监听 TTS 播报新消息（忽略旁白和玩家说话）
-    if (dialogueHistory && dialogueHistory.length > 0) {
-      const lastMsg = dialogueHistory[dialogueHistory.length - 1];
-      if (lastMsg.role === 'ai' && !lastMsg.isThinking && lastMsg.id !== lastSpokenMsgId.current) {
-        lastSpokenMsgId.current = lastMsg.id;
-        speak(lastMsg.content, aiConfig);
-      }
+    // 流式输出期间会不断改写同一条消息；等文本稳定后再播报，避免只读到前几个字。
+    if (!Array.isArray(dialogueHistory) || dialogueHistory.length === 0) return;
+    const lastMsg = dialogueHistory[dialogueHistory.length - 1];
+    if (lastMsg.role !== 'ai' || lastMsg.isThinking) return;
+
+    const content = String(lastMsg.content || '').trim();
+    if (!content || content === '……' || content === '...') return;
+
+    const signature = `${String(lastMsg.id || 'no-id')}::${content}`;
+    if (signature === lastSpokenSignature.current) return;
+
+    if (speakTimerRef.current) {
+      window.clearTimeout(speakTimerRef.current);
     }
-  }, [dialogueHistory, aiConfig, speak]);
+
+    speakTimerRef.current = window.setTimeout(() => {
+      // 如果同一条消息还在流式更新，等下一个稳定窗口再播
+      if (isLoading) return;
+      if (signature === lastSpokenSignature.current) return;
+      lastSpokenSignature.current = signature;
+      speak(content, aiConfig);
+    }, 450);
+  }, [dialogueHistory, aiConfig, speak, isLoading]);
 
   // 组件卸载时停止语音播报
   useEffect(() => {
     return () => {
+      if (speakTimerRef.current) {
+        window.clearTimeout(speakTimerRef.current);
+      }
       stopTTS();
     };
   }, [stopTTS]);
