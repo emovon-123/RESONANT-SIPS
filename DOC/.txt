@@ -1,12 +1,11 @@
-ℹ️ 未配置启用角色，跳过首页顾客预加载
-:5173/api/save/slots/slot_1776315095661/game-state:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)了解此错误
-saveRepository.js:309 syncActiveSlotGameState failed: ENOENT: no such file or directory, rename 'D:\MScIME25\SD5976-AI Tools For X\心灵特调\saves\slot_1776315095661\game_state.json.tmp-19784-1776315098991' -> 'D:\MScIME25\SD5976-AI Tools For X\心灵特调\saves\slot_1776315095661\game_state.json'
-（匿名） @ saveRepository.js:309了解此警告
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+audioManager.js:42 音频系统初始化成功
+2App.jsx:100 ✅ 第一个顾客预加载完成: Captain Quick
 useGameInit.js:120 🔄 初始化第 1 天...
 useBarAtmosphere.js:54 🌍 开始为第1天生成氛围...
-atmosphereGeneration.js:12 🌍 开始生成第1天的氛围...
-atmosphereGeneration.js:22 === Atmosphere Prompt ===
-atmosphereGeneration.js:23 你是赛博朋克酒吧"未来酒馆"的世界模拟器。
+atmosphereGeneration.js:13 🌍 开始生成第1天的氛围...
+atmosphereGeneration.js:23 === Atmosphere Prompt ===
+atmosphereGeneration.js:24 你是赛博朋克酒吧"未来酒馆"的世界模拟器。
 
 现在是第1天。请为今晚生成独特的酒吧氛围。
 
@@ -16,7 +15,7 @@ atmosphereGeneration.js:23 你是赛博朋克酒吧"未来酒馆"的世界模拟
 - lighting 只能是: bright, dim_warm, neon, candlelight, flickering
 - music 只能是: jazz_slow, electronic, classical, silence, lo_fi
 - crowdLevel 只能是: empty, sparse, moderate, crowded
-- emotionBias 只能从以下选取1-2个: nostalgia, courage, loneliness, relief, anxiety, calm, regret, aspiration, pressure, dependence, confusion, happiness
+- emotionBias 只能从以下选取1-2个: joy, trust, fear, surprise, sadness, disgust, anger, anticipation
 - trustBonus 范围: -0.03 到 +0.05
 - targetShift 每项范围: -1 到 +1
 - priceMultiplier 范围: 0.8 到 1.5
@@ -35,16 +34,40 @@ atmosphereGeneration.js:23 你是赛博朋克酒吧"未来酒馆"的世界模拟
 
 返回纯JSON：
 {"weather":"...","timeOfDay":"...","season":"...","lighting":"...","music":"...","crowdLevel":"...","scent":"...","narrative":"...","modifiers":{"trustBonus":0,"emotionBias":["..."],"targetShift":{"thickness":0,"sweetness":0,"strength":0},"priceMultiplier":1.0,"customerCountMod":0}}
-atmosphereGeneration.js:24 ========================
-api.302.ai/v1/gemini-2.5-flash:generateContent?key=sk-uCuUlhZ8aO1uVQZNhmZKt7cutxq6ztflekASQNcjNC77Ismi:1  Failed to load resource: the server responded with a status of 500 ()了解此错误
-atmosphereGeneration.js:38 ❌ 氛围生成失败: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
-    at callGeminiAPIForAtmosphere (atmosphereGeneration.js:76:38)
-    at async generateDailyAtmosphere (atmosphereGeneration.js:27:22)
+atmosphereGeneration.js:25 ========================
+api.302.ai/v1/gemini-2.5-flash:generateContent?key=sk-uCuUlhZ8aO1uVQZNhmZKt7cutxq6ztflekASQNcjNC77Ismi:1  Failed to load resource: the server responded with a status of 500 ()
+atmosphereGeneration.js:84 ❌ Gemini API错误: Object
+（匿名） @ atmosphereGeneration.js:84
+atmosphereGeneration.js:39 ❌ 氛围生成失败: Error: Gemini API调用失败: 500
+    at callGeminiAPIForAtmosphere (atmosphereGeneration.js:85:11)
+    at async generateDailyAtmosphere (atmosphereGeneration.js:28:22)
     at async useBarAtmosphere.js:55:22
     at async initializeFirstCustomer (useGameInit.js:121:7)
-（匿名） @ atmosphereGeneration.js:38了解此错误
+（匿名） @ atmosphereGeneration.js:39
 useBarAtmosphere.js:78 ⚠️ 使用降级氛围模板: clear
-useGameInit.js:143 ❌ 第一位顾客生成失败（仅自定义角色模式）: Error: no_active_characters
-    at generateCustomerWithCharacterPool (customerGeneration.js:444:11)
-    at initializeFirstCustomer (useGameInit.js:138:37)
-（匿名） @ useGameInit.js:143了解此错误
+useGameInit.js:124 ✅ 使用预加载的第一位顾客: Captain Quick
+aiService.js:58 === AI Prompt ===
+aiService.js:59 Type: initial
+aiService.js:60 API Type: gemini
+aiService.js:61 Streaming: true
+aiService.js:62 Prompt: 你是Captain Quick，性格：Charismatic、sunny "pop-star" vibe、media darling、confident、reckless、protective、driven by survivor's guilt、obsessive about truth。
+
+【你的内心（指导你的语气，但绝对不能直说这些词）】
+- 你表面上：平静
+- 你内心深处：信任、喜悦
+- 你要通过语气、措辞、用词来暗示内心感受，让细心的人能察觉
+
+刚坐在酒吧吧台前，调酒师看着你。
+
+请说一句开场白（30-50字），自然一点，完整的句子。
+开场白要微妙地反映你的内心状态，但不能直接说出情绪名称。
+
+【格式要求 - 极其重要】
+只输出角色说的话（直接引语），禁止添加任何动作描写、旁白、神态描写。
+错误示例：她轻叹一声，望向远处。"今晚的雨真大。"
+正确示例：今晚的雨真大。
+
+直接给出：
+aiService.js:63 ================
+useCustomerFlow.js:117 🔄 开始在后台生成下一个顾客...
+useCustomerFlow.js:133 ✅ 下一个顾客生成完成: Captain Quick

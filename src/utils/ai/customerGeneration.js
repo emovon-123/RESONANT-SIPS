@@ -9,7 +9,10 @@ import {
   randomInRange,
 } from '../../data/aiCustomers.js';
 import { getAvatarFromCache, saveAvatarToCache } from '../avatarCache.js';
-import { getStoryworldCharacterByName } from '../storyworldRepository.js';
+import {
+  analyzeStoryworldCharacterEmotion,
+  getStoryworldCharacterByName,
+} from '../storyworldRepository.js';
 import { getSettings } from '../storage.js';
 import { EMOTION_IDS_8, normalizeEmotionList } from '../emotionSchema.js';
 import { extractCleanJSON, tryRepairTruncatedJSON } from './jsonUtils.js';
@@ -375,10 +378,20 @@ export const generateCustomerFromCharacterId = async (characterId) => {
   }
 
   let context = null;
+  let emotionAnalysis = null;
   try {
     context = await getStoryworldCharacterByName(roleId);
   } catch (error) {
     console.warn('⚠️ Storyworld角色读取失败，降级为占位角色:', error?.message || error);
+  }
+
+  try {
+    emotionAnalysis = await analyzeStoryworldCharacterEmotion({
+      query: roleId,
+      character: context || undefined,
+    });
+  } catch (error) {
+    console.warn('⚠️ 角色8维情绪分析失败，使用默认情绪流程:', error?.message || error);
   }
 
   const mappedCategoryId = String(context?.categoryId || '').trim();
@@ -414,6 +427,26 @@ export const generateCustomerFromCharacterId = async (characterId) => {
   base.customCharacterId = roleId;
   base.isCustomCharacter = true;
   base.customCharacterSource = context?.source || null;
+
+  if (emotionAnalysis && typeof emotionAnalysis === 'object') {
+    const top3 = Array.isArray(emotionAnalysis.top3)
+      ? normalizeEmotionList(emotionAnalysis.top3, { min: 0, max: 3, fallback: [] })
+      : [];
+
+    if (top3.length > 0) {
+      const surface = normalizeEmotionList(top3.slice(0, 2), { min: 1, max: 2, fallback: ['trust'] });
+      const reality = normalizeEmotionList(top3, { min: 2, max: 2, fallback: ['fear', 'sadness'] });
+      base.emotionMask = {
+        ...(base.emotionMask || {}),
+        surface,
+        reality,
+      };
+    }
+
+    base.emotionAnalysis = emotionAnalysis;
+    base.currentEmotionWeights = emotionAnalysis.weights || null;
+    base.currentEmotionTop3 = top3;
+  }
 
   base.avatarBase64 = null;
   base.avatarCacheKey = `custom_${roleId}_${Date.now()}`;

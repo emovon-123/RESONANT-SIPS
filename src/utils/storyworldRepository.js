@@ -36,3 +36,8 @@ export const searchStoryworldCharacters = async (query, limit = 20) => {
   const data = await request('POST', '/api/mcp/character/search', { query, limit });
   return Array.isArray(data.results) ? data.results : [];
 };
+
+export const analyzeStoryworldCharacterEmotion = async (payload = {}) => {
+  const data = await request('POST', '/api/mcp/emotion/analyze_character', payload);
+  return data?.emotion || null;
+};

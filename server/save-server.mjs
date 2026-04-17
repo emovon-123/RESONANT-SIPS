@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getCharacterByName, searchCharacters } from './storyworld-service.mjs';
+import { analyzeCharacterEmotionWithAI } from './emotion-service.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -525,6 +526,36 @@ const handlers = {
 
     return json(200, { results });
   },
+
+  async analyzeCharacterEmotion(req, requestUrl) {
+    let query = requestUrl.searchParams.get('query') || requestUrl.searchParams.get('code') || requestUrl.searchParams.get('name') || null;
+    let character = null;
+
+    if ((req.method || 'GET') !== 'GET') {
+      const body = await parseBody(req);
+      query = body?.query ?? body?.code ?? body?.name ?? query;
+      character = body?.character && typeof body.character === 'object' ? body.character : null;
+    }
+
+    if (!character && query) {
+      character = await getCharacterByName({ rootDir: ROOT, query, cacheRemote: true });
+    }
+
+    if (!character) {
+      return json(404, { error: 'character_not_found' });
+    }
+
+    const emotion = await analyzeCharacterEmotionWithAI({ character });
+    return json(200, {
+      ok: true,
+      character: {
+        code: character.code,
+        displayName: character.displayName,
+        source: character.source || null,
+      },
+      emotion,
+    });
+  },
 };
 
 const route = async (req) => {
@@ -543,6 +574,9 @@ const route = async (req) => {
   }
   if (pathname === '/api/mcp/character/search' && (method === 'GET' || method === 'POST')) {
     return handlers.searchCharacters(req, requestUrl);
+  }
+  if (pathname === '/api/mcp/emotion/analyze_character' && (method === 'GET' || method === 'POST')) {
+    return handlers.analyzeCharacterEmotion(req, requestUrl);
   }
 
   const slotMatch = pathname.match(/^\/api\/save\/slots\/([a-zA-Z0-9_-]+)$/);

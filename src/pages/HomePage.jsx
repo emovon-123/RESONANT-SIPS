@@ -192,7 +192,7 @@ const HomePage = ({
           style={showSplash ? { '--splash-lift': `${splashLift}px` } : undefined}
         >
           <div className="title-icon">{COPY.titleIcon}</div>
-          <h1 className="game-title">Mixologist</h1>
+          <h1 className="game-title">Resonant Sips</h1>
           <p className="game-description">{COPY.description}</p>
         </div>
 

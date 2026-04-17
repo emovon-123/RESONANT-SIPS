@@ -12,7 +12,7 @@
     "categoryId": "workplace",
     "profile": {
       "name": "Captain Quick",
-      "age": null,
+      "age": 26,
       "personality": [
         "Charismatic",
         "sunny \"pop-star\" vibe",
@@ -23,7 +23,7 @@
         "driven by survivor's guilt",
         "obsessive about truth"
       ],
-      "appearance": "",
+      "appearance": "Anthropomorphic Jaguar, tall lanky parkour physique, handsome youthful face, smirk, jagged brow scar, backward cap with red hair tuft. Wears unzipped tan firefighter jacket with \"CAPTAIN\" text, bare chest, tactical trousers, heavy black rubber firefighter boots. Carries a heavy mechanical water tank backpack with a metal cannon nozzle.",
       "occupation": ""
     },
     "background": {
@@ -41,8 +41,36 @@
     },
     "source": {
       "type": "preset",
-      "path": "seeds/characters/presets/5738g/profile.json",
+      "path": "seeds/characters/presets/5738g/source.yaml",
       "url": null
     }
+  },
+  "emotionSchemaVersion": 2,
+  "currentEmotionWeights": {
+    "joy": 0.08,
+    "trust": 0.12,
+    "fear": 0.04,
+    "surprise": 0.08,
+    "sadness": 0.27999999999999997,
+    "disgust": 0.04,
+    "anger": 0.12,
+    "anticipation": 0.24
+  },
+  "currentEmotionTop3": [
+    "sadness",
+    "anticipation",
+    "trust"
+  ],
+  "emotionAnalysis": {
+    "confidence": 0.95,
+    "rationale": [
+      "角色处于深夜独处状态，卸下了‘阳光偶像’的伪装，内心深处的幸存者内疚感占据主导。",
+      "对身世之谜的探索带来了强烈的预期感（anticipation），同时也伴随着对真相揭露的忧虑。",
+      "虽然外表自信，但此时的疲惫感削弱了快乐权重，转而寻求情感连接与信任。",
+      "对过去悲剧的沉思使得悲伤权重较高，而对阴谋论的警觉则维持了一定的愤怒与警惕。"
+    ],
+    "source": "model",
+    "sourceHash": "cd7c7e7354386a55255cff6b876dee291681eab4",
+    "analyzedAt": 1776341510872
   }
 }
