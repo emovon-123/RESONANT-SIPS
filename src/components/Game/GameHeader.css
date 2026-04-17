@@ -175,46 +175,6 @@
   font-weight: 600;
 }
 
-/* ---- 酒吧等级展示 ---- */
-.bar-reputation-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 12px;
-  background: rgba(147, 130, 220, 0.1);
-  border: 1px solid rgba(147, 130, 220, 0.25);
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-.bar-reputation-display:hover {
-  border-color: rgba(147, 130, 220, 0.45);
-  background: rgba(147, 130, 220, 0.15);
-}
-
-.bar-level-name {
-  font-size: 12px;
-  color: rgba(147, 130, 220, 0.9);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.bar-reputation-bar {
-  width: 60px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.bar-reputation-fill {
-  height: 100%;
-  background: linear-gradient(90deg, rgba(147, 130, 220, 0.6), #9382dc);
-  border-radius: 2px;
-  transition: width 0.8s ease;
-  box-shadow: 0 0 6px rgba(147, 130, 220, 0.4);
-}
-
 .chapter-badge {
   font-size: 10px;
   color: rgba(147, 130, 220, 0.6);
@@ -253,7 +213,6 @@
 
 .header-icon-btn,
 .customer-compact,
-.bar-reputation-display,
 .atmo-icon-btn {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -261,7 +220,7 @@
 }
 
 .customer-name-mini,
-.bar-level-name {
+.queue-badge {
   font-family: var(--font-display);
   letter-spacing: 0.04em;
 }
@@ -300,16 +259,9 @@
   box-shadow: none;
 }
 
-.customer-name-mini,
-.bar-level-name {
+.customer-name-mini {
   font-family: inherit;
   letter-spacing: 0;
-}
-
-.bar-reputation-display {
-  background: rgba(147, 130, 220, 0.1);
-  border: 1px solid rgba(147, 130, 220, 0.25);
-  box-shadow: none;
 }
 
 .queue-badge,

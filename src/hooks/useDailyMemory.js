@@ -137,19 +137,6 @@ export const useDailyMemory = () => {
  */
 function updateWorldState(day, dailyMemory) {
   const state = getWorldState();
-  const stats = dailyMemory.stats;
-
-  // 声誉更新
-  state.barReputation = Math.max(0, Math.min(100,
-    state.barReputation + stats.successCount * 2 - stats.failureCount * 3
-  ));
-
-  // 等级更新（阈值与 BAR_LEVELS 同步）
-  if (state.barReputation >= 50) state.barLevel = 'legendary';
-  else if (state.barReputation >= 35) state.barLevel = 'city_famous';
-  else if (state.barReputation >= 15) state.barLevel = 'neighborhood_gem';
-  else if (state.barReputation >= 6) state.barLevel = 'new_bar';
-  else state.barLevel = 'unknown';
 
   // 注册今天的顾客
   for (const record of dailyMemory.customerRecords) {

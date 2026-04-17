@@ -529,7 +529,7 @@ const DevPanel = ({
                       ))}
                     </div>
                     <div className="dev-info">
-                      <span>直接跳转章节（同步声誉），无需走门槛条件。当前: 第{devGame?.chapterId || '?'}章</span>
+                      <span>直接跳转章节，无需走门槛条件。当前: 第{devGame?.chapterId || '?'}章</span>
                     </div>
                   </>
                 )}
@@ -547,7 +547,6 @@ const DevPanel = ({
                 <div className="dev-info">
                   <span>
                     章节: {devGame.chapterId ?? '-'} · 判定模式: <strong>{devGame.mixingMode ?? '-'}</strong>
-                    {typeof devGame.barReputation === 'number' ? ` · 声誉: ${devGame.barReputation}` : ''}
                   </span>
                 </div>
 

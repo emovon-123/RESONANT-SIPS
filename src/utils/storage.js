@@ -472,8 +472,6 @@ const DEFAULT_PLAYER_PROFILE = {
 
 // 默认世界状态
 const DEFAULT_WORLD_STATE = {
-  barReputation: 50,
-  barLevel: 'new_bar',
   customerRegistry: {},
   worldEvents: [],
   timeline: { currentSeason: 'autumn', daysInSeason: 0 }
@@ -670,8 +668,7 @@ const DEFAULT_CHAPTER_STATE = {
   ],
   endingTriggered: false,
   endingNarrative: null,
-  freeMode: false,
-  daysAtPeakReputation: 0
+  freeMode: false
 };
 
 export const saveChapterState = (state) => {

@@ -213,7 +213,6 @@ const GamePage = ({
     },
     mixingMode: chapterSystem.currentChapter?.mixingMode || 'strict',
     chapterId: chapterSystem.chapterState?.currentChapter,
-    barReputation: devActions?.getWorldState?.()?.barReputation,
     runChapterCheck: async () => {
       if (!chapterSystem?.processDayEnd) return;
       await chapterSystem.processDayEnd(customerFlow.currentDay, {
@@ -370,8 +369,6 @@ const GamePage = ({
         aiConfig={aiConfig} customerSuccessCount={customerFlow.customerSuccessCount} customerCocktailCount={customerFlow.customerCocktailCount}
         currentCustomerIndex={customerFlow.currentCustomerIndex} totalCustomers={customerFlow.dailyCustomers.length}
         isMuted={isMuted} toggleMute={toggleMute} sfxVolume={sfxVolume} setSfxVolume={setSfxVolume} playSFX={playSFX} atmosphere={atmosphere}
-        barLevelInfo={null}
-        chapterInfo={null}
         onShowHelp={() => setShowHelp(true)}
       />
 

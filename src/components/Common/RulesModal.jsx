@@ -156,7 +156,7 @@ const RulesModal = ({ onClose }) => {
             <ul>
               <li><strong>耐心对话</strong>：多轮对话提升信任度，更容易进入真实交流</li>
               <li><strong>理解语气</strong>：结合顾客的措辞和状态，判断最贴近的 3 个情绪</li>
-              <li><strong>谨慎猜测</strong>：猜错会降低信任度，建议线索充足后再猜</li>
+              <li><strong>大胆确认</strong>：猜测本身不会扣分，关键在于后续是否把酒调对</li>
               <li><strong>理解目标</strong>：猜对后看清三维目标范围，再选择原浆</li>
               <li><strong>平衡三维</strong>：原浆是核心，冰块/配料/装饰用于微调</li>
               <li><strong>记录配方</strong>：每次成功的配方可以作为参考模板</li>
@@ -170,7 +170,6 @@ const RulesModal = ({ onClose }) => {
               <li><strong>必须先猜对情绪</strong>才能解锁调酒台</li>
               <li><strong>回应太短或重复</strong>会降低信任度（-3%~-8%）</li>
               <li><strong>调酒失败</strong>会降低信任度（-10%）</li>
-              <li><strong>猜错情绪</strong>会降低信任度（-5%~-7%，连续猜错递增）</li>
               <li><strong>低信任度</strong>会让顾客更难敞开心扉，也会影响调酒反馈</li>
               <li>建议先充分交流建立信任，再根据整体对话判断情绪</li>
             </ul>

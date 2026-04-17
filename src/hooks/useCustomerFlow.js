@@ -58,7 +58,7 @@ export const useCustomerFlow = () => {
   const [isGameReady, setIsGameReady] = useState(true);
   const isInitialized = useRef(false);
 
-  // ========== 每日成功/失败计数（仅当天，用于声誉计算） ==========
+  // ========== 每日成功/失败计数（仅当天统计） ==========
   const daySuccessCountRef = useRef(0);
   const dayFailureCountRef = useRef(0);
 

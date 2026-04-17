@@ -5,7 +5,6 @@
 import { GLASS_TYPES } from '../../data/emotions.js';
 import { ICE_TYPES, GARNISH_TYPES, DECORATION_TYPES, COMBO_BONUS } from '../../data/addons.js';
 import { INGREDIENTS } from '../../data/ingredients.js';
-import { BAR_LEVELS } from '../../data/chapterMilestones.js';
 import {
   getStorageUsage,
   clearAllCache,
@@ -18,7 +17,6 @@ import {
   getShortMemory,
   getSettings,
   getWorldState,
-  saveWorldState,
   getReturnCustomers,
   saveReturnCustomers,
   updateReturnCustomer,
@@ -126,36 +124,6 @@ export const exportGameData = () => {
   
   console.log('📦 游戏数据已导出:', data);
   return data;
-};
-
-/**
- * 根据声誉计算酒吧等级ID
- */
-const getBarLevelIdByReputation = (rep) => {
-  const reputation = Math.max(0, Number(rep) || 0);
-  const levels = Object.values(BAR_LEVELS || {});
-  levels.sort((a, b) => (a.minReputation || 0) - (b.minReputation || 0));
-  let chosen = levels[0]?.id || 'unknown';
-  for (const level of levels) {
-    if (reputation >= (level.minReputation || 0)) chosen = level.id;
-  }
-  return chosen;
-};
-
-/**
- * 设置酒吧声誉（并自动同步 barLevel）
- */
-export const setBarReputation = (barReputation) => {
-  const world = getWorldState();
-  const rep = Math.max(0, Math.min(100, Math.round(Number(barReputation) || 0)));
-  const updated = {
-    ...world,
-    barReputation: rep,
-    barLevel: getBarLevelIdByReputation(rep)
-  };
-  saveWorldState(updated);
-  console.log('🏷️ [DEV] 已设置声誉:', rep, 'barLevel:', updated.barLevel);
-  return updated;
 };
 
 /**
@@ -347,10 +315,6 @@ export const prepareChapterGate = (targetChapterId) => {
   // 将当前章节设为上一章
   setCurrentChapter(t - 1, 1);
 
-  // 设置声誉到门槛（+1 防止边界问题）
-  const repByChapter = { 2: 21, 3: 41, 4: 61, 5: 81 };
-  setBarReputation((repByChapter[t] || 21) + 1);
-
   // 准备回头客池满足条件
   let pool = getReturnCustomers();
   const need = (phase) => pool.filter(c => c.characterArc?.currentPhase === phase).length;
@@ -389,7 +353,6 @@ export const createDevActions = () => {
     clearAllCache,
     getAllItemIds,
     // 🆕 AI/叙事/章节调试
-    setBarReputation,
     setCurrentChapter,
     prepareChapterGate,
     createTestReturnCustomer,

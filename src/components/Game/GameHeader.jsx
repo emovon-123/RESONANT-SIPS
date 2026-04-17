@@ -22,9 +22,6 @@ const GameHeader = ({
   setSfxVolume,
   playSFX = () => {},
   atmosphere = null,
-  // 灯塔系统 props
-  barLevelInfo = null,
-  chapterInfo = null,
   // 帮助系统
   onShowHelp
 }) => {
@@ -55,24 +52,6 @@ const GameHeader = ({
           <span className="day-icon">📅</span>
           <span className="day-text">第 {currentDay} 天</span>
         </div>
-
-        {/* 🆕 酒吧等级展示 */}
-        {barLevelInfo && (
-          <div className="bar-reputation-display" title={barLevelInfo.description}>
-            <span className="bar-level-name">{barLevelInfo.name}</span>
-            <div className="bar-reputation-bar">
-              <div
-                className="bar-reputation-fill"
-                style={{ width: `${barLevelInfo.reputation}%` }}
-              />
-            </div>
-            {chapterInfo && (
-              <span className="chapter-badge" title={chapterInfo.subtitle}>
-                {chapterInfo.id}章
-              </span>
-            )}
-          </div>
-        )}
 
         {/* 顾客进度（紧凑版） */}
         <div className="customer-compact">

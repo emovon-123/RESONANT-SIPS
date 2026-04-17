@@ -25,7 +25,6 @@ export const CHAPTERS = [
     subtitle: '有人记住了这条巷子的路。',
     conditions: {
       minDay: 3,
-      barReputation: 6,
       hasReturnCustomer: true
     },
     theme: {
@@ -41,7 +40,6 @@ export const CHAPTERS = [
     subtitle: '他们开始在低语中提起这个地方。',
     conditions: {
       minDay: 7,
-      barReputation: 15,
       returnCustomerEscalation: 1
     },
     theme: {
@@ -57,7 +55,6 @@ export const CHAPTERS = [
     subtitle: '这座城市有一万个去处，但有些人只来这里。',
     conditions: {
       minDay: 13,
-      barReputation: 35,
       returnCustomerTurningPoint: 1
     },
     theme: {
@@ -73,7 +70,6 @@ export const CHAPTERS = [
     subtitle: '你终于知道自己为什么在这里了。',
     conditions: {
       minDay: 20,
-      barReputation: 50,
       OR_totalCustomersServed: 100
     },
     theme: {
@@ -84,47 +80,6 @@ export const CHAPTERS = [
     mixingMode: 'master'
   }
 ];
-
-/**
- * 酒吧等级配置（与世界状态中的 barLevel 对应）
- */
-export const BAR_LEVELS = {
-  unknown: {
-    id: 'unknown',
-    name: '无名小店',
-    minReputation: 0,
-    description: '没人知道这里',
-    context: '酒吧几乎没有客人。偶尔有人推错了门走进来。'
-  },
-  new_bar: {
-    id: 'new_bar',
-    name: '新开的店',
-    minReputation: 6,
-    description: '偶尔有人误入',
-    context: '酒吧还很新。来的人大多是偶然路过，或者听了只言片语。'
-  },
-  neighborhood_gem: {
-    id: 'neighborhood_gem',
-    name: '巷子里的宝藏',
-    minReputation: 15,
-    description: '附近的人开始口口相传',
-    context: '附近开始有人在低语中提起这个地方。有些客人是专程来的。'
-  },
-  city_famous: {
-    id: 'city_famous',
-    name: '城中名店',
-    minReputation: 35,
-    description: '慕名而来的人越来越多',
-    context: '酒吧的名声已经传出了巷子。有人穿过半个城市来找这扇没有招牌的门。'
-  },
-  legendary: {
-    id: 'legendary',
-    name: '传奇',
-    minReputation: 50,
-    description: '这座城市的一个秘密',
-    context: '在这座城市的某些角落，人们把这间酒吧当作一个传说。来这里的人，是真的需要被听见。'
-  }
-};
 
 /**
  * 章节开场白降级文本
@@ -142,7 +97,6 @@ export const FALLBACK_CHAPTER_OPENINGS = {
  */
 export const ENDING_CONDITIONS = [
   { type: 'arc_complete', description: '至少一个回头客走完全部弧光' },
-  { type: 'peak_reputation', description: '声誉达到巅峰并维持3天' },
   { type: 'day_limit', description: '累计天数达到50天' },
   { type: 'all_fragments', description: '所有回忆碎片解锁' }
 ];

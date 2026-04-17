@@ -278,7 +278,7 @@ export const useServeProgressHandlers = ({ ctx }) => {
     progress.setGameStats(newStats);
     updateStreak(isSuccess);
 
-    // 递增每日成功/失败计数（用于当天声誉结算）
+    // 递增每日成功/失败计数（用于当天统计）
     if (isSuccess) {
       customerFlow.daySuccessCountRef.current += 1;
     } else {
