@@ -5,6 +5,23 @@ import audioManager from '../utils/audioManager.js';
 import './HomePage.css';
 
 const ENCYCLOPEDIA_ENABLED = false;
+const HOME_INTRO_SEEN_SESSION_KEY = 'bartender_home_intro_seen_session';
+
+const hasSeenHomeIntroThisSession = () => {
+  try {
+    return sessionStorage.getItem(HOME_INTRO_SEEN_SESSION_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+const markHomeIntroSeenThisSession = () => {
+  try {
+    sessionStorage.setItem(HOME_INTRO_SEEN_SESSION_KEY, 'true');
+  } catch {
+    // ignore session storage failures
+  }
+};
 
 const COPY = {
   titleIcon: '\u{1F378}',
@@ -36,11 +53,11 @@ const HomePage = ({
   const [toastList, setToastList] = useState([]);
   const controlsRef = useRef(null);
 
-  const isFirstVisit = !localStorage.getItem('bartender_has_seen_prologue');
-  const [showTransition, setShowTransition] = useState(isFirstVisit);
+  const shouldPlayHomeIntro = !hasSeenHomeIntroThisSession();
+  const [showTransition, setShowTransition] = useState(shouldPlayHomeIntro);
   const [transitionPhase, setTransitionPhase] = useState('headphone');
   const [showPrologue, setShowPrologue] = useState(false);
-  const [showSplash, setShowSplash] = useState(() => !isFirstVisit);
+  const [showSplash, setShowSplash] = useState(() => !shouldPlayHomeIntro);
   const [splashPhase, setSplashPhase] = useState(showSplash ? 'intro' : null);
   const [splashLift, setSplashLift] = useState(0);
 
@@ -133,6 +150,15 @@ const HomePage = ({
   ]
     .filter(Boolean)
     .join(' ');
+  const controlsClassName = [
+    'home-controls',
+    isSplashHiding ? 'home-controls-splash-hidden' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const controlsStyle = isSplashHiding
+    ? { opacity: 0, visibility: 'hidden', pointerEvents: 'none' }
+    : undefined;
 
   return (
     <div className="home-page">
@@ -162,7 +188,7 @@ const HomePage = ({
           <p className="game-description">{COPY.description}</p>
         </div>
 
-        <div className="home-controls" ref={controlsRef}>
+        <div className={controlsClassName} ref={controlsRef} style={controlsStyle}>
             <button
               className={`start-button ${isSplashHiding ? 'splash-hidden' : isSplashRevealing ? 'splash-reveal-delay1' : ''}`}
               onClick={onNewGame}
@@ -213,6 +239,7 @@ const HomePage = ({
       {showPrologue && (
         <PrologueScreen
           onComplete={() => {
+            markHomeIntroSeenThisSession();
             localStorage.setItem('bartender_has_seen_prologue', 'true');
             setShowPrologue(false);
             setShowSplash(true);
