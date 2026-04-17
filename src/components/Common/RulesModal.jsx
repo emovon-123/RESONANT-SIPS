@@ -34,8 +34,7 @@ const RulesModal = ({ onClose }) => {
             <ul>
               <li><strong>快捷选项</strong>：点击 3-4 个预设问题快速推进对话</li>
               <li><strong>自定义输入</strong>：在输入框中输入个性化回应，更深入交流</li>
-              <li><strong>信任度机制</strong>：对话越深入真诚，信任度越高，AI 会透露更多情绪线索</li>
-              <li><strong>情绪线索</strong>：信任度达到一定阈值后，会显示模糊的情绪提示</li>
+              <li><strong>信任度机制</strong>：对话越深入真诚，信任度越高，顾客越愿意敞开心扉</li>
               <li>良好的对话能提升信任度（+3%~+8%），敷衍回应会降低信任度（-3%~-8%）</li>
             </ul>
           </section>
@@ -45,10 +44,6 @@ const RulesModal = ({ onClose }) => {
             <ul>
               <li><strong>表面情绪</strong>：AI 顾客伪装或表现出的情绪（对话开始时显示）</li>
               <li><strong>真实情绪</strong>：AI 内心的真实感受（需要通过猜测解锁）</li>
-              <li><strong>情绪线索</strong>：随着信任度提升，会在"情绪线索"标签页显示模糊提示</li>
-              <li style={{ paddingLeft: '20px' }}>• 信任度 30%-50%：隐约的线索</li>
-              <li style={{ paddingLeft: '20px' }}>• 信任度 50%-70%：模糊的线索（部分情绪）</li>
-              <li style={{ paddingLeft: '20px' }}>• 信任度 ≥ 70%：清晰的线索（全部情绪）</li>
               <li><strong>猜测情绪</strong>：点击"🎯 猜测真实情绪"按钮，选择你认为的真实情绪</li>
               <li><strong>猜对</strong>：解锁调酒功能 + 信任度 +10%</li>
               <li><strong>猜错</strong>：信任度 <span className="danger">-5%~-7%</span>（连续猜错惩罚递增）</li>
@@ -159,8 +154,8 @@ const RulesModal = ({ onClose }) => {
           <section className="rule-section guess-guide">
             <h3>💡 游戏技巧</h3>
             <ul>
-              <li><strong>耐心对话</strong>：多轮对话提升信任度，获取更清晰的情绪线索</li>
-              <li><strong>观察线索</strong>：情绪线索标签页会显示模糊提示，仔细推理</li>
+              <li><strong>耐心对话</strong>：多轮对话提升信任度，更容易进入真实交流</li>
+              <li><strong>理解语气</strong>：结合顾客的措辞和状态，判断最贴近的 3 个情绪</li>
               <li><strong>谨慎猜测</strong>：猜错会降低信任度，建议线索充足后再猜</li>
               <li><strong>理解目标</strong>：猜对后看清三维目标范围，再选择原浆</li>
               <li><strong>平衡三维</strong>：原浆是核心，冰块/配料/装饰用于微调</li>
@@ -177,7 +172,7 @@ const RulesModal = ({ onClose }) => {
               <li><strong>调酒失败</strong>会降低信任度（-10%）</li>
               <li><strong>猜错情绪</strong>会降低信任度（-5%~-7%，连续猜错递增）</li>
               <li><strong>低信任度</strong>会让顾客更难敞开心扉，也会影响调酒反馈</li>
-              <li>建议先充分交流建立信任，获取线索后再猜测情绪</li>
+              <li>建议先充分交流建立信任，再根据整体对话判断情绪</li>
             </ul>
           </section>
 

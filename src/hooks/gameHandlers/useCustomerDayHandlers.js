@@ -21,7 +21,6 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
     dialogue.resetDialogue();
     emotionSystem.resetEmotionState();
     cocktailFlow.resetCocktailState();
-    cocktailFlow.resetGuessReadiness();
     customerFlow.customerSuccessCountRef.current = 0;
     customerFlow.setCustomerSuccessCount(0);
     // 重置顾客酒杯计数
@@ -30,10 +29,12 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
     // 重置沉默计数
     consecutiveSilenceRef.current = 0;
     totalSilenceRef.current = 0;
+    customerFlow.setNextCustomerGenerationFailed(false);
   }, [customerFlow.dailyCustomers, customerFlow.currentCustomerIndex]);
 
   const switchToNextCustomer = useCallback(() => {
     customerFlow.setShowCustomerLeave(false);
+    customerFlow.setCustomerLeaveParting('neutral');
     customerFlow.setCustomersServed(prev => prev + 1);
     clearCustomerRestrictions();
 
@@ -46,12 +47,15 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
     const noNextCustomerInQueue = customerFlow.currentCustomerIndex >= customerFlow.dailyCustomers.length - 1;
     const dailyDone = customerFlow.dailyCocktailCountRef.current >= customerFlow.TARGET_DAILY_COCKTAILS
       || (reachedDailyCustomerCap && noNextCustomerInQueue);
+    const shouldEndDayBecauseQueueExhausted = noNextCustomerInQueue
+      && !customerFlow.isGeneratingNextCustomer
+      && customerFlow.nextCustomerGenerationFailed;
 
     if (!dailyDone && customerFlow.currentCustomerIndex < customerFlow.dailyCustomers.length - 1) {
       customerFlow.setCurrentCustomerIndex(prev => prev + 1);
       const nextId = customerFlow.dailyCustomers[customerFlow.currentCustomerIndex + 1]?.id;
       if (nextId) setActiveNpcId(nextId);
-    } else if (dailyDone) {
+    } else if (dailyDone || shouldEndDayBecauseQueueExhausted) {
       console.log(`📋 今日营业结束（总杯数: ${customerFlow.dailyCocktailCountRef.current}，顾客数: ${customerFlow.dailyCustomers.length}）`);
       const ctxRef = customerFlow.switchContextRef.current;
       generateDailyMemoryRecord(ctxRef.currentDay, {
@@ -108,6 +112,7 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
       : reason === 'served_complete'
           ? 'neutral'
           : 'neutral';
+    customerFlow.setCustomerLeaveParting(parting);
     appendActiveNpcEvent({
       role: 'system',
       type: 'customer_leave',

@@ -1,11 +1,6 @@
 {
   "emotions": {},
   "initialUnlockedEmotions": [],
-  "emotionHints": {
-    "low": {},
-    "medium": {},
-    "high": {}
-  },
   "emotionCompatibility": {
     "compatible": [],
     "conflict": []

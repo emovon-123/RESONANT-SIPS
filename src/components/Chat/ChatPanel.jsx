@@ -144,16 +144,12 @@ const ChatPanel = ({
     }
   };
 
-  const renderMessageContent = (content, hasEmotionClue, isThinking = false) => {
+  const renderMessageContent = (content, isThinking = false) => {
     if (isThinking) {
       return <span className="thinking-ellipsis" aria-label="思考中">……</span>;
     }
 
-    return (
-      <span className={hasEmotionClue ? 'emotion-clue' : ''}>
-        {content}
-      </span>
-    );
+    return <span>{content}</span>;
   };
 
   return (
@@ -214,7 +210,7 @@ const ChatPanel = ({
               )}
             </div>
             <div className="message-bubble">
-              {renderMessageContent(msg.content, msg.hasEmotionClue, msg.isThinking)}
+              {renderMessageContent(msg.content, msg.isThinking)}
               {!msg.isThinking && (
                 <span className="message-time">
                   {new Date(msg.timestamp).toLocaleTimeString('zh-CN', {

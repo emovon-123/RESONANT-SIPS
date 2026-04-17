@@ -1,10 +1,3 @@
-const GUESS_REQUIREMENTS = {
-  strict: { trust: 0.3, clues: 2, turns: 2 },
-  transitional: { trust: 0.28, clues: 1, turns: 2 },
-  expressive: { trust: 0.25, clues: 1, turns: 1 },
-  master: { trust: 0.25, clues: 1, turns: 1 }
-};
-
 const ATTR_LABELS = {
   thickness: '稠度',
   sweetness: '甜度',
@@ -25,6 +18,26 @@ const HIT_REWARD_TABLE = {
 };
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+export const getCustomerTop3Emotions = (customerConfig, dynamicReality = []) => {
+  if (Array.isArray(customerConfig?.currentEmotionTop3) && customerConfig.currentEmotionTop3.length > 0) {
+    return customerConfig.currentEmotionTop3.filter(Boolean).slice(0, 3);
+  }
+
+  if (Array.isArray(customerConfig?.emotionAnalysis?.top3) && customerConfig.emotionAnalysis.top3.length > 0) {
+    return customerConfig.emotionAnalysis.top3.filter(Boolean).slice(0, 3);
+  }
+
+  if (Array.isArray(dynamicReality) && dynamicReality.length > 0) {
+    return dynamicReality.filter(Boolean).slice(0, 3);
+  }
+
+  if (Array.isArray(customerConfig?.emotionMask?.reality) && customerConfig.emotionMask.reality.length > 0) {
+    return customerConfig.emotionMask.reality.filter(Boolean).slice(0, 3);
+  }
+
+  return [];
+};
 
 export const calculateCocktailServeRewards = ({
   guessedEmotions = [],
@@ -55,55 +68,6 @@ export const calculateCocktailServeRewards = ({
     tipMultiplier: tier.tipMultiplier,
     qualityCoefficient,
     tipAmount,
-  };
-};
-
-export const buildGuessReadinessStatus = ({ mixingMode = 'strict', trustLevel = 0, clueCount = 0, playerTurns = 0, tutorialMode = false }) => {
-  if (tutorialMode) {
-    return {
-      canGuess: true,
-      trustReady: true,
-      clueReady: true,
-      turnsReady: true,
-      trustLevel,
-      clueCount,
-      playerTurns,
-      requiredTrust: 0,
-      requiredClues: 0,
-      requiredTurns: 0,
-      reason: '教学模式可直接猜测。'
-    };
-  }
-
-  const requirement = GUESS_REQUIREMENTS[mixingMode] || GUESS_REQUIREMENTS.strict;
-  const trustReady = trustLevel >= requirement.trust;
-  const clueReady = clueCount >= requirement.clues;
-  const turnsReady = playerTurns >= requirement.turns;
-  const canGuess = trustReady && clueReady && turnsReady;
-
-  let reason = '继续观察顾客的表达，再尝试猜测。';
-  if (!trustReady) {
-    reason = `信任度至少达到 ${Math.round(requirement.trust * 100)}%`;
-  } else if (!turnsReady) {
-    reason = `再交流 ${requirement.turns - playerTurns} 轮，先看说话方式`;
-  } else if (!clueReady) {
-    reason = `至少再捕捉 ${requirement.clues - clueCount} 条线索`;
-  } else {
-    reason = '顾客开始露出破绽，可以尝试猜测。';
-  }
-
-  return {
-    canGuess,
-    trustReady,
-    clueReady,
-    turnsReady,
-    trustLevel,
-    clueCount,
-    playerTurns,
-    requiredTrust: requirement.trust,
-    requiredClues: requirement.clues,
-    requiredTurns: requirement.turns,
-    reason
   };
 };
 

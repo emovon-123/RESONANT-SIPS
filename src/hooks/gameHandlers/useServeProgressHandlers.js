@@ -5,15 +5,25 @@ import { EMOTIONS, GLASS_TYPES } from '../../data/emotions.js';
 import { DECORATION_TYPES, GARNISH_TYPES, ICE_TYPES, checkComboBonus } from '../../data/addons.js';
 import { checkTargetConditions } from '../../utils/cocktailMixing.js';
 import { interpretCocktailAttitude, getAttitudeInfluence } from '../../utils/cocktailAttitude.js';
-import { RESONANCE_EFFECTS, getTransitionalFailureHint, judgeCocktail } from '../../utils/cocktailJudgment.js';
-import { TUTORIAL_COCKTAIL_FEEDBACK, TUTORIAL_TARGET, getTutorialFailHint } from '../../data/tutorialData.js';
-import { buildStrictJudgmentExplanation, calculateCocktailServeRewards } from './helpers.js';
+import { RESONANCE_EFFECTS, judgeCocktail } from '../../utils/cocktailJudgment.js';
+import { TUTORIAL_COCKTAIL_FEEDBACK, TUTORIAL_TARGET } from '../../data/tutorialData.js';
+import { buildStrictJudgmentExplanation, calculateCocktailServeRewards, getCustomerTop3Emotions } from './helpers.js';
 import { appendActiveNpcEvent, queueActiveSlotGameStateSync } from '../../utils/saveRepository.js';
 
 // 先聚焦核心玩法：暂时关闭图鉴联动（黄金组合发现）
 const ENCYCLOPEDIA_ENABLED = false;
 const BASE_COCKTAIL_TIP = 10;
 const clamp01 = (value) => Math.max(0, Math.min(1, value));
+const estimateDialogueDisplayDelay = (text) => {
+  const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!normalized) return 1800;
+
+  const punctuationCount = (normalized.match(/[，。！？,.!?…]/g) || []).length;
+  const charDelay = normalized.length * 85;
+  const punctuationDelay = punctuationCount * 180;
+
+  return Math.max(1800, Math.min(5200, 900 + charDelay + punctuationDelay));
+};
 
 export const useServeProgressHandlers = ({ ctx }) => {
   const {
@@ -83,7 +93,6 @@ export const useServeProgressHandlers = ({ ctx }) => {
           dialogue.addMessage('ai', waterFeedback?.feedback || '...You just placed a glass of water in front of me.', true);
         } catch { dialogue.addMessage('ai', '...You just placed a glass of water in front of me.', true); }
         playSFX('serve');
-        addToast('🚰 倒了一杯白水', 'info');
         dialogue.setIsLoading(false);
         return;
       }
@@ -118,9 +127,7 @@ export const useServeProgressHandlers = ({ ctx }) => {
         : (targetCheck?.satisfaction || 0.5);
       const strictExplanation = buildStrictJudgmentExplanation(targetCheck);
       const guessedEmotions = Array.isArray(cocktailFlow.lastCorrectGuesses) ? cocktailFlow.lastCorrectGuesses : [];
-      const actualTop3 = Array.isArray(aiConfig?.currentEmotionTop3) && aiConfig.currentEmotionTop3.length > 0
-        ? aiConfig.currentEmotionTop3
-        : currentEmotions.reality;
+      const actualTop3 = getCustomerTop3Emotions(aiConfig, currentEmotions.reality);
       const rewardBreakdown = calculateCocktailServeRewards({
         guessedEmotions,
         actualTop3,
@@ -134,11 +141,8 @@ export const useServeProgressHandlers = ({ ctx }) => {
         if (isSuccess) {
           dialogue.addMessage('ai', TUTORIAL_COCKTAIL_FEEDBACK, true);
           playSFX('success');
-          addToast('🎉 调酒成功！', 'success');
           tutorial.advanceTutorial('cocktail_served');
         } else {
-          const failHint = getTutorialFailHint(TUTORIAL_TARGET.conditions, recipe.mixture || {});
-          addToast(`💡 ${failHint}`, 'info');
           playSFX('fail');
           tutorial.advanceTutorial('cocktail_failed');
           cocktailFlow.setGuessedCorrectly(true);
@@ -183,46 +187,35 @@ export const useServeProgressHandlers = ({ ctx }) => {
         timestamp: Date.now()
       }).catch(() => {});
       playSFX('serve');
-      customerFlow.updateGameProgressRef.current(isSuccess, recipe, satisfaction, rewardBreakdown);
-      queueActiveSlotGameStateSync('serve_result');
-      showResultToast(isSuccess, recipe, '');
-      cocktailFlow.addTrustFly(rewardBreakdown.finalTrustGain);
-      addToast(
-        `🎁 命中 ${rewardBreakdown.hitCount}/3，表象命中 ${rewardBreakdown.surfaceHitCount}，小费 +${rewardBreakdown.tipAmount}，信任 +${Math.round(rewardBreakdown.finalTrustGain * 100)}%`,
-        rewardBreakdown.hitCount >= 2 ? 'success' : 'info'
-      );
-      if (!tutorial.isTutorialMode && mixingMode === 'strict') {
-        if (isSuccess) {
-          addToast(`🧭 复盘：${strictExplanation.summary}`, 'success');
-        } else if (strictExplanation.shortHint) {
-          addToast(`🧭 复盘：${strictExplanation.shortHint}`, 'info');
-        }
-      }
-      cocktailFlow.showResultCard({
-        isSuccess,
-        mixture: mixture || {},
-        targetCheck,
-        glass: recipe.glass,
-        ingredients: recipe.ingredients,
-        rewards: rewardBreakdown,
-        judgment: {
-          mixingMode,
-          method: judgment?.method || null,
-          resonance: judgment?.resonance || null,
-          resonanceLabel: judgment?.resonance
-            ? (RESONANCE_EFFECTS[judgment.resonance]?.label || judgment.resonance)
-            : null
-        }
-      });
+      const feedbackDisplayDelay = estimateDialogueDisplayDelay(feedback);
+      window.setTimeout(() => {
+        customerFlow.updateGameProgressRef.current(isSuccess, recipe, satisfaction, rewardBreakdown);
+        queueActiveSlotGameStateSync('serve_result');
+        cocktailFlow.addTrustFly(rewardBreakdown.finalTrustGain);
+        addToast(
+          `🎁 命中 ${rewardBreakdown.hitCount}/3，表象命中 ${rewardBreakdown.surfaceHitCount}，小费 +${rewardBreakdown.tipAmount}，信任 +${Math.round(rewardBreakdown.finalTrustGain * 100)}%`,
+          rewardBreakdown.hitCount >= 2 ? 'success' : 'info'
+        );
+        cocktailFlow.showResultCard({
+          isSuccess,
+          mixture: mixture || {},
+          targetCheck,
+          glass: recipe.glass,
+          ingredients: recipe.ingredients,
+          rewards: rewardBreakdown,
+          judgment: {
+            mixingMode,
+            method: judgment?.method || null,
+            resonance: judgment?.resonance || null,
+            resonanceLabel: judgment?.resonance
+              ? (RESONANCE_EFFECTS[judgment.resonance]?.label || judgment.resonance)
+              : null
+          }
+        });
 
-      // 过渡期失败引导（帮助玩家/测试理解“态度权重”的变化）
-      if (!isSuccess && mixingMode === 'transitional') {
-        addToast(`💡 ${getTransitionalFailureHint()}`, 'info');
-      }
-
-      // 当前节奏改为单杯闭环：递酒结算后，顾客说完这句反馈就离开。
-      const leaveReason = isSuccess ? 'success_complete' : 'served_complete';
-      setTimeout(() => customerFlow.handleCustomerLeaveRef.current?.(leaveReason), 1800);
+        const leaveReason = isSuccess ? 'success_complete' : 'served_complete';
+        window.setTimeout(() => customerFlow.handleCustomerLeaveRef.current?.(leaveReason), 900);
+      }, feedbackDisplayDelay);
 
       // 情绪变化
       {
@@ -247,14 +240,8 @@ export const useServeProgressHandlers = ({ ctx }) => {
           const fill = allEmotionIds.filter(e => !newReality.includes(e));
           newReality.push(fill[Math.floor(Math.random() * fill.length)]);
         }
-        const hasChange = !currentReality.every(e => newReality.includes(e)) || !newReality.every(e => currentReality.includes(e));
-        if (hasChange) {
-          if (emotionsToKeep.length > 0) addToast('🌟 顾客的心情似乎有些变化，但有些感受依然在...', 'success');
-          else addToast(isSuccess ? '🌟 顾客的心情发生了很大变化...再观察观察吧' : '😔 顾客的情绪似乎完全变了...需要重新了解TA', isSuccess ? 'success' : 'info');
-        }
         emotionSystem.setDynamicCustomerEmotions(prev => ({ ...prev, reality: newReality }));
         cocktailFlow.setLastCorrectGuesses([]);
-        emotionSystem.setEmotionHints([]);
       }
     } catch (error) {
       console.error('递酒失败:', error);
@@ -270,7 +257,6 @@ export const useServeProgressHandlers = ({ ctx }) => {
       playSFX('serve');
       customerFlow.updateGameProgressRef.current(fallbackSuccess, recipe, 0.5);
       queueActiveSlotGameStateSync('serve_result_fallback');
-      showResultToast(fallbackSuccess, recipe, '');
     } finally {
       dialogue.setIsLoading(false);
     }
@@ -333,7 +319,6 @@ export const useServeProgressHandlers = ({ ctx }) => {
         const nextGlass = allGlasses.find(g => !newUnlocked.glasses.includes(g));
         if (nextGlass) {
           newUnlocked.glasses.push(nextGlass);
-          addToast(`🏆 解锁新杯型：${GLASS_TYPES[nextGlass].name}`, 'success');
         }
       }
       setUnlockedItems(newUnlocked);
@@ -341,7 +326,7 @@ export const useServeProgressHandlers = ({ ctx }) => {
     }
     saveGameProgress({ day: customerFlow.currentDay, money: nextMoney, stats: newStats, trustLevel: nextTrustLevel });
   }, [progress.gameStats, aiConfig, customerFlow.currentDay, money, trustLevel, customerFlow.customerSuccessCount,
-    unlockedItems, atmosphere, setMoney, setUnlockedItems, showGameHint, addToast, updateStreak]);
+    unlockedItems, atmosphere, setMoney, setUnlockedItems, showGameHint, updateStreak]);
   customerFlow.updateGameProgressRef.current = updateGameProgress;
 
   const handleEventChoiceAction = useCallback((choiceIndex) => {
@@ -351,29 +336,15 @@ export const useServeProgressHandlers = ({ ctx }) => {
     const trustChange = (result.trustModifier || 0) + (choiceEffect.trustModifier || 0);
     if (trustChange !== 0) {
       setTrustLevel(prev => Math.max(0, Math.min(1, prev + trustChange)));
-      if (trustChange > 0) addToast(`💫 信任度 +${Math.round(trustChange * 100)}%`, 'success');
-      else addToast(`😟 信任度 ${Math.round(trustChange * 100)}%`, 'warning');
     }
     const atmosphereChange = result.atmosphereChange || choiceEffect.atmosphereChange;
     if (atmosphereChange) applyAtmosphereChange(atmosphereChange);
-    const reward = result.bonusReward || choiceEffect.bonusReward;
-    if (reward?.type === 'money') {
-      addToast('🎁 获得事件奖励', 'success');
-    }
-  }, [handleEventChoice, currentEvent, setTrustLevel, applyAtmosphereChange, addToast]);
+  }, [handleEventChoice, currentEvent, setTrustLevel, applyAtmosphereChange]);
 
   const handleEventDismissAction = useCallback(() => {
     const effects = dismissEvent();
     if (effects?.trustModifier) setTrustLevel(prev => Math.max(0, Math.min(1, prev + effects.trustModifier)));
   }, [dismissEvent]);
-
-  const showResultToast = useCallback((isSuccess, recipe, aiReason = '') => {
-    playSFX(isSuccess ? 'success' : 'fail');
-    const message = isSuccess
-      ? (aiReason.length > 0 ? `🎉 调酒成功！${aiReason}` : '🎉 调酒成功！顾客很满意')
-      : (aiReason.length > 0 ? `💔 ${aiReason}` : '💔 这杯酒没有触动顾客的心...');
-    addToast(message, isSuccess ? 'success' : 'error');
-  }, [playSFX, addToast]);
 
   const handleShopPurchase = useCallback((itemType, itemId) => {
     const newUnlocked = { ...unlockedItems };
@@ -381,14 +352,8 @@ export const useServeProgressHandlers = ({ ctx }) => {
     if (!newUnlocked[itemType].includes(itemId)) newUnlocked[itemType].push(itemId);
     setUnlockedItems(newUnlocked);
     saveUnlockedItems(newUnlocked);
-    let itemName = itemId;
-    if (itemType === 'glasses' && GLASS_TYPES[itemId]) itemName = GLASS_TYPES[itemId].name;
-    else if (itemType === 'iceTypes' && ICE_TYPES[itemId]) itemName = ICE_TYPES[itemId].name;
-    else if (itemType === 'garnishes' && GARNISH_TYPES[itemId]) itemName = GARNISH_TYPES[itemId].name;
-    else if (itemType === 'decorations' && DECORATION_TYPES[itemId]) itemName = DECORATION_TYPES[itemId].name;
-    addToast(`🎉 成功解锁：${itemName}`, 'success');
     playSFX('success');
-  }, [unlockedItems, setUnlockedItems, addToast, playSFX]);
+  }, [unlockedItems, setUnlockedItems, playSFX]);
 
 
   return {
@@ -397,7 +362,6 @@ export const useServeProgressHandlers = ({ ctx }) => {
     updateGameProgress,
     handleEventChoiceAction,
     handleEventDismissAction,
-    showResultToast,
     handleShopPurchase
   };
 };

@@ -16,13 +16,12 @@ export const useDialogue = () => {
   const messageIdRef = useRef(0);
 
   /** 添加消息（自动生成唯一 ID） */
-  const addMessage = useCallback((role, content, hasEmotionClue = false, messageMeta = {}) => {
+  const addMessage = useCallback((role, content, _legacyFlag = false, messageMeta = {}) => {
     messageIdRef.current += 1;
     const message = {
       id: `msg-${Date.now()}-${messageIdRef.current}`,
       role,
       content,
-      hasEmotionClue,
       timestamp: Date.now(),
       ...messageMeta,
     };

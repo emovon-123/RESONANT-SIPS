@@ -13,15 +13,12 @@ import { useState, useCallback } from 'react';
 const createDefaultGuessReadiness = () => ({
   canGuess: false,
   trustReady: false,
-  clueReady: false,
   turnsReady: false,
   trustLevel: 0,
-  clueCount: 0,
   playerTurns: 0,
   requiredTrust: 0.3,
-  requiredClues: 2,
   requiredTurns: 2,
-  reason: '继续观察顾客的表达，再尝试猜测。'
+  reason: '再聊几句，确认你要回应的情绪。'
 });
 
 export const useCocktailFlow = ({ playSFX = () => {}, addToast = () => {} } = {}) => {
@@ -30,8 +27,6 @@ export const useCocktailFlow = ({ playSFX = () => {}, addToast = () => {} } = {}
   const [guessedCorrectly, setGuessedCorrectly] = useState(false);
   const [guessAttempts, setGuessAttempts] = useState(0);
   const [lastCorrectGuesses, setLastCorrectGuesses] = useState([]);
-  const [guessReadiness, setGuessReadiness] = useState(createDefaultGuessReadiness);
-
   // ========== 目标条件 ==========
   const [targetConditions, setTargetConditions] = useState([]);
   const [targetHint, setTargetHint] = useState('');
@@ -67,14 +62,6 @@ export const useCocktailFlow = ({ playSFX = () => {}, addToast = () => {} } = {}
     playSFX('click');
   }, [playSFX]);
 
-  const updateGuessReadiness = useCallback((nextStatus) => {
-    setGuessReadiness(prev => ({ ...prev, ...(nextStatus || {}) }));
-  }, []);
-
-  const resetGuessReadiness = useCallback(() => {
-    setGuessReadiness(createDefaultGuessReadiness());
-  }, []);
-
   /** 取消猜测 */
   const handleCancelGuess = useCallback(() => {
     setEmotionGuessMode(false);
@@ -86,7 +73,6 @@ export const useCocktailFlow = ({ playSFX = () => {}, addToast = () => {} } = {}
     setGuessedCorrectly(false);
     setGuessAttempts(0);
     setLastCorrectGuesses([]);
-    setGuessReadiness(createDefaultGuessReadiness());
     setTargetConditions([]);
     setTargetHint('');
     setCurrentMixtureValues({ thickness: 0, sweetness: 0, strength: 0 });
@@ -134,7 +120,6 @@ export const useCocktailFlow = ({ playSFX = () => {}, addToast = () => {} } = {}
     guessedCorrectly, setGuessedCorrectly,
     guessAttempts, setGuessAttempts,
     lastCorrectGuesses, setLastCorrectGuesses,
-    guessReadiness, setGuessReadiness,
     // 目标
     targetConditions, setTargetConditions,
     targetHint, setTargetHint,
@@ -148,8 +133,6 @@ export const useCocktailFlow = ({ playSFX = () => {}, addToast = () => {} } = {}
     // 方法
     addTrustFly,
     handleStartEmotionGuess,
-    updateGuessReadiness,
-    resetGuessReadiness,
     handleCancelGuess,
     resetCocktailState,
     resetForServe,

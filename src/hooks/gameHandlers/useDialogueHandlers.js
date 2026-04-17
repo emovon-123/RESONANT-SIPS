@@ -6,6 +6,7 @@ import { generateSolvableTargetFromEmotionCombo } from '../../utils/cocktailMixi
 import { EVENT_TRIGGER_CONFIG } from '../../data/eventTemplates.js';
 import { TUTORIAL_RESPONSES, TUTORIAL_TARGET } from '../../data/tutorialData.js';
 import { getRelevantMemoryContext } from '../../utils/memoryContext.js';
+import { getCustomerTop3Emotions } from './helpers.js';
 import {
   appendActiveNpcEvent,
   buildNpcDecisionContext,
@@ -198,15 +199,7 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
         content: response,
         timestamp: Date.now()
       }).catch(() => {});
-      const addedClues = emotionSystem.registerDialogueClues
-        ? emotionSystem.registerDialogueClues(response)
-        : [];
-      dialogue.updateLastMessageMeta?.({ hasEmotionClue: addedClues.length > 0 });
       playSFX('message');
-
-      if (addedClues.length > 0 && !tutorial.isTutorialMode) {
-        addToast(`🔎 观察到线索：${addedClues[0].label}`, 'info');
-      }
 
       const playerMsgCount = dialogue.dialogueHistory.filter(d => d.role === 'player').length + 1;
 
@@ -290,9 +283,6 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
                       else { setTrustLevel(prev => Math.max(0, prev - 0.03)); } // 降级判定也减轻惩罚：0.05→0.03
         }
       }
-
-      emotionSystem.updateEmotions(aiConfig, trustLevel);
-
       // 事件触发点：基于玩家对话行为（非挂机被动触发）
       if (!tutorial.isTutorialMode && eventsEnabled) {
         const playerMsgCount = dialogue.dialogueHistory.filter(d => d.role === 'player').length + 1;
@@ -342,10 +332,7 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
     trustLevel,
     emotionSystem.surfaceEmotions,
     emotionSystem.dynamicCustomerEmotions,
-    emotionSystem.registerDialogueClues,
-    emotionSystem.observedClues,
     dialogue.dialogueHistory,
-    dialogue.updateLastMessageMeta,
     playSFX,
     showGameHint,
     addToast,
@@ -360,9 +347,8 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
     playSFX('click');
     cocktailFlow.setGuessAttempts(prev => prev + 1);
 
-    const customerRealEmotions = emotionSystem.dynamicCustomerEmotions.reality.length > 0
-      ? emotionSystem.dynamicCustomerEmotions.reality : (aiConfig?.emotionMask?.reality || []);
-    const hitGuesses = emotionSystem.selectedEmotions.filter(e => customerRealEmotions.includes(e));
+    const customerTop3Emotions = getCustomerTop3Emotions(aiConfig, emotionSystem.dynamicCustomerEmotions.reality);
+    const hitGuesses = emotionSystem.selectedEmotions.filter(e => customerTop3Emotions.includes(e));
 
     cocktailFlow.setGuessedCorrectly(true);
     cocktailFlow.setEmotionGuessMode(false);
@@ -404,7 +390,7 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
       }
     }
     showGameHint('emotion_guessed');
-  }, [emotionSystem.selectedEmotions, emotionSystem.dynamicCustomerEmotions, emotionSystem.observedClues, emotionSystem.surfaceEmotions, aiConfig, cocktailFlow.guessAttempts, unlockedItems, atmosphere, tutorial, addToast, playSFX, showGameHint, chapterSystem]);
+  }, [emotionSystem.selectedEmotions, emotionSystem.dynamicCustomerEmotions, emotionSystem.surfaceEmotions, aiConfig, cocktailFlow.guessAttempts, unlockedItems, atmosphere, tutorial, addToast, playSFX, showGameHint, chapterSystem]);
 
   // ==================== 调酒 ====================
 

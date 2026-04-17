@@ -26,6 +26,7 @@ import MemoryFragment from '../components/Game/MemoryFragment.jsx';
 import EndingScreen from '../components/Game/EndingScreen.jsx';
 import AmbientGameCanvas from '../game/pixi/AmbientGameCanvas.jsx';
 import { createGameViewModel } from '../game/viewModel/createGameViewModel.js';
+import { getCustomerTop3Emotions } from '../hooks/gameHandlers/helpers.js';
 // 鏂版墜寮曞绯荤粺
 import AdvancedGuidePopup from '../components/Guide/AdvancedGuidePopup.jsx';
 import HelpPanel from '../components/Help/HelpPanel.jsx';
@@ -480,7 +481,7 @@ const GamePage = ({
         </div>
       )}
 
-      {activeOverlay === 'customer_leave' && <CustomerLeaveOverlay aiConfig={aiConfig} trustLevel={trustLevel} />}
+      {activeOverlay === 'customer_leave' && <CustomerLeaveOverlay aiConfig={aiConfig} parting={customerFlow.customerLeaveParting} />}
 
       {dayTransitionOverlay}
 
@@ -539,8 +540,7 @@ const GamePage = ({
         money={money} setMoney={setMoney} unlockedItems={unlockedItems} setUnlockedItems={setUnlockedItems}
         trustLevel={trustLevel} setTrustLevel={setTrustLevel}
         currentDay={customerFlow.currentDay} setCurrentDay={customerFlow.setCurrentDay}
-        customerRealEmotions={emotionSystem.dynamicCustomerEmotions.reality.length > 0
-          ? emotionSystem.dynamicCustomerEmotions.reality : (aiConfig?.emotionMask?.reality || [])}
+        customerRealEmotions={getCustomerTop3Emotions(aiConfig, emotionSystem.dynamicCustomerEmotions.reality)}
         customerSuccessCount={customerFlow.customerSuccessCount} setCustomerSuccessCount={customerFlow.setCustomerSuccessCount}
         onSkipCustomer={handlers.handleDevSkipCustomer} devActions={devActions}
         onAutoTest={handleAutoTest} autoTestRunning={progress.autoTestRunning}

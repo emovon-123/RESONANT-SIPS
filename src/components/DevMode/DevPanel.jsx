@@ -437,11 +437,11 @@ const DevPanel = ({
                   onClick={() => setShowEmotions(!showEmotions)}
                   className={showEmotions ? 'active' : ''}
                 >
-                  {showEmotions ? '隐藏真实情绪' : '显示真实情绪'}
+                  {showEmotions ? '隐藏 Top3 情绪' : '显示 Top3 情绪'}
                 </button>
                 {showEmotions && (
                   <div className="dev-emotions-reveal">
-                    <span>真实情绪: </span>
+                    <span>Top3 情绪: </span>
                     {customerRealEmotions.map((emotion, idx) => (
                       <span key={idx} className="dev-emotion-tag">
                         {getEmotionName(emotion)}

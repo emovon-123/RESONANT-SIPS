@@ -114,7 +114,7 @@ const NewGameSetupPage = ({ onBack, onConfirmStart, onCharacterPoolChange, loadi
 
         <section className="newgame-role-panel">
           <div className="newgame-role-title">角色池管理</div>
-          <p className="newgame-role-hint">输入角色ID（例如 5738g），可勾选是否允许在当日出现。</p>
+          <p className="newgame-role-hint">输入角色ID（例如 5738g），勾选几个角色，当天就会来几位顾客。</p>
 
           <div className="newgame-role-input-row">
             <input

@@ -7,10 +7,10 @@ import './CustomerLeaveOverlay.css';
  * 顾客离开动画覆盖层
  * @param {Object} props
  * @param {Object} props.aiConfig - 顾客配置
- * @param {number} props.trustLevel - 信任度（用于判断是否显示满意离场）
+ * @param {string} props.parting - 离场结果
  */
-const CustomerLeaveOverlay = ({ aiConfig, trustLevel = 0 }) => {
-  const isSatisfied = trustLevel > 0;
+const CustomerLeaveOverlay = ({ aiConfig, parting = 'neutral' }) => {
+  const isSatisfied = parting === 'satisfied';
 
   return (
     <div className="customer-leave-overlay">

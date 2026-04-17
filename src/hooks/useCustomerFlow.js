@@ -14,11 +14,13 @@ import { generateCustomerWithCharacterPool } from '../utils/aiService.js';
 import { getGameProgress } from '../utils/storage.js';
 import { getActiveCharacterIds } from '../utils/storage.js';
 
-const MAX_CUSTOMERS_PER_DAY = 3;         // 每天固定3位顾客
 const MAX_COCKTAILS_PER_CUSTOMER = 3;    // 每位顾客最多喝3杯
-const TARGET_DAILY_COCKTAILS = 9;        // 每天目标总杯数
+const getDailyCustomerCap = () => Math.max(1, getActiveCharacterIds().length || 0);
 
 export const useCustomerFlow = () => {
+  const MAX_CUSTOMERS_PER_DAY = getDailyCustomerCap();
+  const TARGET_DAILY_COCKTAILS = MAX_CUSTOMERS_PER_DAY * MAX_COCKTAILS_PER_CUSTOMER;
+
   // ========== 天数系统 ==========
   const [currentDay, setCurrentDay] = useState(() => {
     const saved = getGameProgress();
@@ -41,9 +43,12 @@ export const useCustomerFlow = () => {
   const [preloadedNextDayCustomer, setPreloadedNextDayCustomer] = useState(null);
   const [preloadedSecondCustomer, setPreloadedSecondCustomer] = useState(null);
   const [isPreloadingNextDay, setIsPreloadingNextDay] = useState(false);
+  const [isGeneratingNextCustomer, setIsGeneratingNextCustomer] = useState(false);
+  const [nextCustomerGenerationFailed, setNextCustomerGenerationFailed] = useState(false);
 
   // ========== 动画状态 ==========
   const [showCustomerLeave, setShowCustomerLeave] = useState(false);
+  const [customerLeaveParting, setCustomerLeaveParting] = useState('neutral');
   const [showCustomerEnter, setShowCustomerEnter] = useState(false);
   const [showDayTransition, setShowDayTransition] = useState(false);
   const [dayTransitionText, setDayTransitionText] = useState('');
@@ -78,6 +83,7 @@ export const useCustomerFlow = () => {
   const generateNextCustomerInBackground = useCallback(async () => {
     const nextIndex = currentCustomerIndex + 1;
     if (nextIndex < dailyCustomers.length) {
+      setNextCustomerGenerationFailed(false);
       console.log('⏭️ 下一个顾客已存在，跳过生成');
       return;
     }
@@ -115,6 +121,8 @@ export const useCustomerFlow = () => {
     }
 
     console.log('🔄 开始在后台生成下一个顾客...');
+    setIsGeneratingNextCustomer(true);
+    setNextCustomerGenerationFailed(false);
     try {
       const activeCharacterIds = getActiveCharacterIds();
       const usedCharacterIds = dailyCustomers
@@ -130,11 +138,15 @@ export const useCustomerFlow = () => {
         config: nextCustomer
       };
       setDailyCustomers(prev => [...prev, newCustomer]);
+      setNextCustomerGenerationFailed(false);
       console.log('✅ 下一个顾客生成完成:', newCustomer.config.name);
     } catch (error) {
+      setNextCustomerGenerationFailed(true);
       console.error('❌ 后台生成顾客失败（仅自定义角色模式）:', error);
+    } finally {
+      setIsGeneratingNextCustomer(false);
     }
-  }, [currentCustomerIndex, currentDay, dailyCustomers.length, isPreloadingNextDay, preloadedNextDayCustomer]);
+  }, [currentCustomerIndex, currentDay, dailyCustomers.length, isPreloadingNextDay, preloadedNextDayCustomer, MAX_CUSTOMERS_PER_DAY, TARGET_DAILY_COCKTAILS]);
 
   return {
     // 天数
@@ -155,8 +167,11 @@ export const useCustomerFlow = () => {
     preloadedNextDayCustomer, setPreloadedNextDayCustomer,
     preloadedSecondCustomer, setPreloadedSecondCustomer,
     isPreloadingNextDay,
+    isGeneratingNextCustomer, setIsGeneratingNextCustomer,
+    nextCustomerGenerationFailed, setNextCustomerGenerationFailed,
     // 动画
     showCustomerLeave, setShowCustomerLeave,
+    customerLeaveParting, setCustomerLeaveParting,
     showCustomerEnter, setShowCustomerEnter,
     showDayTransition, setShowDayTransition,
     dayTransitionText, setDayTransitionText,
