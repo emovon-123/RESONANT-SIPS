@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { getCocktailRecipes, getUnlockedItems, getDiscoveredCombos, getAchievements, saveAchievements } from '../utils/storage.js';
+import React, { useState } from 'react';
+import { getCocktailRecipes, getUnlockedItems, getDiscoveredCombos } from '../utils/storage.js';
 import { EMOTIONS, GLASS_TYPES } from '../data/emotions.js';
 import { COMBO_BONUS, ICE_TYPES, GARNISH_TYPES, DECORATION_TYPES } from '../data/addons.js';
 import { AI_CUSTOMER_TYPES } from '../data/aiCustomers.js';
-import { ACHIEVEMENTS, ACHIEVEMENT_CATEGORIES, ACHIEVEMENT_RARITY, getAchievementsByCategory, getTotalAchievementCount } from '../data/achievements.js';
 import './EncyclopediaPage.css';
 
 /**
@@ -11,32 +10,12 @@ import './EncyclopediaPage.css';
  * 功能：查看已解锁情绪、杯型、AI顾客、调酒配方历史
  */
 const EncyclopediaPage = ({ onBack }) => {
-  const [activeTab, setActiveTab] = useState('achievements');
+  const [activeTab, setActiveTab] = useState('emotions');
   const unlockedItems = getUnlockedItems();
   const recipes = getCocktailRecipes();
   const discoveredCombos = getDiscoveredCombos();
   const totalCombos = Object.keys(COMBO_BONUS).length;
   const discoveredCount = Object.keys(discoveredCombos).length;
-  const [unlockedAchievements, setUnlockedAchievements] = useState(() => getAchievements());
-  const totalAchievements = getTotalAchievementCount();
-  const unlockedAchievementCount = Object.keys(unlockedAchievements).length;
-
-  // 查看成就标签时，将所有已解锁成就标记为"已读"，清除主页未读计数
-  useEffect(() => {
-    if (activeTab !== 'achievements') return;
-    const current = getAchievements();
-    let changed = false;
-    for (const id of Object.keys(current)) {
-      if (!current[id].seen) {
-        current[id].seen = true;
-        changed = true;
-      }
-    }
-    if (changed) {
-      saveAchievements(current);
-      setUnlockedAchievements(current);
-    }
-  }, [activeTab]);
 
   // 渲染情绪图鉴
   const renderEmotions = () => {
@@ -275,78 +254,6 @@ const EncyclopediaPage = ({ onBack }) => {
   // 计算杯型总数
   const totalGlasses = Object.keys(GLASS_TYPES).length;
 
-  // 渲染成就图鉴
-  const renderAchievements = () => {
-    return (
-      <div className="achievements-container">
-        {Object.values(ACHIEVEMENT_CATEGORIES).map(category => {
-          const categoryAchievements = getAchievementsByCategory(category.id);
-          const unlockedInCat = categoryAchievements.filter(a => unlockedAchievements[a.id]).length;
-          const progress = categoryAchievements.length > 0 ? unlockedInCat / categoryAchievements.length : 0;
-
-          return (
-            <div key={category.id} className="achievement-category">
-              <div className="achievement-category-header">
-                <div className="achievement-category-info">
-                  <h3 className="achievement-category-name">{category.name}</h3>
-                  <span className="achievement-category-desc">{category.description}</span>
-                </div>
-                <span className="achievement-category-count">{unlockedInCat}/{categoryAchievements.length}</span>
-              </div>
-              <div className="achievement-category-progress">
-                <div className="achievement-progress-fill" style={{ width: `${progress * 100}%` }} />
-              </div>
-              <div className="achievement-list">
-                {categoryAchievements.map(achievement => {
-                  const isUnlocked = !!unlockedAchievements[achievement.id];
-                  const rarity = ACHIEVEMENT_RARITY[achievement.rarity];
-                  const isHidden = achievement.hidden && !isUnlocked;
-
-                  return (
-                    <div
-                      key={achievement.id}
-                      className={`achievement-item ${isUnlocked ? 'unlocked' : 'locked'} rarity-${achievement.rarity}`}
-                    >
-                      <div className="achievement-item-left">
-                        <div className={`achievement-icon-slot ${isUnlocked ? '' : 'locked'}`}
-                          style={{ borderColor: isUnlocked ? rarity.color : 'rgba(255,255,255,0.1)' }}
-                        >
-                          {isUnlocked ? '🏆' : (isHidden ? '❓' : '🔒')}
-                        </div>
-                        <div className="achievement-item-info">
-                          <div className="achievement-item-name">
-                            {isHidden ? '???' : achievement.name}
-                            <span className="achievement-rarity-badge" style={{ color: rarity.color }}>
-                              {rarity.name}
-                            </span>
-                          </div>
-                          <div className="achievement-item-desc">
-                            {isUnlocked
-                              ? (achievement.unlockDescription || achievement.description)
-                              : (isHidden ? '隐藏成就' : achievement.description)
-                            }
-                          </div>
-                        </div>
-                      </div>
-                      {isUnlocked && unlockedAchievements[achievement.id] && (
-                        <div className="achievement-item-date">
-                          {new Date(unlockedAchievements[achievement.id].unlockedAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
-                        </div>
-                      )}
-                      {isUnlocked && achievement.reward?.type === 'money' && (
-                        <div className="achievement-item-reward">+¥{achievement.reward.amount}</div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
     <div className="encyclopedia-page">
       <div className="encyclopedia-header">
@@ -357,12 +264,6 @@ const EncyclopediaPage = ({ onBack }) => {
       </div>
 
       <div className="encyclopedia-tabs">
-        <button 
-          className={activeTab === 'achievements' ? 'active' : ''} 
-          onClick={() => setActiveTab('achievements')}
-        >
-          🏆 成就 ({unlockedAchievementCount}/{totalAchievements})
-        </button>
         <button 
           className={activeTab === 'emotions' ? 'active' : ''} 
           onClick={() => setActiveTab('emotions')}
@@ -390,7 +291,6 @@ const EncyclopediaPage = ({ onBack }) => {
       </div>
 
       <div className="encyclopedia-content">
-        {activeTab === 'achievements' && renderAchievements()}
         {activeTab === 'emotions' && renderEmotions()}
         {activeTab === 'glasses' && renderGlasses()}
         {activeTab === 'recipes' && renderRecipes()}

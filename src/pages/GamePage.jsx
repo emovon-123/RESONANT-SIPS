@@ -21,7 +21,6 @@ import EventNotification from '../components/Atmosphere/EventNotification.jsx';
 import CustomerAvatar from '../components/Avatar/CustomerAvatar.jsx';
 import TutorialTooltip from '../components/Tutorial/TutorialTooltip.jsx';
 import TutorialCompleteModal from '../components/Tutorial/TutorialCompleteModal.jsx';
-import AchievementNotification from '../components/Achievement/AchievementNotification.jsx';
 import ReturnCustomerOverlay from '../components/Game/ReturnCustomerOverlay.jsx';
 import SharedMemoryPanel from '../components/Game/SharedMemoryPanel.jsx';
 import ChapterTransition from '../components/Game/ChapterTransition.jsx';
@@ -40,7 +39,6 @@ import { useAudio } from '../hooks/useAudio.js';
 import { useBarAtmosphere } from '../hooks/useBarAtmosphere.js';
 import { useBarEvents } from '../hooks/useBarEvents.js';
 import { useTutorial } from '../hooks/useTutorial.js';
-import { useAchievements } from '../hooks/useAchievements.js';
 import { useDailyMemory } from '../hooks/useDailyMemory.js';
 import { useNarrativeEngine } from '../hooks/useNarrativeEngine.js';
 import { useChapterSystem } from '../hooks/useChapterSystem.js';
@@ -111,8 +109,6 @@ const GamePage = ({
   } = useBarEvents();
 
   const tutorial = useTutorial();
-  const achievements = useAchievements();
-  const [currentAchievementNotif, setCurrentAchievementNotif] = useState(null);
 
   const { todayRecords, recordCustomer, generateDailyMemoryRecord } = useDailyMemory();
   const { evaluateReturnPotential, orchestrateDay, advanceArc, buildReturnCustomerConfig, getRecentCrossroadsSummaries } = useNarrativeEngine();
@@ -254,7 +250,7 @@ const GamePage = ({
 
   const ctx = {
     tutorial, progress, customerFlow, dialogue, emotionSystem,
-    cocktailFlow, achievements, chapterSystem, advancedGuides,
+    cocktailFlow, chapterSystem, advancedGuides,
     playSFX, addToast, showGameHint, initAudio,
     aiConfig, aiType, trustLevel, setTrustLevel,
     money, setMoney, unlockedItems, setUnlockedItems,
@@ -269,8 +265,7 @@ const GamePage = ({
     generateDailyMemoryRecord, recordCustomer, advanceArc,
     evaluateReturnPotential, orchestrateDay, buildReturnCustomerConfig,
     getRecentCrossroadsSummaries,
-    preloadedFirstCustomer, onCustomerUsed,
-    currentAchievementNotif, setCurrentAchievementNotif
+    preloadedFirstCustomer, onCustomerUsed
   };
 
   // ==================== 涓氬姟 Hooks ====================
@@ -383,7 +378,6 @@ const GamePage = ({
               targetConditions={cocktailFlow.targetConditions} targetHint={cocktailFlow.targetHint}
               unlockedGlasses={unlockedItems.glasses || ['martini']}
               unlockedIceTypes={unlockedItems.iceTypes || ['no_ice']}
-              unlockedGarnishes={unlockedItems.garnishes || []}
               unlockedDecorations={unlockedItems.decorations || []}
               disabled={false} hideTargetInPanel={true}
               mixingMode={chapterSystem.currentChapter?.mixingMode || 'strict'}
@@ -451,9 +445,6 @@ const GamePage = ({
       ))}
 
       <GameHintPanel hint={gameHint} onClose={closeGameHint} />
-      {achievements.enabled && (
-        <AchievementNotification achievement={currentAchievementNotif} onClose={() => setCurrentAchievementNotif(null)} isVisible={!!currentAchievementNotif} />
-      )}
       {progress.showRules && <RulesModal onClose={() => progress.setShowRules(false)} />}
 
       {cocktailFlow.showServeAnim && <div className="serve-animation">馃嵏</div>}

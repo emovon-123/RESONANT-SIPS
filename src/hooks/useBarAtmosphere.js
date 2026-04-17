@@ -10,7 +10,6 @@ const getNeutralModifiers = () => ({
     sweetness: 0,
     strength: 0
   },
-  priceMultiplier: 1,
   customerCountMod: 0
 });
 

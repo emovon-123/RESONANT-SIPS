@@ -15,7 +15,7 @@ import { generateCustomerWithCharacterPool } from '../utils/aiService.js';
 export const useGameInit = (ctx) => {
   const {
     tutorial, progress, customerFlow, dialogue, emotionSystem,
-    cocktailFlow, achievements, initAudio, playSFX,
+    cocktailFlow, initAudio, playSFX,
     aiConfig, aiType, trustLevel, setTrustLevel,
     money, setMoney, addToast,
     atmosphere, generateAtmosphere,
@@ -24,7 +24,6 @@ export const useGameInit = (ctx) => {
     handleEventChoiceAction, handleEventDismissAction,
     startNewDay,
     preloadedFirstCustomer, onCustomerUsed,
-    currentAchievementNotif, setCurrentAchievementNotif,
     resetForNewCustomer, startConversation
   } = ctx;
 
@@ -260,41 +259,6 @@ export const useGameInit = (ctx) => {
     }
     dialogue.setQuickOptions(options);
   }, [aiConfig, trustLevel, dialogue.dialogueHistory, tutorial.isTutorialMode]);
-
-  // 成就通知轮播
-  useEffect(() => {
-    if (currentAchievementNotif) return;
-    if (achievements.pendingNotifications.length === 0) return;
-
-    // 延迟一小段再 pop，避免同一渲染周期内多次触发
-    const pickTimer = setTimeout(() => {
-      const next = achievements.popNotification();
-      if (next) {
-        setCurrentAchievementNotif(next);
-        if (next.reward?.type === 'money') {
-          setMoney(prev => prev + next.reward.amount);
-          addToast(`🏆 成就奖励 +¥${next.reward.amount}`, 'success');
-        }
-        setTimeout(() => setCurrentAchievementNotif(null), 4500);
-      }
-    }, 100);
-    return () => clearTimeout(pickTimer);
-  }, [currentAchievementNotif, achievements.pendingNotifications.length]);
-
-  // 信任度变化时检查成就
-  useEffect(() => {
-    if (!tutorial.isTutorialMode) {
-      achievements.checkTrustLevel(trustLevel);
-      if (trustLevel < 0.1 && customerFlow.customerSuccessCount > 0) {
-        achievements.onSaveFromLowTrust(trustLevel);
-      }
-    }
-  }, [trustLevel]);
-
-  // 凌晨成就检查
-  useEffect(() => {
-    achievements.checkMidnightAchievement();
-  }, []);
 
   // 自动保存（短期记忆）
   useEffect(() => {

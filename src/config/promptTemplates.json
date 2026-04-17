@@ -185,7 +185,6 @@
       "- emotionBias 只能从以下选取1-2个: {{valid_emotion_ids}}",
       "- trustBonus 范围: -0.03 到 +0.05",
       "- targetShift 每项范围: -1 到 +1",
-      "- priceMultiplier 范围: 0.8 到 1.5",
       "",
       "【历史氛围（避免重复）】",
       "{{recent_atmospheres}}",
@@ -200,7 +199,7 @@
       "- 保持内在逻辑一致性（雨天不应该是 heatwave）",
       "",
       "返回纯JSON：",
-      "{\"weather\":\"...\",\"timeOfDay\":\"...\",\"season\":\"...\",\"lighting\":\"...\",\"music\":\"...\",\"crowdLevel\":\"...\",\"scent\":\"...\",\"narrative\":\"...\",\"modifiers\":{\"trustBonus\":0,\"emotionBias\":[\"...\"],\"targetShift\":{\"thickness\":0,\"sweetness\":0,\"strength\":0},\"priceMultiplier\":1.0,\"customerCountMod\":0}}"
+      "{\"weather\":\"...\",\"timeOfDay\":\"...\",\"season\":\"...\",\"lighting\":\"...\",\"music\":\"...\",\"crowdLevel\":\"...\",\"scent\":\"...\",\"narrative\":\"...\",\"modifiers\":{\"trustBonus\":0,\"emotionBias\":[\"...\"],\"targetShift\":{\"thickness\":0,\"sweetness\":0,\"strength\":0},\"customerCountMod\":0}}"
     ],
     "generate_event": [
       "世界背景：近未来赛博朋克架空城市。AI心理咨询和神经调节药物已普及，真实的人际交流变得稀缺，暴露真实情绪被视为不体面甚至危险。这家酒吧藏在巷子深处，没有监控，不联网，用真实原料手工调酒。来的人是那些不想被科技\"解决\"、想被一个真人听见的人。调酒师没有任何科技辅助，顾客叫调酒师\"老板\"。基调：忧郁诗意。",

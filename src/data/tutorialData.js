@@ -19,9 +19,9 @@ export const TUTORIAL_CUSTOMER = {
     trustThreshold: { low: 0.2, medium: 0.4, high: 0.6 }
   },
   preferences: {
-    iceType: 'less_ice',
-    garnishes: ['sugar'],
-    decorations: ['orange']
+    iceType: 'normal',
+    garnishes: ['bitters'],
+    decorations: ['mint']
   },
   initialDialogue: ['......有酒吗。'],
   backstory: '他是第一个推开这扇门的人。后来你才知道，他是偶然走错路的——但那个晚上，他需要一杯酒。',

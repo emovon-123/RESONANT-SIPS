@@ -8,7 +8,6 @@ import './ShopModal.css';
  * 用于购买解锁酒杯、冰块、配料、装饰
  */
 const ShopModal = ({ 
-  money,
   unlockedItems,
   onPurchase,
   onClose 
@@ -59,15 +58,13 @@ const ShopModal = ({
   // 处理购买
   const handlePurchase = (item) => {
     if (item.isUnlocked) return;
-    if (money < item.price) return;
-    
     setPurchaseConfirm(item);
   };
 
   // 确认购买
   const confirmPurchase = () => {
     if (purchaseConfirm) {
-      onPurchase(purchaseConfirm.type, purchaseConfirm.id, purchaseConfirm.price);
+      onPurchase(purchaseConfirm.type, purchaseConfirm.id);
       setPurchaseConfirm(null);
     }
   };
@@ -85,10 +82,7 @@ const ShopModal = ({
         {/* 头部 */}
         <div className="shop-header">
           <h2 className="shop-title">🏪 调酒师商店</h2>
-          <div className="shop-money">
-            <span className="money-icon">💰</span>
-            <span className="money-amount">¥{money}</span>
-          </div>
+          <div className="shop-money">🎁 免费解锁</div>
           <button className="shop-close" onClick={onClose}>×</button>
         </div>
 
@@ -111,7 +105,7 @@ const ShopModal = ({
           {items.map(item => (
             <div 
               key={item.id}
-              className={`shop-item ${item.isUnlocked ? 'unlocked' : ''} ${money < item.price && !item.isUnlocked ? 'insufficient' : ''}`}
+              className={`shop-item ${item.isUnlocked ? 'unlocked' : ''}`}
             >
               <div className="item-icon">{item.icon}</div>
               <div className="item-info">
@@ -131,15 +125,12 @@ const ShopModal = ({
               <div className="item-action">
                 {item.isUnlocked ? (
                   <span className="item-owned">已拥有</span>
-                ) : item.price === 0 ? (
-                  <span className="item-free">免费</span>
                 ) : (
                   <button 
-                    className={`item-buy-btn ${money < item.price ? 'disabled' : ''}`}
+                    className="item-buy-btn"
                     onClick={() => handlePurchase(item)}
-                    disabled={money < item.price}
                   >
-                    ¥{item.price}
+                    解锁
                   </button>
                 )}
               </div>
@@ -149,7 +140,7 @@ const ShopModal = ({
 
         {/* 提示信息 */}
         <div className="shop-tips">
-          <p>💡 提示：选择与顾客情绪匹配的配料和装饰可以提升酒的价格！</p>
+          <p>💡 提示：选择与顾客情绪匹配的配料和装饰可以提升调酒表现！</p>
         </div>
 
         {/* 购买确认弹窗 */}
@@ -159,7 +150,7 @@ const ShopModal = ({
               <div className="confirm-icon">{purchaseConfirm.icon}</div>
               <h3 className="confirm-title">确认购买</h3>
               <p className="confirm-text">
-                是否花费 <span className="confirm-price">¥{purchaseConfirm.price}</span> 购买 <strong>{purchaseConfirm.name}</strong>？
+                是否解锁 <strong>{purchaseConfirm.name}</strong>？
               </p>
               <div className="confirm-buttons">
                 <button className="confirm-cancel" onClick={cancelPurchase}>取消</button>

@@ -3,7 +3,7 @@
  * 管理章节状态、条件检测、章节推进、回忆碎片触发
  */
 import { useState, useCallback, useRef } from 'react';
-import { getChapterState, saveChapterState, getMemoryFragments, saveMemoryFragments, getWorldState, saveWorldState, getReturnCustomers, getAchievementStats } from '../utils/storage.js';
+import { getChapterState, saveChapterState, getMemoryFragments, saveMemoryFragments, getWorldState, saveWorldState, getReturnCustomers } from '../utils/storage.js';
 import { CHAPTERS, FALLBACK_CHAPTER_OPENINGS, FALLBACK_FRAGMENTS, FALLBACK_ENDING_TEMPLATE, getFragmentClarity, BAR_LEVELS } from '../data/chapterMilestones.js';
 import { API_CONFIG } from '../config/api.js';
 
@@ -437,7 +437,7 @@ ANCHOR: (锚点或"无")`;
   const generateEnding = useCallback(async (triggerInfo, currentDay) => {
     const worldState = getWorldState();
     const returnCustomers = getReturnCustomers();
-    const stats = getAchievementStats();
+    const totalCustomersServed = Object.keys(worldState.customerRegistry || {}).length;
 
     const keyCustomer = returnCustomers[0];
     const triggerDesc = triggerInfo.type === 'arc_complete' ? `${triggerInfo.triggerCustomer}走完了自己的故事。`
@@ -447,7 +447,7 @@ ANCHOR: (锚点或"无")`;
 
     const prompt = `你是这个故事的叙述者。现在，故事来到了尾声。
 
-这是一家赛博朋克城市深巷里的酒吧。一个沉默的调酒师在这里待了${currentDay}天，服务了${stats.totalCustomersServed || 0}位顾客。
+这是一家赛博朋克城市深巷里的酒吧。一个沉默的调酒师在这里待了${currentDay}天，服务了${totalCustomersServed}位顾客。
 
 【调酒师的回忆碎片】
 ${memoryFragments.map((f, i) => `${i + 1}. ${f.content}`).join('\n') || '（没有回忆）'}
@@ -523,7 +523,7 @@ ${returnCustomers.slice(0, 3).map(c =>
     // 终极 fallback：模板填充
     return FALLBACK_ENDING_TEMPLATE({
       totalDays: currentDay,
-      totalCustomers: stats.totalCustomersServed || 0,
+      totalCustomers: totalCustomersServed,
       keyCustomerName: keyCustomer?.name,
       keyCustomerOneLiner: keyCustomer?.characterArc?.phases?.slice(-1)[0]?.state
     });
@@ -629,8 +629,8 @@ ${returnCustomers.slice(0, 3).map(c =>
       return null;
     }
 
-    const stats = getAchievementStats();
-    const totalCustomersServed = stats.totalCustomersServed || 0;
+    const worldState = getWorldState();
+    const totalCustomersServed = Object.keys(worldState.customerRegistry || {}).length;
 
     // 1. 检查回忆碎片触发
     const fragmentTrigger = checkFragmentTriggers({

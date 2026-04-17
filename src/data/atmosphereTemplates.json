@@ -1,14 +1,106 @@
-﻿{
-  "weatherIcons": { "clear": "☀️", "rainy": "🌧️", "stormy": "⛈️", "foggy": "🌫️", "snowy": "❄️", "heatwave": "🔥" },
-  "weatherNames": { "clear": "晴朗", "rainy": "雨夜", "stormy": "风暴", "foggy": "薄雾", "snowy": "雪夜", "heatwave": "热浪" },
-  "musicIcons": { "jazz_slow": "🎷", "electronic": "🎛️", "classical": "🎻", "silence": "🤫", "lo_fi": "🎧" },
-  "musicNames": { "jazz_slow": "慢爵士", "electronic": "电子", "classical": "古典", "silence": "静默", "lo_fi": "Lo-Fi" },
-  "lightingIcons": { "bright": "💡", "dim_warm": "🕯️", "neon": "🌈", "candlelight": "🕯️", "flickering": "✨" },
-  "lightingNames": { "bright": "明亮", "dim_warm": "暖暗", "neon": "霓虹", "candlelight": "烛光", "flickering": "闪烁" },
-  "crowdNames": { "empty": "空荡", "sparse": "稀疏", "moderate": "适中", "crowded": "拥挤" },
-  "crowdIcons": { "empty": "◻️", "sparse": "👤", "moderate": "👥", "crowded": "👥👥" },
+{
+  "weatherIcons": {
+    "clear": "☀️",
+    "rainy": "🌧️",
+    "stormy": "⛈️",
+    "foggy": "🌫️",
+    "snowy": "❄️",
+    "heatwave": "🔥"
+  },
+  "weatherNames": {
+    "clear": "晴朗",
+    "rainy": "雨夜",
+    "stormy": "风暴",
+    "foggy": "薄雾",
+    "snowy": "雪夜",
+    "heatwave": "热浪"
+  },
+  "musicIcons": {
+    "jazz_slow": "🎷",
+    "electronic": "🎛️",
+    "classical": "🎻",
+    "silence": "🤫",
+    "lo_fi": "🎧"
+  },
+  "musicNames": {
+    "jazz_slow": "慢爵士",
+    "electronic": "电子",
+    "classical": "古典",
+    "silence": "静默",
+    "lo_fi": "Lo-Fi"
+  },
+  "lightingIcons": {
+    "bright": "💡",
+    "dim_warm": "🕯️",
+    "neon": "🌈",
+    "candlelight": "🕯️",
+    "flickering": "✨"
+  },
+  "lightingNames": {
+    "bright": "明亮",
+    "dim_warm": "暖暗",
+    "neon": "霓虹",
+    "candlelight": "烛光",
+    "flickering": "闪烁"
+  },
+  "crowdNames": {
+    "empty": "空荡",
+    "sparse": "稀疏",
+    "moderate": "适中",
+    "crowded": "拥挤"
+  },
+  "crowdIcons": {
+    "empty": "◻️",
+    "sparse": "👤",
+    "moderate": "👥",
+    "crowded": "👥👥"
+  },
   "fallbackAtmospheres": [
-    { "weather": "rainy", "timeOfDay": "night", "season": "autumn", "lighting": "dim_warm", "music": "jazz_slow", "crowdLevel": "sparse", "scent": "木质与酒精气息", "narrative": "雨丝敲打窗面，吧台灯光像一层薄毯。", "modifiers": { "trustBonus": 0.02, "emotionBias": ["trust", "sadness"], "targetShift": { "thickness": 0, "sweetness": 1, "strength": 0 }, "priceMultiplier": 1.0, "customerCountMod": 0 } },
-    { "weather": "clear", "timeOfDay": "late_night", "season": "summer", "lighting": "neon", "music": "electronic", "crowdLevel": "moderate", "scent": "柑橘与冷金属", "narrative": "霓虹反射在杯壁，空气里有一点即将发生什么的味道。", "modifiers": { "trustBonus": 0.0, "emotionBias": ["surprise", "anticipation"], "targetShift": { "thickness": -1, "sweetness": 0, "strength": 1 }, "priceMultiplier": 1.1, "customerCountMod": 1 } }
+    {
+      "weather": "rainy",
+      "timeOfDay": "night",
+      "season": "autumn",
+      "lighting": "dim_warm",
+      "music": "jazz_slow",
+      "crowdLevel": "sparse",
+      "scent": "木质与酒精气息",
+      "narrative": "雨丝敲打窗面，吧台灯光像一层薄毯。",
+      "modifiers": {
+        "trustBonus": 0.02,
+        "emotionBias": [
+          "trust",
+          "sadness"
+        ],
+        "targetShift": {
+          "thickness": 0,
+          "sweetness": 1,
+          "strength": 0
+        },
+        "customerCountMod": 0
+      }
+    },
+    {
+      "weather": "clear",
+      "timeOfDay": "late_night",
+      "season": "summer",
+      "lighting": "neon",
+      "music": "electronic",
+      "crowdLevel": "moderate",
+      "scent": "柑橘与冷金属",
+      "narrative": "霓虹反射在杯壁，空气里有一点即将发生什么的味道。",
+      "modifiers": {
+        "trustBonus": 0,
+        "emotionBias": [
+          "surprise",
+          "anticipation"
+        ],
+        "targetShift": {
+          "thickness": -1,
+          "sweetness": 0,
+          "strength": 1
+        },
+        "customerCountMod": 1
+      }
+    }
   ]
 }

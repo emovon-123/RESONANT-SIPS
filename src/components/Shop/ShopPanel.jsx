@@ -7,13 +7,11 @@ import './ShopPanel.css';
 /**
  * 嵌入式商店面板组件
  * 可嵌入在首页和日结算页面中
- * @param {number} money - 当前金钱
  * @param {object} unlockedItems - 已解锁的物品
  * @param {function} onPurchase - 购买回调
  * @param {boolean} compact - 紧凑模式（用于日结算页面）
  */
 const ShopPanel = ({ 
-  money = 0,
   unlockedItems = {},
   onPurchase,
   compact = false
@@ -71,15 +69,13 @@ const ShopPanel = ({
   // 处理购买
   const handlePurchase = (item) => {
     if (item.isUnlocked) return;
-    if (money < item.price) return;
-    
     setPurchaseConfirm(item);
   };
 
   // 确认购买
   const confirmPurchase = () => {
     if (purchaseConfirm) {
-      onPurchase && onPurchase(purchaseConfirm.type, purchaseConfirm.id, purchaseConfirm.price);
+      onPurchase && onPurchase(purchaseConfirm.type, purchaseConfirm.id);
       setPurchaseConfirm(null);
     }
   };
@@ -96,10 +92,7 @@ const ShopPanel = ({
       {/* 头部 */}
       <div className="shop-panel-header">
         <h3 className="shop-panel-title">🏪 商店</h3>
-        <div className="shop-panel-money">
-          <span className="money-icon">💰</span>
-          <span className="money-amount">¥{money}</span>
-        </div>
+        <div className="shop-panel-money">🎁 免费解锁</div>
       </div>
 
       {/* 标签页 */}
@@ -121,7 +114,7 @@ const ShopPanel = ({
         {items.map(item => (
           <div 
             key={item.id}
-            className={`shop-panel-item ${item.isUnlocked ? 'unlocked' : ''} ${money < item.price && !item.isUnlocked ? 'insufficient' : ''}`}
+            className={`shop-panel-item ${item.isUnlocked ? 'unlocked' : ''}`}
           >
             <div className="item-icon">{item.icon}</div>
             <div className="item-info">
@@ -151,15 +144,12 @@ const ShopPanel = ({
             <div className="item-action">
               {item.isUnlocked ? (
                 <span className="item-owned">已拥有</span>
-              ) : item.price === 0 ? (
-                <span className="item-free">免费</span>
               ) : (
                 <button 
-                  className={`item-buy-btn ${money < item.price ? 'disabled' : ''}`}
+                  className="item-buy-btn"
                   onClick={() => handlePurchase(item)}
-                  disabled={money < item.price}
                 >
-                  ¥{item.price}
+                  解锁
                 </button>
               )}
             </div>
@@ -173,7 +163,7 @@ const ShopPanel = ({
           {activeTab === 'ingredients' ? (
             <p>💡 提示：原浆是调酒的核心，不同原浆提供不同的浓稠度、甜度和烈度！</p>
           ) : (
-            <p>💡 提示：选择与顾客情绪匹配的配料和装饰可以提升酒的价格！</p>
+            <p>💡 提示：选择与顾客情绪匹配的配料和装饰可以提升调酒表现！</p>
           )}
         </div>
       )}
@@ -185,7 +175,7 @@ const ShopPanel = ({
             <div className="confirm-icon">{purchaseConfirm.icon}</div>
             <h3 className="confirm-title">确认购买</h3>
             <p className="confirm-text">
-              是否花费 <span className="confirm-price">¥{purchaseConfirm.price}</span> 购买 <strong>{purchaseConfirm.name}</strong>？
+              是否解锁 <strong>{purchaseConfirm.name}</strong>？
             </p>
             <div className="confirm-buttons">
               <button className="confirm-cancel" onClick={cancelPurchase}>取消</button>

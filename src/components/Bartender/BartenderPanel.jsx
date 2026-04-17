@@ -6,7 +6,6 @@ const BartenderPanel = ({
   session,
   unlockedGlasses = [],
   unlockedIceTypes = [],
-  unlockedGarnishes = [],
   unlockedDecorations = [],
   disabled = false,
   disabledMessage = '\u8bf7\u5148\u731c\u6d4b\u987e\u5ba2\u7684\u771f\u5b9e\u60c5\u7eea',
@@ -48,7 +47,6 @@ const BartenderPanel = ({
           session={session}
           targetHint={targetHint}
           unlockedDecorations={unlockedDecorations}
-          unlockedGarnishes={unlockedGarnishes}
           unlockedGlasses={unlockedGlasses}
           unlockedIceTypes={unlockedIceTypes}
         />

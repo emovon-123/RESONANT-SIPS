@@ -380,10 +380,6 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
     addToast(`🎯 已确认猜测（命中 ${hitGuesses.length}/3）`, 'success');
     cocktailFlow.triggerGuessCorrectAnim();
 
-    if (!tutorial.isTutorialMode) {
-      const isFirstTry = cocktailFlow.guessAttempts === 0;
-      achievements.onEmotionGuessSuccess(isFirstTry, hitGuesses);
-    }
     if (tutorial.isTutorialMode) tutorial.advanceTutorial('emotion_guessed');
 
     if (tutorial.isTutorialMode) {

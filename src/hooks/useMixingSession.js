@@ -17,7 +17,6 @@ const MIXING_STEPS = [
   { id: 'glass', name: '选择杯型', icon: '🍸' },
   { id: 'ice', name: '加入冰块', icon: '🧊' },
   { id: 'ingredient', name: '混合原液', icon: '🥃' },
-  { id: 'garnish', name: '添加配料', icon: '🍋' },
   { id: 'decoration', name: '点缀装饰', icon: '✨' },
   { id: 'preview', name: '确认递酒', icon: '✅' }
 ];
@@ -257,7 +256,6 @@ export const useMixingSession = ({
 
         return currentPortions === requiredPortions;
       }
-      case 'garnish':
       case 'decoration':
         return true;
       case 'preview':

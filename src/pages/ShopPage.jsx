@@ -10,20 +10,11 @@ import './ShopPage.css';
  * 商店独立页面
  * 购买原浆、杯型、冰块、配料、装饰
  */
-const ShopPage = ({ onBack, money = 0, unlockedItems = {}, onShopPurchase }) => {
+const ShopPage = ({ onBack, unlockedItems = {}, onShopPurchase }) => {
   const [toastList, setToastList] = useState([]);
 
-  const handlePurchase = (itemType, itemId, price) => {
-    if (money < price) {
-      setToastList(prev => [...prev, {
-        id: Date.now(),
-        message: '💸 金钱不足，无法购买！',
-        type: 'error'
-      }]);
-      return;
-    }
-
-    const success = onShopPurchase && onShopPurchase(itemType, itemId, price);
+  const handlePurchase = (itemType, itemId) => {
+    const success = onShopPurchase && onShopPurchase(itemType, itemId);
 
     if (success !== false) {
       let itemName = itemId;
@@ -50,15 +41,11 @@ const ShopPage = ({ onBack, money = 0, unlockedItems = {}, onShopPurchase }) => 
       <div className="shop-page-header">
         <button className="back-button" onClick={onBack}>← 返回</button>
         <h1>🛒 商店</h1>
-        <div className="shop-money-display">
-          <span className="money-icon">💰</span>
-          <span className="money-amount">¥{money}</span>
-        </div>
+        <div className="shop-money-display">🎁 全部免费解锁</div>
       </div>
 
       <div className="shop-page-content">
         <ShopPanel
-          money={money}
           unlockedItems={unlockedItems}
           onPurchase={handlePurchase}
         />

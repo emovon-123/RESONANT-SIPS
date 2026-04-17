@@ -4,97 +4,364 @@
       "id": "workplace",
       "category": "职场人士",
       "description": "在职场中打拼的人，可能是白领、管理者、创业者等",
-      "ageRange": [25, 45],
-      "avatarOptions": ["👔", "💼", "🧑‍💻", "👨‍💼", "👩‍💼"],
-      "personalityPool": ["理性", "掩饰", "嘴硬", "疲惫", "要强", "完美主义", "工作狂", "焦虑"],
-      "toneOptions": ["formal", "tired", "cynical"],
-      "lengthOptions": ["short", "medium"],
-      "featurePool": ["避重就轻", "公式化回答", "情绪压抑", "职场术语多", "反问较多"],
-      "surfaceEmotionPool": ["trust", "joy"],
-      "realEmotionPool": ["fear", "sadness", "anger", "disgust"],
+      "ageRange": [
+        25,
+        45
+      ],
+      "avatarOptions": [
+        "👔",
+        "💼",
+        "🧑‍💻",
+        "👨‍💼",
+        "👩‍💼"
+      ],
+      "personalityPool": [
+        "理性",
+        "掩饰",
+        "嘴硬",
+        "疲惫",
+        "要强",
+        "完美主义",
+        "工作狂",
+        "焦虑"
+      ],
+      "toneOptions": [
+        "formal",
+        "tired",
+        "cynical"
+      ],
+      "lengthOptions": [
+        "short",
+        "medium"
+      ],
+      "featurePool": [
+        "避重就轻",
+        "公式化回答",
+        "情绪压抑",
+        "职场术语多",
+        "反问较多"
+      ],
+      "surfaceEmotionPool": [
+        "trust",
+        "joy"
+      ],
+      "realEmotionPool": [
+        "fear",
+        "sadness",
+        "anger",
+        "disgust"
+      ],
       "trustThresholdRange": {
-        "low": [0.25, 0.35],
-        "medium": [0.55, 0.65],
-        "high": [0.75, 0.85]
+        "low": [
+          0.25,
+          0.35
+        ],
+        "medium": [
+          0.55,
+          0.65
+        ],
+        "high": [
+          0.75,
+          0.85
+        ]
       },
-      "preferredIce": ["less_ice", "no_ice"],
-      "preferredGarnishes": ["bitters", "lemon"],
-      "preferredDecorations": ["orange", "mint"],
-      "triggerKeywordThemes": ["work", "emotion", "life"],
-      "memoryStyleOptions": ["comparative", "analytical"],
-      "metaphorLevelOptions": ["low", "none"]
+      "preferredIce": [
+        "normal",
+        "no_ice"
+      ],
+      "preferredGarnishes": [
+        "bitters"
+      ],
+      "preferredDecorations": [
+        "mint"
+      ],
+      "triggerKeywordThemes": [
+        "work",
+        "emotion",
+        "life"
+      ],
+      "memoryStyleOptions": [
+        "comparative",
+        "analytical"
+      ],
+      "metaphorLevelOptions": [
+        "low",
+        "none"
+      ]
     },
     "artistic": {
       "id": "artistic",
       "category": "文艺青年",
       "description": "热爱艺术、文学、音乐的人，感性且富有想象力",
-      "ageRange": [20, 35],
-      "avatarOptions": ["🎨", "📚", "🎸", "🎭", "✍️"],
-      "personalityPool": ["感性", "隐喻", "敏感", "浪漫", "忧郁", "理想主义", "怀旧"],
-      "toneOptions": ["poetic", "dreamy", "melancholic"],
-      "lengthOptions": ["medium", "long"],
-      "featurePool": ["大量比喻", "反问句", "意识流", "诗意表达", "引用典故"],
-      "surfaceEmotionPool": ["surprise", "sadness", "trust", "anticipation"],
-      "realEmotionPool": ["sadness", "anticipation", "fear", "anger", "disgust"],
+      "ageRange": [
+        20,
+        35
+      ],
+      "avatarOptions": [
+        "🎨",
+        "📚",
+        "🎸",
+        "🎭",
+        "✍️"
+      ],
+      "personalityPool": [
+        "感性",
+        "隐喻",
+        "敏感",
+        "浪漫",
+        "忧郁",
+        "理想主义",
+        "怀旧"
+      ],
+      "toneOptions": [
+        "poetic",
+        "dreamy",
+        "melancholic"
+      ],
+      "lengthOptions": [
+        "medium",
+        "long"
+      ],
+      "featurePool": [
+        "大量比喻",
+        "反问句",
+        "意识流",
+        "诗意表达",
+        "引用典故"
+      ],
+      "surfaceEmotionPool": [
+        "surprise",
+        "sadness",
+        "trust",
+        "anticipation"
+      ],
+      "realEmotionPool": [
+        "sadness",
+        "anticipation",
+        "fear",
+        "anger",
+        "disgust"
+      ],
       "trustThresholdRange": {
-        "low": [0.2, 0.3],
-        "medium": [0.5, 0.6],
-        "high": [0.7, 0.8]
+        "low": [
+          0.2,
+          0.3
+        ],
+        "medium": [
+          0.5,
+          0.6
+        ],
+        "high": [
+          0.7,
+          0.8
+        ]
       },
-      "preferredIce": ["no_ice", "less_ice"],
-      "preferredGarnishes": ["sugar", "bitters"],
-      "preferredDecorations": ["mint", "cherry", "orange"],
-      "triggerKeywordThemes": ["past", "dream", "feeling", "art"],
-      "memoryStyleOptions": ["associative", "emotional"],
-      "metaphorLevelOptions": ["high", "medium"]
+      "preferredIce": [
+        "no_ice",
+        "normal"
+      ],
+      "preferredGarnishes": [
+        "bitters"
+      ],
+      "preferredDecorations": [
+        "mint"
+      ],
+      "triggerKeywordThemes": [
+        "past",
+        "dream",
+        "feeling",
+        "art"
+      ],
+      "memoryStyleOptions": [
+        "associative",
+        "emotional"
+      ],
+      "metaphorLevelOptions": [
+        "high",
+        "medium"
+      ]
     },
     "student": {
       "id": "student",
       "category": "学生",
       "description": "在校学生或刚毕业的年轻人，面临学业、社交、成长的压力",
-      "ageRange": [18, 25],
-      "avatarOptions": ["🎒", "📖", "🎓", "💻", "🎮"],
-      "personalityPool": ["单纯", "直接", "易慌", "敏感", "好奇", "迷茫", "热情"],
-      "toneOptions": ["casual", "nervous", "excited"],
-      "lengthOptions": ["long", "medium"],
-      "featurePool": ["语气词多", "重复表达", "情绪外显", "网络用语", "自我怀疑"],
-      "surfaceEmotionPool": ["fear", "surprise", "joy", "anticipation"],
-      "realEmotionPool": ["fear", "trust", "sadness", "anger", "anticipation"],
+      "ageRange": [
+        18,
+        25
+      ],
+      "avatarOptions": [
+        "🎒",
+        "📖",
+        "🎓",
+        "💻",
+        "🎮"
+      ],
+      "personalityPool": [
+        "单纯",
+        "直接",
+        "易慌",
+        "敏感",
+        "好奇",
+        "迷茫",
+        "热情"
+      ],
+      "toneOptions": [
+        "casual",
+        "nervous",
+        "excited"
+      ],
+      "lengthOptions": [
+        "long",
+        "medium"
+      ],
+      "featurePool": [
+        "语气词多",
+        "重复表达",
+        "情绪外显",
+        "网络用语",
+        "自我怀疑"
+      ],
+      "surfaceEmotionPool": [
+        "fear",
+        "surprise",
+        "joy",
+        "anticipation"
+      ],
+      "realEmotionPool": [
+        "fear",
+        "trust",
+        "sadness",
+        "anger",
+        "anticipation"
+      ],
       "trustThresholdRange": {
-        "low": [0.1, 0.2],
-        "medium": [0.35, 0.45],
-        "high": [0.6, 0.7]
+        "low": [
+          0.1,
+          0.2
+        ],
+        "medium": [
+          0.35,
+          0.45
+        ],
+        "high": [
+          0.6,
+          0.7
+        ]
       },
-      "preferredIce": ["more_ice", "normal"],
-      "preferredGarnishes": ["lemon", "sugar"],
-      "preferredDecorations": ["cherry", "mint"],
-      "triggerKeywordThemes": ["school", "social", "self", "future"],
-      "memoryStyleOptions": ["emotional", "associative"],
-      "metaphorLevelOptions": ["none", "low"]
+      "preferredIce": [
+        "more_ice",
+        "normal"
+      ],
+      "preferredGarnishes": [
+        "bitters"
+      ],
+      "preferredDecorations": [
+        "mint"
+      ],
+      "triggerKeywordThemes": [
+        "school",
+        "social",
+        "self",
+        "future"
+      ],
+      "memoryStyleOptions": [
+        "emotional",
+        "associative"
+      ],
+      "metaphorLevelOptions": [
+        "none",
+        "low"
+      ]
     },
     "midlife": {
       "id": "midlife",
       "category": "中年危机者",
       "description": "人到中年，面临家庭、事业、健康等多重压力的人",
-      "ageRange": [40, 55],
-      "avatarOptions": ["🧔", "👨‍👧", "🏠", "⌚", "🚗"],
-      "personalityPool": ["沉稳", "隐忍", "迷茫", "怀旧", "责任感强", "疲惫"],
-      "toneOptions": ["tired", "nostalgic", "philosophical"],
-      "lengthOptions": ["medium", "short"],
-      "featurePool": ["叹气多", "回忆过去", "话说一半", "沉默较多", "自嘲"],
-      "surfaceEmotionPool": ["trust", "joy", "sadness"],
-      "realEmotionPool": ["fear", "anger", "sadness", "surprise", "disgust"],
+      "ageRange": [
+        40,
+        55
+      ],
+      "avatarOptions": [
+        "🧔",
+        "👨‍👧",
+        "🏠",
+        "⌚",
+        "🚗"
+      ],
+      "personalityPool": [
+        "沉稳",
+        "隐忍",
+        "迷茫",
+        "怀旧",
+        "责任感强",
+        "疲惫"
+      ],
+      "toneOptions": [
+        "tired",
+        "nostalgic",
+        "philosophical"
+      ],
+      "lengthOptions": [
+        "medium",
+        "short"
+      ],
+      "featurePool": [
+        "叹气多",
+        "回忆过去",
+        "话说一半",
+        "沉默较多",
+        "自嘲"
+      ],
+      "surfaceEmotionPool": [
+        "trust",
+        "joy",
+        "sadness"
+      ],
+      "realEmotionPool": [
+        "fear",
+        "anger",
+        "sadness",
+        "surprise",
+        "disgust"
+      ],
       "trustThresholdRange": {
-        "low": [0.3, 0.4],
-        "medium": [0.6, 0.7],
-        "high": [0.8, 0.9]
+        "low": [
+          0.3,
+          0.4
+        ],
+        "medium": [
+          0.6,
+          0.7
+        ],
+        "high": [
+          0.8,
+          0.9
+        ]
       },
-      "preferredIce": ["less_ice", "no_ice"],
-      "preferredGarnishes": ["bitters"],
-      "preferredDecorations": ["orange", "lemon"],
-      "triggerKeywordThemes": ["family", "career", "health", "time"],
-      "memoryStyleOptions": ["comparative", "nostalgic"],
-      "metaphorLevelOptions": ["medium", "low"]
+      "preferredIce": [
+        "normal",
+        "no_ice"
+      ],
+      "preferredGarnishes": [
+        "bitters"
+      ],
+      "preferredDecorations": [
+        "mint"
+      ],
+      "triggerKeywordThemes": [
+        "family",
+        "career",
+        "health",
+        "time"
+      ],
+      "memoryStyleOptions": [
+        "comparative",
+        "nostalgic"
+      ],
+      "metaphorLevelOptions": [
+        "medium",
+        "low"
+      ]
     }
   },
   "aiCustomerTypes": {
@@ -102,15 +369,29 @@
       "id": "workplace",
       "name": "职场精英·林澈",
       "avatar": "👔",
-      "personality": ["理性", "掩饰", "嘴硬"],
+      "personality": [
+        "理性",
+        "掩饰",
+        "嘴硬"
+      ],
       "dialogueStyle": {
         "tone": "formal",
         "length": "short",
-        "features": ["避重就轻", "公式化回答", "情绪压抑"]
+        "features": [
+          "避重就轻",
+          "公式化回答",
+          "情绪压抑"
+        ]
       },
       "emotionMask": {
-        "surface": ["trust", "joy"],
-        "reality": ["fear", "sadness"],
+        "surface": [
+          "trust",
+          "joy"
+        ],
+        "reality": [
+          "fear",
+          "sadness"
+        ],
         "trustThreshold": {
           "low": 0.3,
           "medium": 0.6,
@@ -118,9 +399,13 @@
         }
       },
       "preferences": {
-        "iceType": "less_ice",
-        "garnishes": ["bitters"],
-        "decorations": ["orange"]
+        "iceType": "normal",
+        "garnishes": [
+          "bitters"
+        ],
+        "decorations": [
+          "mint"
+        ]
       },
       "initialDialogue": [
         "您好，我只是路过，随便坐坐。",
@@ -128,9 +413,25 @@
         "不，我不需要什么特别的酒，普通的就好。"
       ],
       "triggerKeywords": {
-        "work": ["工作", "加班", "项目", "同事", "老板"],
-        "emotion": ["累", "压力", "孤独", "疲惫"],
-        "hobby": ["兴趣", "爱好", "休息", "放松"]
+        "work": [
+          "工作",
+          "加班",
+          "项目",
+          "同事",
+          "老板"
+        ],
+        "emotion": [
+          "累",
+          "压力",
+          "孤独",
+          "疲惫"
+        ],
+        "hobby": [
+          "兴趣",
+          "爱好",
+          "休息",
+          "放松"
+        ]
       },
       "memoryStyle": "comparative",
       "metaphorLevel": "low"
@@ -139,15 +440,29 @@
       "id": "artistic",
       "name": "文艺青年·苏瑾",
       "avatar": "🎨",
-      "personality": ["感性", "隐喻", "敏感"],
+      "personality": [
+        "感性",
+        "隐喻",
+        "敏感"
+      ],
       "dialogueStyle": {
         "tone": "poetic",
         "length": "medium",
-        "features": ["大量比喻", "反问句", "意识流"]
+        "features": [
+          "大量比喻",
+          "反问句",
+          "意识流"
+        ]
       },
       "emotionMask": {
-        "surface": ["surprise", "sadness"],
-        "reality": ["sadness", "anticipation"],
+        "surface": [
+          "surprise",
+          "sadness"
+        ],
+        "reality": [
+          "sadness",
+          "anticipation"
+        ],
         "trustThreshold": {
           "low": 0.25,
           "medium": 0.55,
@@ -156,8 +471,12 @@
       },
       "preferences": {
         "iceType": "no_ice",
-        "garnishes": ["sugar"],
-        "decorations": ["mint"]
+        "garnishes": [
+          "bitters"
+        ],
+        "decorations": [
+          "mint"
+        ]
       },
       "initialDialogue": [
         "这里的灯光，像是被时间稀释过的月光...",
@@ -165,9 +484,24 @@
         "我在想，如果情绪能被装进玻璃杯里，会是什么味道。"
       ],
       "triggerKeywords": {
-        "past": ["以前", "那时", "曾经", "回忆"],
-        "dream": ["梦想", "未来", "希望", "想要"],
-        "feeling": ["感觉", "觉得", "心情", "情绪"]
+        "past": [
+          "以前",
+          "那时",
+          "曾经",
+          "回忆"
+        ],
+        "dream": [
+          "梦想",
+          "未来",
+          "希望",
+          "想要"
+        ],
+        "feeling": [
+          "感觉",
+          "觉得",
+          "心情",
+          "情绪"
+        ]
       },
       "memoryStyle": "associative",
       "metaphorLevel": "high"
@@ -176,15 +510,29 @@
       "id": "newbie",
       "name": "萌新学生·小夏",
       "avatar": "🎒",
-      "personality": ["单纯", "直接", "易慌"],
+      "personality": [
+        "单纯",
+        "直接",
+        "易慌"
+      ],
       "dialogueStyle": {
         "tone": "casual",
         "length": "long",
-        "features": ["语气词多", "重复表达", "情绪外显"]
+        "features": [
+          "语气词多",
+          "重复表达",
+          "情绪外显"
+        ]
       },
       "emotionMask": {
-        "surface": ["fear", "surprise"],
-        "reality": ["fear", "trust"],
+        "surface": [
+          "fear",
+          "surprise"
+        ],
+        "reality": [
+          "fear",
+          "trust"
+        ],
         "trustThreshold": {
           "low": 0.15,
           "medium": 0.4,
@@ -193,8 +541,12 @@
       },
       "preferences": {
         "iceType": "more_ice",
-        "garnishes": ["lemon"],
-        "decorations": ["cherry"]
+        "garnishes": [
+          "bitters"
+        ],
+        "decorations": [
+          "mint"
+        ]
       },
       "initialDialogue": [
         "呜呜呜，老板你这里能躲一躲吗？我真的不知道该怎么办了...",
@@ -202,9 +554,24 @@
         "你能听我说说吗？我真的好害怕..."
       ],
       "triggerKeywords": {
-        "school": ["学校", "考试", "作业", "老师"],
-        "social": ["朋友", "同学", "关系", "社交"],
-        "self": ["自己", "能力", "做不到", "害怕"]
+        "school": [
+          "学校",
+          "考试",
+          "作业",
+          "老师"
+        ],
+        "social": [
+          "朋友",
+          "同学",
+          "关系",
+          "社交"
+        ],
+        "self": [
+          "自己",
+          "能力",
+          "做不到",
+          "害怕"
+        ]
       },
       "memoryStyle": "emotional",
       "metaphorLevel": "none"

@@ -3,7 +3,6 @@ import { callAIForCocktailJudgment } from '../../utils/aiService.js';
 import { saveCocktailRecipe, saveDiscoveredCombo, saveGameProgress, saveUnlockedItems } from '../../utils/storage.js';
 import { EMOTIONS, GLASS_TYPES } from '../../data/emotions.js';
 import { DECORATION_TYPES, GARNISH_TYPES, ICE_TYPES, checkComboBonus } from '../../data/addons.js';
-import { calculateCocktailPrice } from '../../utils/cocktailPrice.js';
 import { checkTargetConditions } from '../../utils/cocktailMixing.js';
 import { interpretCocktailAttitude, getAttitudeInfluence } from '../../utils/cocktailAttitude.js';
 import { RESONANCE_EFFECTS, getTransitionalFailureHint, judgeCocktail } from '../../utils/cocktailJudgment.js';
@@ -17,7 +16,7 @@ const ENCYCLOPEDIA_ENABLED = false;
 export const useServeProgressHandlers = ({ ctx }) => {
   const {
     tutorial, progress, customerFlow, dialogue, emotionSystem, cocktailFlow,
-    achievements, chapterSystem, playSFX, addToast, showGameHint, aiConfig, aiType,
+    chapterSystem, playSFX, addToast, showGameHint, aiConfig, aiType,
     trustLevel, setTrustLevel, money, setMoney, unlockedItems, setUnlockedItems,
     atmosphere, shouldTriggerEvent, triggerEvent, updateStreak, handleEventChoice,
     dismissEvent, applyAtmosphereChange, currentEvent, eventsEnabled
@@ -122,9 +121,6 @@ export const useServeProgressHandlers = ({ ctx }) => {
         if (isSuccess) {
           dialogue.addMessage('ai', TUTORIAL_COCKTAIL_FEEDBACK, true);
           playSFX('success');
-          setMoney(prev => prev + 50);
-          customerFlow.setDayEarnings(prev => prev + 50);
-          addToast('💰 收入 ¥50', 'success');
           addToast('🎉 调酒成功！', 'success');
           tutorial.advanceTutorial('cocktail_served');
         } else {
@@ -199,11 +195,6 @@ export const useServeProgressHandlers = ({ ctx }) => {
             : null
         }
       });
-
-      if (!tutorial.isTutorialMode) {
-        if (isSuccess) achievements.onCocktailSuccess(recipe);
-        else achievements.onCocktailFail();
-      }
 
       // 过渡期失败引导（帮助玩家/测试理解“态度权重”的变化）
       if (!isSuccess && mixingMode === 'transitional') {
@@ -320,16 +311,6 @@ export const useServeProgressHandlers = ({ ctx }) => {
     }
 
     if (isSuccess) {
-      const customerPreferences = aiConfig?.preferences || null;
-      const basePrice = calculateCocktailPrice(recipe, customerPreferences, true);
-      const satisfactionMultiplier = 0.8 + (satisfaction * 0.4);
-      const atmospherePriceMultiplier = atmosphere?.modifiers?.priceMultiplier || 1.0;
-      const price = Math.round(basePrice * satisfactionMultiplier * atmospherePriceMultiplier);
-      setMoney(prev => prev + price);
-      customerFlow.setDayEarnings(prev => prev + price);
-      addToast(`💰 收入 ¥${price}`, 'success');
-      achievements.onMoneyEarned(price, money + price, customerFlow.dayEarnings + price);
-
       const newSuccessCount = customerFlow.customerSuccessCountRef.current + 1;
       customerFlow.customerSuccessCountRef.current = newSuccessCount;
       customerFlow.setCustomerSuccessCount(newSuccessCount);
@@ -366,12 +347,9 @@ export const useServeProgressHandlers = ({ ctx }) => {
     if (atmosphereChange) applyAtmosphereChange(atmosphereChange);
     const reward = result.bonusReward || choiceEffect.bonusReward;
     if (reward?.type === 'money') {
-      setMoney(prev => prev + reward.amount);
-      customerFlow.setDayEarnings(prev => prev + reward.amount);
-      addToast(`💰 获得 ¥${reward.amount}`, 'success');
+      addToast('🎁 获得事件奖励', 'success');
     }
-    if (currentEvent) achievements.onEventChoice(currentEvent.narrative || '', choiceIndex);
-  }, [handleEventChoice, currentEvent, setTrustLevel, applyAtmosphereChange, setMoney, addToast]);
+  }, [handleEventChoice, currentEvent, setTrustLevel, applyAtmosphereChange, addToast]);
 
   const handleEventDismissAction = useCallback(() => {
     const effects = dismissEvent();
@@ -386,9 +364,7 @@ export const useServeProgressHandlers = ({ ctx }) => {
     addToast(message, isSuccess ? 'success' : 'error');
   }, [playSFX, addToast]);
 
-  const handleShopPurchase = useCallback((itemType, itemId, price) => {
-    if (money < price) { addToast('💸 金钱不足，无法购买！', 'error'); return; }
-    setMoney(prev => prev - price);
+  const handleShopPurchase = useCallback((itemType, itemId) => {
     const newUnlocked = { ...unlockedItems };
     if (!newUnlocked[itemType]) newUnlocked[itemType] = [];
     if (!newUnlocked[itemType].includes(itemId)) newUnlocked[itemType].push(itemId);
@@ -399,9 +375,9 @@ export const useServeProgressHandlers = ({ ctx }) => {
     else if (itemType === 'iceTypes' && ICE_TYPES[itemId]) itemName = ICE_TYPES[itemId].name;
     else if (itemType === 'garnishes' && GARNISH_TYPES[itemId]) itemName = GARNISH_TYPES[itemId].name;
     else if (itemType === 'decorations' && DECORATION_TYPES[itemId]) itemName = DECORATION_TYPES[itemId].name;
-    addToast(`🎉 成功购买：${itemName}`, 'success');
+    addToast(`🎉 成功解锁：${itemName}`, 'success');
     playSFX('success');
-  }, [money, unlockedItems, setMoney, setUnlockedItems, addToast, playSFX]);
+  }, [unlockedItems, setUnlockedItems, addToast, playSFX]);
 
 
   return {

@@ -1,5 +1,5 @@
 // 游戏顶部导航栏组件（精简版）
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import CustomerAvatar from '../Avatar/CustomerAvatar.jsx';
 import {
   WEATHER_ICONS, WEATHER_NAMES,
@@ -11,7 +11,6 @@ const GameHeader = ({
   onBack,
   onShowRules,
   currentDay = 1,
-  money = 0,
   aiConfig,
   customerSuccessCount = 0,
   customerCocktailCount = 0,
@@ -32,22 +31,6 @@ const GameHeader = ({
   const [showAudioSettings, setShowAudioSettings] = useState(false);
   const [showAtmoDetail, setShowAtmoDetail] = useState(false);
 
-  // 金钱飞字动画
-  const [moneyFlies, setMoneyFlies] = useState([]);
-  const prevMoneyRef = useRef(money);
-
-  useEffect(() => {
-    if (money > prevMoneyRef.current) {
-      const diff = money - prevMoneyRef.current;
-      const id = Date.now();
-      setMoneyFlies(prev => [...prev, { id, amount: diff }]);
-      setTimeout(() => {
-        setMoneyFlies(prev => prev.filter(f => f.id !== id));
-      }, 1200);
-    }
-    prevMoneyRef.current = money;
-  }, [money]);
-
   // 构建氛围修正摘要
   const atmoModifiers = [];
   if (atmosphere?.modifiers?.targetShift) {
@@ -66,18 +49,11 @@ const GameHeader = ({
         {onShowHelp && <button className="header-icon-btn help-icon-btn" onClick={onShowHelp} title="帮助">📖</button>}
       </div>
 
-      {/* 中间：天数 + 金钱 + 顾客进度 */}
+      {/* 中间：天数 + 顾客进度 */}
       <div className="header-center">
         <div className="day-badge">
           <span className="day-icon">📅</span>
           <span className="day-text">第 {currentDay} 天</span>
-        </div>
-        <div className="money-badge" style={{ position: 'relative' }}>
-          <span className="money-icon">💰</span>
-          <span className="money-text">¥{money}</span>
-          {moneyFlies.map(fly => (
-            <span key={fly.id} className="money-fly">+¥{fly.amount}</span>
-          ))}
         </div>
 
         {/* 🆕 酒吧等级展示 */}

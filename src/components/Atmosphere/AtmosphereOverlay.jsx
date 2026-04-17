@@ -85,12 +85,6 @@ const AtmosphereOverlay = ({ atmosphere, day, onStart, isVisible }) => {
     if (strength < 0) effects.push({ text: '偏好温和的酒', detail: `烈度${strength}`, positive: false });
   }
 
-  if (modifiers.priceMultiplier > 1) {
-    effects.push({ text: '收入增加', detail: `×${modifiers.priceMultiplier.toFixed(1)}`, positive: true });
-  } else if (modifiers.priceMultiplier < 1) {
-    effects.push({ text: '收入减少', detail: `×${modifiers.priceMultiplier.toFixed(1)}`, positive: false });
-  }
-
   // 根据天气决定粒子类型
   const isRain = ['rainy', 'stormy'].includes(atmosphere.weather);
   const isSnow = atmosphere.weather === 'snowy';

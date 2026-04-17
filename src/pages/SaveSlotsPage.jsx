@@ -96,7 +96,7 @@ const SaveSlotsPage = ({ onBack, onLoadSlot, onCreateAndStart }) => {
           <article key={slot.slotId} className="save-slot-card">
             <div className="save-slot-main">
               <h3>{slot.name || slot.slotId}</h3>
-              <p>天数：{slot.summary?.day || 1} ｜ 金钱：¥{slot.summary?.money || 0}</p>
+              <p>天数：{slot.summary?.day || 1}</p>
               <p>最近更新：{formatTime(slot.updatedAt || slot.summary?.updatedAt)}</p>
             </div>
             <div className="save-slot-actions">

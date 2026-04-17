@@ -47,9 +47,6 @@ const STORAGE_KEYS = {
   NARRATIVE_STATE: 'bartender_narrative_state',
   // 🆕 文档07 - 事件链
   PENDING_EVENT_CHAINS: 'bartender_pending_chains',
-  // 🆕 文档08 - 成就系统
-  ACHIEVEMENTS: 'bartender_achievements',
-  ACHIEVEMENT_STATS: 'bartender_achievement_stats',
   // 🆕 文档13 - 灯塔系统
   CHAPTER_STATE: 'bartender_chapter_state',
   MEMORY_FRAGMENTS: 'bartender_memory_fragments',
@@ -629,46 +626,6 @@ export const getStorageUsage = () => {
     console.error('获取存储使用情况失败:', error);
     return null;
   }
-};
-
-// ==================== 成就系统存储 ====================
-
-export const saveAchievements = (achievements) => {
-  try { localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(achievements)); return true; }
-  catch (e) { console.error('保存成就失败:', e); return false; }
-};
-
-export const getAchievements = () => {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS) || '{}'); }
-  catch (e) { return {}; }
-};
-
-export const isAchievementUnlocked = (achievementId) => !!getAchievements()[achievementId];
-
-const DEFAULT_ACHIEVEMENT_STATS = {
-  totalCocktailsMade: 0, consecutiveSuccess: 0, maxConsecutiveSuccess: 0,
-  usedSpirits: [], usedIngredients: [],
-  perfectGuessCount: 0, seenEmotions: [], maxDialogueRounds: 0,
-  totalMoneyEarned: 0, totalSpent: 0, maxDailyEarnings: 0,
-  totalCustomersServed: 0, servedCategories: [], customerLeftMaxTrust: 0,
-  discoveredCombos: 0,
-  eventChoicesMade: 0, uniqueEventsExperienced: 0, uniqueEventNarratives: [],
-  consecutiveBoldChoices: 0, completedChains: [],
-  totalDaysPlayed: 0, playedAtMidnight: false, barReputation: 0
-};
-
-export const saveAchievementStats = (stats) => {
-  try { localStorage.setItem(STORAGE_KEYS.ACHIEVEMENT_STATS, JSON.stringify(stats)); return true; }
-  catch (e) { return false; }
-};
-
-export const getAchievementStats = () => {
-  try {
-    const s = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACHIEVEMENT_STATS) || 'null');
-    if (!s) return { ...DEFAULT_ACHIEVEMENT_STATS, usedSpirits: [], usedIngredients: [], seenEmotions: [], servedCategories: [], uniqueEventNarratives: [], completedChains: [] };
-    // 合并默认值（确保新增字段不会缺失）
-    return { ...DEFAULT_ACHIEVEMENT_STATS, usedSpirits: [], usedIngredients: [], seenEmotions: [], servedCategories: [], uniqueEventNarratives: [], completedChains: [], ...s };
-  } catch (e) { return { ...DEFAULT_ACHIEVEMENT_STATS, usedSpirits: [], usedIngredients: [], seenEmotions: [], servedCategories: [], uniqueEventNarratives: [], completedChains: [] }; }
 };
 
 // ==================== 事件链存储 ====================

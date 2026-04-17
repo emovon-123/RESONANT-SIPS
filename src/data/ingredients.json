@@ -8,7 +8,6 @@
       "thickness": 0,
       "sweetness": -1,
       "strength": 2,
-      "price": 0,
       "description": "纯净烈酒，中性口感",
       "feeling": "像一句不加修饰的实话"
     },
@@ -20,21 +19,8 @@
       "thickness": 1,
       "sweetness": 1,
       "strength": 2,
-      "price": 80,
       "description": "甘蔗烈酒，微甜醇厚",
       "feeling": "像旧照片里那种褪色的甜"
-    },
-    "gin": {
-      "id": "gin",
-      "name": "金酒",
-      "icon": "🌿",
-      "category": "spirit",
-      "thickness": 0,
-      "sweetness": -1,
-      "strength": 2,
-      "price": 100,
-      "description": "杜松子风味，清爽微苦",
-      "feeling": "像走进一片陌生的树林，清冽又警觉"
     },
     "whiskey": {
       "id": "whiskey",
@@ -44,7 +30,6 @@
       "thickness": 2,
       "sweetness": 0,
       "strength": 3,
-      "price": 150,
       "description": "橡木陈酿，厚重浓郁",
       "feeling": "像一个人坐了很久之后说出的第一句话"
     },
@@ -56,69 +41,8 @@
       "thickness": 1,
       "sweetness": -1,
       "strength": 3,
-      "price": 120,
       "description": "墨西哥烈酒，辛辣刺激",
       "feeling": "像一个不耐烦的人在催你做决定"
-    },
-    "brandy": {
-      "id": "brandy",
-      "name": "白兰地",
-      "icon": "🍇",
-      "category": "spirit",
-      "thickness": 2,
-      "sweetness": 1,
-      "strength": 3,
-      "price": 180,
-      "description": "葡萄蒸馏酒，果香浓郁",
-      "feeling": "像一段值得反复回味的对话"
-    },
-    "sake": {
-      "id": "sake",
-      "name": "清酒",
-      "icon": "🍶",
-      "category": "spirit",
-      "thickness": 0,
-      "sweetness": 0,
-      "strength": 1,
-      "price": 90,
-      "description": "日式米酒，清淡柔和",
-      "feeling": "像一声不轻不重的叹息"
-    },
-    "absinthe": {
-      "id": "absinthe",
-      "name": "苦艾酒",
-      "icon": "🌿",
-      "category": "spirit",
-      "thickness": 0,
-      "sweetness": -2,
-      "strength": 4,
-      "price": 200,
-      "description": "绿色魔酒，苦涩强烈",
-      "feeling": "像盯着深渊看太久之后的眩晕"
-    },
-    "mezcal": {
-      "id": "mezcal",
-      "name": "梅斯卡尔",
-      "icon": "🌵",
-      "category": "spirit",
-      "thickness": 1,
-      "sweetness": -1,
-      "strength": 3,
-      "price": 160,
-      "description": "龙舌兰表亲，烟熏风味",
-      "feeling": "像篝火烧过之后泥土的味道"
-    },
-    "cognac": {
-      "id": "cognac",
-      "name": "干邑",
-      "icon": "🍷",
-      "category": "spirit",
-      "thickness": 2,
-      "sweetness": 1,
-      "strength": 3,
-      "price": 220,
-      "description": "法国顶级白兰地，优雅华贵",
-      "feeling": "像用很贵的时间换来的一句\"没关系\""
     }
   },
   "juices": {
@@ -130,7 +54,6 @@
       "thickness": 1,
       "sweetness": 2,
       "strength": 0,
-      "price": 0,
       "description": "新鲜甜橙，甜蜜清爽",
       "feeling": "像有人帮你拉开了窗帘"
     },
@@ -142,33 +65,8 @@
       "thickness": 0,
       "sweetness": -2,
       "strength": 0,
-      "price": 0,
       "description": "酸爽柠檬，开胃解腻",
       "feeling": "像被冷水泼醒——难受但清醒了"
-    },
-    "juice_lime": {
-      "id": "juice_lime",
-      "name": "青柠汁",
-      "icon": "🍈",
-      "category": "juice",
-      "thickness": 0,
-      "sweetness": -2,
-      "strength": 0,
-      "price": 50,
-      "description": "青柠清香，酸中带苦",
-      "feeling": "像一句话里藏着的刺"
-    },
-    "juice_pineapple": {
-      "id": "juice_pineapple",
-      "name": "菠萝汁",
-      "icon": "🍍",
-      "category": "juice",
-      "thickness": 1,
-      "sweetness": 2,
-      "strength": 0,
-      "price": 60,
-      "description": "热带菠萝，酸甜平衡",
-      "feeling": "像假装什么都没发生的笑"
     },
     "juice_cranberry": {
       "id": "juice_cranberry",
@@ -178,33 +76,8 @@
       "thickness": 1,
       "sweetness": -1,
       "strength": 0,
-      "price": 70,
       "description": "微酸莓果，清爽回甘",
       "feeling": "像一封写了又删的消息"
-    },
-    "juice_grapefruit": {
-      "id": "juice_grapefruit",
-      "name": "西柚汁",
-      "icon": "🍊",
-      "category": "juice",
-      "thickness": 0,
-      "sweetness": -1,
-      "strength": 0,
-      "price": 55,
-      "description": "苦中带酸，成熟滋味",
-      "feeling": "像明知道答案但还是要问的那种感觉"
-    },
-    "juice_apple": {
-      "id": "juice_apple",
-      "name": "苹果汁",
-      "icon": "🍎",
-      "category": "juice",
-      "thickness": 1,
-      "sweetness": 2,
-      "strength": 0,
-      "price": 45,
-      "description": "清甜苹果，自然果香",
-      "feeling": "像小时候那种简单的满足"
     },
     "juice_mango": {
       "id": "juice_mango",
@@ -214,45 +87,8 @@
       "thickness": 2,
       "sweetness": 3,
       "strength": 0,
-      "price": 75,
       "description": "热带芒果，浓郁香甜",
       "feeling": "像沉进一个不想醒来的梦"
-    },
-    "juice_watermelon": {
-      "id": "juice_watermelon",
-      "name": "西瓜汁",
-      "icon": "🍉",
-      "category": "juice",
-      "thickness": 0,
-      "sweetness": 2,
-      "strength": 0,
-      "price": 50,
-      "description": "清爽西瓜，水润解渴",
-      "feeling": "像夏天傍晚不用想任何事的那几分钟"
-    },
-    "juice_passion": {
-      "id": "juice_passion",
-      "name": "百香果汁",
-      "icon": "🥥",
-      "category": "juice",
-      "thickness": 1,
-      "sweetness": 0,
-      "strength": 0,
-      "price": 65,
-      "description": "百香果酸甜，热带风情",
-      "feeling": "像心跳突然加速了一拍"
-    },
-    "juice_peach": {
-      "id": "juice_peach",
-      "name": "水蜜桃汁",
-      "icon": "🍑",
-      "category": "juice",
-      "thickness": 1,
-      "sweetness": 2,
-      "strength": 0,
-      "price": 60,
-      "description": "桃子甜蜜，柔和细腻",
-      "feeling": "像被一个很久没见的人温柔地叫了名字"
     }
   },
   "mixers": {
@@ -264,7 +100,6 @@
       "thickness": -1,
       "sweetness": 0,
       "strength": -1,
-      "price": 0,
       "description": "气泡清爽，稀释烈度",
       "feeling": "像把一句沉重的话说得轻描淡写"
     },
@@ -276,33 +111,8 @@
       "thickness": 0,
       "sweetness": -1,
       "strength": -1,
-      "price": 40,
       "description": "奎宁苦味，经典搭配",
       "feeling": "像在笑话的结尾加了一句真心话"
-    },
-    "cream": {
-      "id": "cream",
-      "name": "奶油",
-      "icon": "🥛",
-      "category": "mixer",
-      "thickness": 3,
-      "sweetness": 1,
-      "strength": 0,
-      "price": 60,
-      "description": "丝滑奶油，极致浓稠",
-      "feeling": "像一个不说话的拥抱"
-    },
-    "coconut_milk": {
-      "id": "coconut_milk",
-      "name": "椰奶",
-      "icon": "🥥",
-      "category": "mixer",
-      "thickness": 2,
-      "sweetness": 1,
-      "strength": 0,
-      "price": 70,
-      "description": "热带椰香，醇厚顺滑",
-      "feeling": "像离开以后才想起来的安全感"
     },
     "syrup": {
       "id": "syrup",
@@ -312,21 +122,19 @@
       "thickness": 1,
       "sweetness": 3,
       "strength": 0,
-      "price": 30,
       "description": "纯甜糖浆，增加甜度",
       "feeling": "像故意把坏消息说成好消息"
     },
-    "grenadine": {
-      "id": "grenadine",
-      "name": "石榴糖浆",
-      "icon": "❤️",
+    "cream": {
+      "id": "cream",
+      "name": "奶油",
+      "icon": "🥛",
       "category": "mixer",
-      "thickness": 1,
-      "sweetness": 3,
+      "thickness": 3,
+      "sweetness": 1,
       "strength": 0,
-      "price": 50,
-      "description": "红石榴甜浆，色泽诱人",
-      "feeling": "像用鲜艳的颜色掩盖一种说不出口的心情"
+      "description": "丝滑奶油，极致浓稠",
+      "feeling": "像一个不说话的拥抱"
     },
     "coffee": {
       "id": "coffee",
@@ -336,81 +144,8 @@
       "thickness": 1,
       "sweetness": -2,
       "strength": 0,
-      "price": 45,
       "description": "咖啡苦香，提神醒脑",
       "feeling": "像凌晨三点还亮着的灯"
-    },
-    "ginger_beer": {
-      "id": "ginger_beer",
-      "name": "姜汁汽水",
-      "icon": "🫚",
-      "category": "mixer",
-      "thickness": 0,
-      "sweetness": 1,
-      "strength": 0,
-      "price": 55,
-      "description": "姜辣气泡，温暖刺激",
-      "feeling": "像一巴掌打醒你之后又递给你外套"
-    },
-    "egg_white": {
-      "id": "egg_white",
-      "name": "蛋白",
-      "icon": "🥚",
-      "category": "mixer",
-      "thickness": 2,
-      "sweetness": 0,
-      "strength": 0,
-      "price": 35,
-      "description": "打发蛋白，绵密泡沫",
-      "feeling": "像把话说到嘴边又咽回去的那层犹豫"
-    },
-    "honey": {
-      "id": "honey",
-      "name": "蜂蜜",
-      "icon": "🍯",
-      "category": "mixer",
-      "thickness": 2,
-      "sweetness": 3,
-      "strength": 0,
-      "price": 40,
-      "description": "天然蜂蜜，醇厚甜美",
-      "feeling": "像把苦的东西裹起来，假装它不存在"
-    },
-    "mint": {
-      "id": "mint",
-      "name": "薄荷糖浆",
-      "icon": "🌿",
-      "category": "mixer",
-      "thickness": 1,
-      "sweetness": 2,
-      "strength": 0,
-      "price": 50,
-      "description": "薄荷清凉，提神醒神",
-      "feeling": "像深呼吸之后暂时忘了在想什么"
-    },
-    "rose": {
-      "id": "rose",
-      "name": "玫瑰糖浆",
-      "icon": "🌹",
-      "category": "mixer",
-      "thickness": 1,
-      "sweetness": 2,
-      "strength": 0,
-      "price": 80,
-      "description": "玫瑰花香，浪漫优雅",
-      "feeling": "像一句说不出口的\"我在乎你\""
-    },
-    "matcha": {
-      "id": "matcha",
-      "name": "抹茶",
-      "icon": "🍵",
-      "category": "mixer",
-      "thickness": 1,
-      "sweetness": -1,
-      "strength": 0,
-      "price": 70,
-      "description": "日式抹茶，苦中带甜",
-      "feeling": "像独自坐在空房间里的那种安静"
     }
   },
   "liqueurs": {
@@ -422,7 +157,6 @@
       "thickness": 1,
       "sweetness": 2,
       "strength": 1,
-      "price": 90,
       "description": "橙皮甜酒，芳香馥郁",
       "feeling": "像在苦涩里找到的一丝甜"
     },
@@ -434,7 +168,6 @@
       "thickness": 2,
       "sweetness": 2,
       "strength": 1,
-      "price": 100,
       "description": "咖啡利口酒，甜苦交织",
       "feeling": "像熬过长夜之后终于可以哭了"
     },
@@ -446,57 +179,8 @@
       "thickness": 3,
       "sweetness": 3,
       "strength": 1,
-      "price": 110,
       "description": "奶油威士忌，丝滑甜蜜",
       "feeling": "像被毯子裹住然后什么都不想管了"
-    },
-    "amaretto": {
-      "id": "amaretto",
-      "name": "杏仁酒",
-      "icon": "🌰",
-      "category": "liqueur",
-      "thickness": 1,
-      "sweetness": 2,
-      "strength": 1,
-      "price": 95,
-      "description": "杏仁甜酒，坚果芬芳",
-      "feeling": "像想起某个人时嘴角不自觉的上扬"
-    },
-    "blue_curacao": {
-      "id": "blue_curacao",
-      "name": "蓝橙酒",
-      "icon": "💙",
-      "category": "liqueur",
-      "thickness": 1,
-      "sweetness": 2,
-      "strength": 1,
-      "price": 85,
-      "description": "蓝色橙味酒，梦幻色彩",
-      "feeling": "像隔着雨幕看到的霓虹，美但够不着"
-    },
-    "chambord": {
-      "id": "chambord",
-      "name": "覆盆子酒",
-      "icon": "🫐",
-      "category": "liqueur",
-      "thickness": 1,
-      "sweetness": 3,
-      "strength": 1,
-      "price": 105,
-      "description": "法国莓酒，甜美芬芳",
-      "feeling": "像一个不切实际但让人快乐的白日梦"
-    },
-    "midori": {
-      "id": "midori",
-      "name": "蜜瓜酒",
-      "icon": "🍈",
-      "category": "liqueur",
-      "thickness": 1,
-      "sweetness": 3,
-      "strength": 1,
-      "price": 95,
-      "description": "日本蜜瓜酒，甜蜜清新",
-      "feeling": "像把烦恼暂时放进抽屉里假装忘记"
     },
     "sambuca": {
       "id": "sambuca",
@@ -506,45 +190,8 @@
       "thickness": 0,
       "sweetness": 1,
       "strength": 2,
-      "price": 120,
       "description": "茴香风味，香料浓郁",
       "feeling": "像一种让人又爱又怕的固执"
-    },
-    "frangelico": {
-      "id": "frangelico",
-      "name": "榛果酒",
-      "icon": "🌰",
-      "category": "liqueur",
-      "thickness": 2,
-      "sweetness": 2,
-      "strength": 1,
-      "price": 115,
-      "description": "榛果香甜，温暖醇厚",
-      "feeling": "像冬天壁炉旁不需要开口的陪伴"
-    },
-    "limoncello": {
-      "id": "limoncello",
-      "name": "柠檬酒",
-      "icon": "🍋",
-      "category": "liqueur",
-      "thickness": 0,
-      "sweetness": 2,
-      "strength": 1,
-      "price": 90,
-      "description": "意式柠檬酒，清爽甜蜜",
-      "feeling": "像雨后太阳出来的那几秒钟"
-    },
-    "chartreuse": {
-      "id": "chartreuse",
-      "name": "修道院酒",
-      "icon": "💚",
-      "category": "liqueur",
-      "thickness": 1,
-      "sweetness": 0,
-      "strength": 2,
-      "price": 150,
-      "description": "草药秘方，神秘复杂",
-      "feeling": "像一个藏了太多秘密的人终于开口"
     }
   },
   "ingredientCategories": [

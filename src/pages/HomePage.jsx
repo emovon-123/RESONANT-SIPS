@@ -1,7 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Toast from '../components/Common/Toast.jsx';
 import PrologueScreen from '../components/Prologue/PrologueScreen.jsx';
-import { getAchievements } from '../utils/storage.js';
 import audioManager from '../utils/audioManager.js';
 import './HomePage.css';
 
@@ -45,9 +44,7 @@ const HomePage = ({
   const [splashPhase, setSplashPhase] = useState(showSplash ? 'intro' : null);
   const [splashLift, setSplashLift] = useState(0);
 
-  const unseenAchievements = ENCYCLOPEDIA_ENABLED
-    ? Object.values(getAchievements()).filter((achievement) => !achievement.seen).length
-    : 0;
+  const unseenAchievements = 0;
 
   useEffect(() => {
     if (!showTransition) return undefined;

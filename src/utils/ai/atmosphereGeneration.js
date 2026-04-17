@@ -132,10 +132,6 @@ const validateAtmosphere = (parsed) => {
   const targetShift = modifiers.targetShift || {};
   const clampShift = (value) => typeof value === 'number' ? Math.max(-1, Math.min(1, Math.round(value))) : 0;
 
-  const priceMultiplier = typeof modifiers.priceMultiplier === 'number'
-    ? Math.max(0.8, Math.min(1.5, modifiers.priceMultiplier))
-    : 1.0;
-
   const customerCountMod = typeof modifiers.customerCountMod === 'number'
     ? Math.max(-2, Math.min(3, Math.round(modifiers.customerCountMod)))
     : 0;
@@ -157,7 +153,6 @@ const validateAtmosphere = (parsed) => {
         sweetness: clampShift(targetShift.sweetness),
         strength: clampShift(targetShift.strength),
       },
-      priceMultiplier,
       customerCountMod,
     },
   };

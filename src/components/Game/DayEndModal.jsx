@@ -8,23 +8,19 @@ import './DayEndModal.css';
  * @param {number} props.currentDay - 当前天数
  * @param {number} props.customersServed - 服务顾客数
  * @param {number} props.successCount - 成功调酒数
- * @param {number} props.dayEarnings - 今日收入
- * @param {number} props.totalMoney - 总资产
  * @param {Function} props.onStartNewDay - 开始新一天回调
  */
 const DayEndModal = ({
   currentDay = 1,
   customersServed = 0,
   successCount = 0,
-  dayEarnings = 0,
-  totalMoney = 0,
   onStartNewDay,
   dailyMemory = null  // 🆕 日记忆数据
 }) => {
-  // 根据收入显示不同消息
+  // 根据调酒表现显示不同消息
   const getMessage = () => {
-    if (dayEarnings >= 200) return '🌟 今天生意不错！';
-    if (dayEarnings >= 100) return '😊 还算可以的一天';
+    if (successCount >= 3) return '🌟 今晚你状态很好！';
+    if (successCount >= 1) return '😊 还算可以的一天';
     return '💪 明天继续加油！';
   };
 
@@ -65,16 +61,6 @@ const DayEndModal = ({
               <span className="stat-icon">🍸</span>
               <span className="stat-label">成功调酒</span>
               <span className="stat-value">{successCount} 杯</span>
-            </div>
-            <div className="stat-item highlight">
-              <span className="stat-icon">💰</span>
-              <span className="stat-label">今日收入</span>
-              <span className="stat-value">¥{dayEarnings}</span>
-            </div>
-            <div className="stat-item total">
-              <span className="stat-icon">🏦</span>
-              <span className="stat-label">总资产</span>
-              <span className="stat-value">¥{totalMoney}</span>
             </div>
           </div>
 

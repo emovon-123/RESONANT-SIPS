@@ -1,13 +1,52 @@
-﻿{
+{
   "emotions": {},
   "initialUnlockedEmotions": [],
-  "emotionHints": { "low": {}, "medium": {}, "high": {} },
-  "emotionCompatibility": { "compatible": [], "conflict": [] },
+  "emotionHints": {
+    "low": {},
+    "medium": {},
+    "high": {}
+  },
+  "emotionCompatibility": {
+    "compatible": [],
+    "conflict": []
+  },
   "glassTypes": {
-    "martini": { "id": "martini", "name": "马提尼杯（中杯）", "icon": "🍸", "price": 0, "bonus": ["trust", "joy"], "description": "经典优雅", "maxPortions": 2, "feeling": "经典且克制" },
-    "highball": { "id": "highball", "name": "高球杯（大杯）", "icon": "🥃", "price": 100, "bonus": ["joy", "anticipation"], "description": "轻松随意", "maxPortions": 3, "feeling": "轻快直接" },
-    "rock": { "id": "rock", "name": "古典杯（中杯）", "icon": "🥛", "price": 150, "bonus": ["sadness", "fear"], "description": "沉稳厚重", "maxPortions": 2, "feeling": "厚重安定" },
-    "coupe": { "id": "coupe", "name": "浅碟香槟杯（大杯）", "icon": "🍷", "price": 200, "bonus": ["anticipation", "surprise"], "description": "浪漫梦幻", "maxPortions": 3, "feeling": "明亮上扬" }
+    "martini": {
+      "id": "martini",
+      "name": "马提尼杯（中杯）",
+      "icon": "🍸",
+      "bonus": [
+        "trust",
+        "joy"
+      ],
+      "description": "经典优雅",
+      "maxPortions": 2,
+      "feeling": "经典且克制"
+    },
+    "highball": {
+      "id": "highball",
+      "name": "高球杯（大杯）",
+      "icon": "🥃",
+      "bonus": [
+        "joy",
+        "anticipation"
+      ],
+      "description": "轻松随意",
+      "maxPortions": 3,
+      "feeling": "轻快直接"
+    },
+    "rock": {
+      "id": "rock",
+      "name": "古典杯（中杯）",
+      "icon": "🥛",
+      "bonus": [
+        "sadness",
+        "fear"
+      ],
+      "description": "沉稳厚重",
+      "maxPortions": 2,
+      "feeling": "厚重安定"
+    }
   },
   "emotionTargets": {}
 }

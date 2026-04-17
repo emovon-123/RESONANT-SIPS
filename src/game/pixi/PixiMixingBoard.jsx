@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { GLASS_TYPES } from '../../data/emotions.js';
-import { ICE_TYPES, GARNISH_TYPES, DECORATION_TYPES } from '../../data/addons.js';
+import { ICE_TYPES, DECORATION_TYPES } from '../../data/addons.js';
 import {
   INGREDIENTS,
   INGREDIENT_CATEGORIES,
@@ -27,24 +27,19 @@ const STEP_COPY = {
     subtitle: '原液配比会直接改写这杯酒的性格。',
     title: 'Step 3 · 原液'
   },
-  garnish: {
-    icon: '🍋',
-    subtitle: '配料是最后那一点情绪偏移。',
-    title: 'Step 4 · 配料'
-  },
   decoration: {
     icon: '✨',
     subtitle: '装饰决定顾客第一眼看到什么。',
-    title: 'Step 5 · 装饰'
+    title: 'Step 4 · 装饰'
   },
   preview: {
     icon: '🫗',
     subtitle: '如果这杯酒已经站稳，就递出去。',
-    title: 'Step 6 · 递酒'
+    title: 'Step 5 · 递酒'
   }
 };
 
-const STEP_SEQUENCE = ['glass', 'ice', 'ingredient', 'garnish', 'decoration', 'preview'];
+const STEP_SEQUENCE = ['glass', 'ice', 'ingredient', 'decoration', 'preview'];
 
 const MODE_COPY = {
   expressive: {
@@ -158,7 +153,7 @@ const getCardNote = (state) => {
   return '';
 };
 
-const getStepAvailabilityLabel = ({ currentStep, selectedCategory, unlockedDecorations, unlockedGarnishes, unlockedGlasses, unlockedIceTypes, visibleIceTypes }) => {
+const getStepAvailabilityLabel = ({ currentStep, selectedCategory, unlockedDecorations, unlockedGlasses, unlockedIceTypes, visibleIceTypes }) => {
   if (currentStep === 'glass') {
     return `\u5df2\u89e3\u9501 ${unlockedGlasses.length}/${Object.keys(GLASS_TYPES).length} \u79cd\u676f\u578b`;
   }
@@ -169,10 +164,6 @@ const getStepAvailabilityLabel = ({ currentStep, selectedCategory, unlockedDecor
 
   if (currentStep === 'ingredient') {
     return `\u5f53\u524d\u5206\u7c7b ${getIngredientsByCategory(selectedCategory).length} \u79cd\u539f\u6db2`;
-  }
-
-  if (currentStep === 'garnish') {
-    return `\u5df2\u89e3\u9501 ${unlockedGarnishes.length}/${Object.keys(GARNISH_TYPES).length} \u79cd\u914d\u6599`;
   }
 
   if (currentStep === 'decoration') {
@@ -222,7 +213,7 @@ const getAddonDescription = (mixingMode, item) => {
   return feelingText;
 };
 
-const buildCards = ({ currentStep, session, unlockedDecorations, unlockedGarnishes, unlockedGlasses, unlockedIceTypes, mixingMode, maxPortions, totalPortions }) => {
+const buildCards = ({ currentStep, session, unlockedDecorations, unlockedGlasses, unlockedIceTypes, mixingMode, maxPortions, totalPortions }) => {
   if (currentStep === 'glass') {
     return Object.values(GLASS_TYPES).map((glass) => {
       const isUnlocked = unlockedGlasses.includes(glass.id);
@@ -282,18 +273,6 @@ const buildCards = ({ currentStep, session, unlockedDecorations, unlockedGarnish
       });
   }
 
-  if (currentStep === 'garnish') {
-    return [{ id: null, icon: '➖', name: '跳过', feeling: '保持克制，不追加这一层。' }, ...Object.values(GARNISH_TYPES).filter((item) => unlockedGarnishes.includes(item.id))]
-      .map((item) => ({
-        active: session.recipe.garnish === item.id,
-        description: getAddonDescription(mixingMode, item),
-        icon: item.icon,
-        id: item.id ?? 'skip-garnish',
-        label: item.name,
-        onClick: () => session.handleSelectGarnish(item.id ?? null)
-      }));
-  }
-
   if (currentStep === 'decoration') {
     return [{ id: null, icon: '➖', name: '跳过', feeling: '保持克制，不追加这一层。' }, ...Object.values(DECORATION_TYPES).filter((item) => unlockedDecorations.includes(item.id))]
       .map((item) => ({
@@ -306,14 +285,16 @@ const buildCards = ({ currentStep, session, unlockedDecorations, unlockedGarnish
       }));
   }
 
-  return session.recipe.ingredients.map((portion) => ({
-    active: false,
-    description: `已加入 ${portion.count} 份`,
-    icon: INGREDIENTS[portion.id]?.icon || '•',
-    id: portion.id,
-    label: INGREDIENTS[portion.id]?.name || portion.id,
-    onClick: null
-  }));
+  return session.recipe.ingredients
+    .filter((portion) => Boolean(INGREDIENTS[portion.id]))
+    .map((portion) => ({
+      active: false,
+      description: `已加入 ${portion.count} 份`,
+      icon: INGREDIENTS[portion.id].icon,
+      id: portion.id,
+      label: INGREDIENTS[portion.id].name,
+      onClick: null
+    }));
 };
 
 const buildSignals = (mixture, totalPortions) => {
@@ -429,7 +410,6 @@ const PixiMixingBoard = ({
   session,
   targetHint = '',
   unlockedDecorations = [],
-  unlockedGarnishes = [],
   unlockedGlasses = [],
   unlockedIceTypes = []
 }) => {
@@ -446,10 +426,9 @@ const PixiMixingBoard = ({
     session,
     totalPortions,
     unlockedDecorations,
-    unlockedGarnishes,
     unlockedGlasses,
     unlockedIceTypes
-  }), [maxPortions, mixingMode, session, totalPortions, unlockedDecorations, unlockedGarnishes, unlockedGlasses, unlockedIceTypes]);
+  }), [maxPortions, mixingMode, session, totalPortions, unlockedDecorations, unlockedGlasses, unlockedIceTypes]);
 
   const signals = useMemo(() => buildSignals(session.currentMixture, totalPortions), [session.currentMixture, totalPortions]);
 
@@ -467,11 +446,10 @@ const PixiMixingBoard = ({
     currentStep: session.currentStep,
     selectedCategory: session.selectedCategory,
     unlockedDecorations,
-    unlockedGarnishes,
     unlockedGlasses,
     unlockedIceTypes,
     visibleIceTypes: session.filteredIceTypes
-  }), [session.currentStep, session.filteredIceTypes, session.selectedCategory, unlockedDecorations, unlockedGarnishes, unlockedGlasses, unlockedIceTypes]);
+  }), [session.currentStep, session.filteredIceTypes, session.selectedCategory, unlockedDecorations, unlockedGlasses, unlockedIceTypes]);
 
   const summaryText = modeCopy.showNumericProgress && session.targetCheck?.totalConditions > 0
     ? `\u547d\u4e2d ${session.targetCheck.metCount || 0}/${session.targetCheck.totalConditions || 0} \u00b7 ${reading.body}`
@@ -480,7 +458,6 @@ const PixiMixingBoard = ({
     currentGlass?.name || '\u672a\u9009\u676f\u578b',
     session.recipe.ice ? (ICE_TYPES[session.recipe.ice]?.name || '\u51b0\u5757') : '\u672a\u9009\u51b0\u5757',
     `${totalPortions}/${maxPortions}${modeCopy.showMetrics ? ' \u4efd\u539f\u6db2' : ' \u4e2a\u9009\u62e9'}`,
-    ...(session.recipe.garnish ? [GARNISH_TYPES[session.recipe.garnish]?.name].filter(Boolean) : []),
     ...(session.recipe.decoration ? [DECORATION_TYPES[session.recipe.decoration]?.name].filter(Boolean) : [])
   ];
 

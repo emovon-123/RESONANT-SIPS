@@ -43,8 +43,8 @@ const TutorialCompleteModal = ({ onContinue }) => {
         </div>
 
         <div className="tc-reward">
-          <span className="tc-reward-icon">💰</span>
-          <span className="tc-reward-text">收入：¥50</span>
+          <span className="tc-reward-icon">🎁</span>
+          <span className="tc-reward-text">已解锁自由调酒</span>
         </div>
 
         <div className="tc-teaser">

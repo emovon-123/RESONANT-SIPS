@@ -23,9 +23,7 @@ import {
   saveReturnCustomers,
   updateReturnCustomer,
   getChapterState,
-  saveChapterState,
-  getAchievementStats,
-  saveAchievementStats
+  saveChapterState
 } from '../../utils/storage.js';
 import { EMOTION_IDS_8 } from '../../utils/emotionSchema.js';
 
@@ -119,7 +117,6 @@ export const exportGameData = () => {
     worldState: getWorldState(),
     chapterState: getChapterState(),
     returnCustomers: getReturnCustomers(),
-    achievementStats: getAchievementStats(),
     shortMemory: {
       workplace: getShortMemory('workplace'),
       artistic: getShortMemory('artistic'),
@@ -372,9 +369,7 @@ export const prepareChapterGate = (targetChapterId) => {
       push('turning_point');
     }
   } else if (t === 5) {
-    // 无硬性回头客要求，但可选地把总服务数设置到安全值，避免 OR 路径干扰
-    const stats = getAchievementStats();
-    saveAchievementStats({ ...stats, totalCustomersServed: Math.max(stats.totalCustomersServed || 0, 100) });
+    // 无硬性回头客要求，保留空分支仅为结构对齐
   }
 
   console.log('🚦 [DEV] 已准备章节门槛条件，目标章节:', t);
@@ -404,8 +399,7 @@ export const createDevActions = () => {
     // 透传读取（给 DevPanel 列表用）
     getWorldState,
     getReturnCustomers,
-    getChapterState,
-    getAchievementStats
+    getChapterState
   };
 };
 

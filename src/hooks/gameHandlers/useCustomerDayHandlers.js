@@ -7,7 +7,7 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
   const { consecutiveSilenceRef, totalSilenceRef } = refs;
   const {
     tutorial, progress, customerFlow, dialogue, emotionSystem, cocktailFlow,
-    achievements, chapterSystem, playSFX, addToast, aiConfig, trustLevel, setTrustLevel,
+    chapterSystem, playSFX, addToast, aiConfig, trustLevel, setTrustLevel,
     money, atmosphere, resetDailyEvents, clearCustomerRestrictions, checkPendingChains,
     tryStartChain, generateDailyMemoryRecord, recordCustomer, advanceArc,
     evaluateReturnPotential, orchestrateDay, buildReturnCustomerConfig,
@@ -109,14 +109,6 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
     };
     addToast(messages[reason] || '顾客离开了', reason === 'success_complete' ? 'success' : 'warning');
 
-    if (!tutorial.isTutorialMode && aiConfig) {
-      achievements.onCustomerLeave({
-        category: aiConfig.categoryId, trustLevel,
-        dialogueRounds: dialogue.dialogueHistory.filter(d => d.role === 'player').length,
-        isReturnCustomer: aiConfig.isReturnCustomer || false
-      });
-    }
-
     const parting = reason === 'success_complete' ? 'satisfied' : reason === 'trust_zero' ? 'disappointed' : 'neutral';
     appendActiveNpcEvent({
       role: 'system',
@@ -164,9 +156,6 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
   // ==================== 天数管理 ====================
 
   const startNewDay = useCallback(async () => {
-    achievements.onDayEnd(customerFlow.currentDay);
-    achievements.checkMidnightAchievement();
-
     // 灯塔系统：每日结算检查
     if (!tutorial.isTutorialMode) {
       try {
