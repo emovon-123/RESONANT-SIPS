@@ -136,48 +136,17 @@ const HomePage = ({
 
   return (
     <div className="home-page">
-      <div className="home-bg-layer">
-        <div className="neon-line" />
-        <div className="neon-line" />
-        <div className="neon-line" />
-
-        <div className="home-rain">
-          {Array.from({ length: 35 }).map((_, index) => (
-            <div
-              key={index}
-              className="home-raindrop"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDuration: `${0.7 + Math.random() * 0.8}s`,
-                animationDelay: `${Math.random() * 3}s`,
-                opacity: 0.08 + Math.random() * 0.15,
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="home-particles">
-          {Array.from({ length: 25 }).map((_, index) => (
-            <div
-              key={index}
-              className="home-particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDuration: `${4 + Math.random() * 6}s`,
-                animationDelay: `${Math.random() * 4}s`,
-                width: `${1.5 + Math.random() * 2.5}px`,
-                height: `${1.5 + Math.random() * 2.5}px`,
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="home-scanlines" />
-        <div className="home-glow home-glow-1" />
-        <div className="home-glow home-glow-2" />
-        <div className="home-glow home-glow-3" />
+      <div className="home-video-background" style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 0 }}>
+        <video 
+          src="/asset/场景/外景（开始界面）.mp4" 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
       </div>
+      <div className="home-content-layer" style={{ position: "relative", zIndex: 50, width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
 
       {showSplash && (
         <div className={`splash-overlay ${isSplashRevealing ? 'phase-reveal' : ''}`} />
@@ -278,6 +247,7 @@ const HomePage = ({
         </div>
       )}
     </div>
+      </div>
   );
 };
 

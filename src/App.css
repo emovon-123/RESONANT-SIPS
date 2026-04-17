@@ -1,3 +1,17 @@
+
+@font-face {
+  font-family: "PressStart2P";
+  src: url("/asset/字体/PressStart2P-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "zpix";
+  src: url("/asset/字体/zpix.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
 /* ========================================
    全局 CSS 变量（设计令牌）
    ======================================== */
@@ -108,8 +122,7 @@
 }
 
 body {
-  font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', 
-               'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-family: "PressStart2P", "zpix", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--bg-dark);
@@ -979,7 +992,7 @@ input, textarea {
 }
 
 body {
-  font-family: var(--font-body);
+  font-family: "PressStart2P", "zpix", sans-serif;
   background:
     radial-gradient(circle at 12% 18%, rgba(6, 255, 165, 0.08), transparent 24%),
     radial-gradient(circle at 88% 4%, rgba(255, 176, 86, 0.12), transparent 22%),
@@ -992,7 +1005,25 @@ body {
    ======================================== */
 
 body {
-  font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-               'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-family: "PressStart2P", "zpix", sans-serif;
   background: var(--bg-dark);
+}
+
+
+/* --- Global Pixel Art Font Config --- */
+body {
+  font-family: "PressStart2P", "zpix", sans-serif;
+  line-height: 1.4;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+}
+
+button, input, textarea, select {
+  font-family: "PressStart2P", "zpix", sans-serif;
+}
+
+* {
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
 }

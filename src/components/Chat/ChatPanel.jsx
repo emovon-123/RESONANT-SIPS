@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CustomerAvatar from '../Avatar/CustomerAvatar.jsx';
+import BalancedPixelText from '../Common/BalancedPixelText.jsx';
 import { useTTS } from '../../hooks/useTTS.js';
 import './ChatPanel.css';
 
@@ -149,7 +150,7 @@ const ChatPanel = ({
       return <span className="thinking-ellipsis" aria-label="思考中">……</span>;
     }
 
-    return <span>{content}</span>;
+    return <BalancedPixelText text={content} />;
   };
 
   return (
@@ -276,11 +277,26 @@ const ChatPanel = ({
         </button>
       </div>
 
-      <div className="chat-input-container">
+      <div className="chat-input-container" style={{ position: 'relative' }}>
+        {!inputValue && (
+          <div
+            style={{
+              position: 'absolute',
+              left: '38px',
+              top: '34px',
+              pointerEvents: 'none',
+              color: 'rgba(255, 255, 255, 0.4)',
+              fontSize: '14px',
+              zIndex: 10
+            }}
+          >
+            <BalancedPixelText text="输入你的回应... (Enter发送，Shift+Enter换行)" />
+          </div>
+        )}
         <textarea
           ref={inputRef}
           className="chat-input"
-          placeholder="输入你的回应... (Enter发送，Shift+Enter换行)"
+          placeholder=""
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}

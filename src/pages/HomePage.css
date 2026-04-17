@@ -1217,3 +1217,51 @@
     width: 100%;
   }
 }
+
+/* --- HomePage Pixel Art UI --- */
+.start-button {
+  background: var(--bg-dark) !important;
+  color: #06FFA5 !important;
+  border: 4px solid #06FFA5 !important;
+  box-shadow: 6px 6px 0px rgba(0,0,0,0.85) !important;
+  border-radius: 0 !important;
+}
+.start-button::before, .start-button::after {
+  display: none !important;
+}
+.start-button:hover {
+  background: #06FFA5 !important;
+  color: var(--bg-dark) !important;
+  box-shadow: 6px 6px 0px rgba(0,0,0,0.85) !important;
+  transform: none !important;
+}
+.start-button:active {
+  transform: translate(6px, 6px) !important;
+  box-shadow: 0px 0px 0px rgba(0,0,0,0.8) !important;
+}
+
+.nav-button {
+  border-radius: 0 !important;
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 4px 4px 0px rgba(0,0,0,0.8) !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #fff !important;
+}
+.nav-button::before { display: none !important; }
+.nav-button:hover {
+  border-color: #06FFA5 !important;
+  background: rgba(6, 255, 165, 0.2) !important;
+  transform: none !important;
+}
+.nav-button:active {
+  transform: translate(4px, 4px) !important;
+  box-shadow: 0px 0px 0px rgba(0,0,0,0.8) !important;
+}
+
+.game-title {
+  text-shadow: 4px 4px 0px rgba(0,0,0,0.5) !important;
+  background: none !important;
+  -webkit-text-fill-color: #06FFA5 !important;
+  color: #06FFA5 !important;
+  letter-spacing: 2px !important;
+}

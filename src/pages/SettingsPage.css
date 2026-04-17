@@ -409,3 +409,20 @@
   background: #1a1a3a;
   color: #e0e0e0;
 }
+
+
+/* SettingsPage Pixel Art UI */
+.back-btn {
+  border-radius: 0 !important;
+  border: 2px solid rgba(255,255,255,0.6) !important;
+  box-shadow: 4px 4px 0px rgba(0,0,0,0.5) !important;
+  background: rgba(0,0,0,0.6) !important;
+}
+.back-btn:hover {
+  border-color: #06FFA5 !important;
+  transform: none !important;
+}
+.back-btn:active {
+  transform: translate(4px, 4px) !important;
+  box-shadow: 0px 0px 0px rgba(0,0,0,0.5) !important;
+}
