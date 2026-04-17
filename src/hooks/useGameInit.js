@@ -190,29 +190,11 @@ export const useGameInit = (ctx) => {
               visit_count: config?.visitCount || 1,
               isFirstTime: !ctx.advancedGuides.hasSeenGuide('return_customer_first')
             });
-
-            // 声誉引导（第2天开始）
-            ctx.advancedGuides.checkGuide('day_started', {
-              day: customerFlow.currentDay
-            });
           }, 2000);
         }
       }
     }
   }, [customerFlow.currentCustomerIndex, customerFlow.currentDay, customerFlow.dailyCustomers]);
-
-  // 当今日没有下一位顾客时，自动推进到下一天，避免停在日结算弹窗等待点击。
-  useEffect(() => {
-    if (!customerFlow.showDayEnd || progress.autoTestRunning) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      startNewDay();
-    }, 1800);
-
-    return () => clearTimeout(timer);
-  }, [customerFlow.showDayEnd, progress.autoTestRunning, startNewDay]);
 
   // 🆕 进阶引导：信任度达到阈值
   useEffect(() => {

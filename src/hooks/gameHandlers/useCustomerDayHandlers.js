@@ -36,6 +36,7 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
     customerFlow.setShowCustomerLeave(false);
     customerFlow.setCustomerLeaveParting('neutral');
     customerFlow.setCustomersServed(prev => prev + 1);
+    const nextCustomersServed = customerFlow.customersServed + 1;
     clearCustomerRestrictions();
 
     playSFX('door');
@@ -59,7 +60,7 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
       console.log(`📋 今日营业结束（总杯数: ${customerFlow.dailyCocktailCountRef.current}，顾客数: ${customerFlow.dailyCustomers.length}）`);
       const ctxRef = customerFlow.switchContextRef.current;
       generateDailyMemoryRecord(ctxRef.currentDay, {
-        customersServed: ctxRef.customersServed, successCount: ctxRef.daySuccessCount,
+        customersServed: nextCustomersServed, successCount: ctxRef.daySuccessCount,
         failureCount: ctxRef.dayFailureCount, totalEarnings: ctxRef.dayEarnings
       }, ctxRef.atmosphere).then(memory => customerFlow.setDailyMemory(memory)).catch(() => {});
       customerFlow.setShowDayEnd(true);
@@ -103,7 +104,7 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
         });
       }, 10000);
     }
-  }, [customerFlow.currentCustomerIndex, customerFlow.dailyCustomers.length, playSFX, clearCustomerRestrictions, generateDailyMemoryRecord]);
+  }, [customerFlow.currentCustomerIndex, customerFlow.dailyCustomers.length, customerFlow.customersServed, playSFX, clearCustomerRestrictions, generateDailyMemoryRecord]);
 
   const handleCustomerLeave = useCallback((reason) => {
     customerFlow.setShowCustomerLeave(true);

@@ -1,19 +1,5 @@
 {
   "ADVANCED_GUIDES": {
-    "reputation_visible": {
-      "id": "reputation_visible",
-      "trigger": {
-        "type": "day_started",
-        "condition": "day === 2"
-      },
-      "content": {
-        "title": "酒吧的名声",
-        "body": "屏幕顶部现在显示你的酒吧声誉。\n声誉会随着你的表现上升或下降。\n声誉越高，越多的人会听说这个地方。",
-        "position": "center",
-        "dismissable": true,
-        "highlight": ".bar-reputation-display"
-      }
-    },
     "attitude_first_view": {
       "id": "attitude_first_view",
       "trigger": {

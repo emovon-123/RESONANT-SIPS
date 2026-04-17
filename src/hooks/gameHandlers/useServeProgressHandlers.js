@@ -14,6 +14,8 @@ import { appendActiveNpcEvent, queueActiveSlotGameStateSync } from '../../utils/
 const ENCYCLOPEDIA_ENABLED = false;
 const BASE_COCKTAIL_TIP = 10;
 const clamp01 = (value) => Math.max(0, Math.min(1, value));
+const RESULT_CARD_LEAVE_DELAY_SUCCESS = 2600;
+const RESULT_CARD_LEAVE_DELAY_FAILURE = 3400;
 const estimateDialogueDisplayDelay = (text) => {
   const normalized = String(text || '').replace(/\s+/g, ' ').trim();
   if (!normalized) return 1800;
@@ -214,7 +216,8 @@ export const useServeProgressHandlers = ({ ctx }) => {
         });
 
         const leaveReason = isSuccess ? 'success_complete' : 'served_complete';
-        window.setTimeout(() => customerFlow.handleCustomerLeaveRef.current?.(leaveReason), 900);
+        const leaveDelay = isSuccess ? RESULT_CARD_LEAVE_DELAY_SUCCESS : RESULT_CARD_LEAVE_DELAY_FAILURE;
+        window.setTimeout(() => customerFlow.handleCustomerLeaveRef.current?.(leaveReason), leaveDelay);
       }, feedbackDisplayDelay);
 
       // 情绪变化
