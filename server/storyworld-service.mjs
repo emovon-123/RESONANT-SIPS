@@ -1,7 +1,10 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import YAML from 'yaml';
-import { analyzeCharacterEmotion } from './emotion-service.mjs';
+import {
+  buildCharacterProfileDocument,
+  mapProfileDocumentToCharacter,
+} from './character-profile-service.mjs';
 
 const VALID_IDENTIFIER = /^[A-Za-z0-9_-]{2,64}$/;
 const YAML_EXT_RE = /\.(yaml|yml)$/i;
@@ -170,114 +173,6 @@ const getLegacyAddedCharacterYamlPath = (rootDir, code) => {
   return path.join(getAddedCharacterDir(rootDir), `${normalized}.yaml`);
 };
 
-const toCharacterProfileDocument = ({ code, character, preset = false, notes } = {}) => {
-  const normalizedId = String(code || character?.code || '').trim().toLowerCase();
-  const displayName = String(character?.displayName || character?.profile?.name || code || '').trim();
-  const emotion = analyzeCharacterEmotion({ character });
-
-  const doc = {
-    version: 1,
-    id: normalizedId,
-    name: displayName,
-    preset,
-    lockedUntilUserAdded: Boolean(preset),
-    enabledByDefault: Boolean(preset),
-    character: {
-      code: String(character?.code || code || '').trim().toLowerCase(),
-      displayName,
-      categoryId: character?.categoryId || null,
-      profile: {
-        name: String(character?.profile?.name || displayName).trim(),
-        age: character?.profile?.age ?? null,
-        personality: parseNameList(character?.profile?.personality || []),
-        appearance: String(character?.profile?.appearance || '').trim(),
-        occupation: String(character?.profile?.occupation || '').trim(),
-      },
-      background: {
-        backstory: String(character?.background?.backstory || '').trim(),
-        origin: String(character?.background?.origin || '').trim(),
-      },
-      dialogueStyle: {
-        tone: String(character?.dialogueStyle?.tone || '').trim(),
-        features: parseNameList(character?.dialogueStyle?.features || []),
-        openingLines: Array.isArray(character?.dialogueStyle?.openingLines)
-          ? character.dialogueStyle.openingLines.map((line) => String(line || '').trim()).filter(Boolean)
-          : [],
-      },
-      source: {
-        type: character?.source?.type || 'local_profile',
-        path: character?.source?.path || null,
-        url: character?.source?.url || null,
-      },
-      portrait: character?.portrait && typeof character.portrait === 'object'
-        ? {
-          path: character.portrait.path || null,
-          url: character.portrait.url || null,
-          mimeType: character.portrait.mimeType || null,
-        }
-        : null,
-    },
-    emotionSchemaVersion: 2,
-    currentEmotionWeights: emotion.weights,
-    currentEmotionTop3: emotion.top3,
-    emotionAnalysis: {
-      confidence: emotion.confidence,
-      rationale: emotion.rationale,
-      source: emotion.source,
-      sourceHash: emotion.sourceHash,
-      analyzedAt: Date.now(),
-    },
-  };
-
-  if (typeof notes === 'string' && notes.trim()) {
-    doc.notes = notes.trim();
-  }
-
-  return doc;
-};
-
-const mapProfileToCharacter = ({ doc, code, sourcePath = null }) => {
-  const embedded = doc?.character || {};
-  const normalizedCode = normalizeCode(embedded?.code || doc?.id || code) || 'unknown';
-  const displayName = String(embedded?.displayName || doc?.name || embedded?.profile?.name || normalizedCode).trim();
-
-  return {
-    code: normalizedCode,
-    displayName,
-    categoryId: String(embedded?.categoryId || '').trim() || null,
-    profile: {
-      name: String(embedded?.profile?.name || displayName).trim(),
-      age: embedded?.profile?.age ?? null,
-      personality: parseNameList(embedded?.profile?.personality || []),
-      appearance: String(embedded?.profile?.appearance || '').trim(),
-      occupation: String(embedded?.profile?.occupation || '').trim(),
-    },
-    background: {
-      backstory: String(embedded?.background?.backstory || '').trim(),
-      origin: String(embedded?.background?.origin || '').trim(),
-    },
-    dialogueStyle: {
-      tone: String(embedded?.dialogueStyle?.tone || '').trim(),
-      features: parseNameList(embedded?.dialogueStyle?.features || []),
-      openingLines: Array.isArray(embedded?.dialogueStyle?.openingLines)
-        ? embedded.dialogueStyle.openingLines.map((line) => String(line || '').trim()).filter(Boolean)
-        : [],
-    },
-    source: {
-      type: 'local_profile',
-      path: sourcePath,
-      url: null,
-    },
-    portrait: doc?.character?.portrait && typeof doc.character.portrait === 'object'
-      ? {
-        path: String(doc.character.portrait.path || '').trim() || null,
-        url: String(doc.character.portrait.url || '').trim() || null,
-        mimeType: String(doc.character.portrait.mimeType || '').trim() || null,
-        dataUrl: null,
-      }
-      : null,
-  };
-};
 
 const writeRemoteCharacterCache = async ({ rootDir, code, rawYaml }) => {
   const normalizedCode = normalizeCode(code);
@@ -298,7 +193,7 @@ const writeRemoteCharacterCache = async ({ rootDir, code, rawYaml }) => {
 
   const targetFile = getAddedCharacterProfilePath(rootDir, normalizedCode);
   const yamlFile = getAddedCharacterYamlPath(rootDir, normalizedCode);
-  const profileDoc = toCharacterProfileDocument({ code: normalizedCode, character, preset: false });
+  const profileDoc = buildCharacterProfileDocument({ code: normalizedCode, character, preset: false });
   await fs.writeFile(yamlFile, rawYaml, 'utf8');
   await fs.writeFile(targetFile, `${JSON.stringify(profileDoc, null, 2)}\n`, 'utf8');
 
@@ -653,7 +548,7 @@ const loadProfileCharacterFromFile = async (rootDir, filePath, codeHint = null) 
   const raw = await fs.readFile(filePath, 'utf8');
   const doc = JSON.parse(raw);
   const code = normalizeCode(codeHint) || guessCodeFromFile(filePath);
-  const character = mapProfileToCharacter({
+  const character = mapProfileDocumentToCharacter({
     doc,
     code,
     sourcePath: toRelativePath(rootDir, filePath),

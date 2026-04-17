@@ -8,8 +8,6 @@
     "dev:client": "vite",
     "dev:server": "node server/save-server.mjs",
     "setup:api": "node scripts/setup-api-keys.mjs",
-    "generate:character": "node scripts/generate-character-profile.mjs",
-    "test:emotion-profile": "node scripts/test-emotion-profile.mjs",
     "migrate:characters": "node scripts/migrate-character-assets-layout.mjs",
     "build": "vite build",
     "preview": "vite preview"
