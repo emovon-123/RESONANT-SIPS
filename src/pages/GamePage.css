@@ -178,6 +178,10 @@
   flex: 0 0 72%;
 }
 
+.game-content.mixing-mode.guess-step-mode .left-section {
+  flex: 1 1 auto;
+}
+
 .game-content.mixing-mode .right-section {
   flex: 0 0 28%;
 }
