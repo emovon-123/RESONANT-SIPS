@@ -166,6 +166,17 @@ const getEmotionNames = (emotionIds) => {
   return emotionIds.map((id) => EMOTION_NAME_MAP[id] || id);
 };
 
+const joinListText = (items, fallback = '无') => {
+  if (!Array.isArray(items) || items.length === 0) return fallback;
+  return items.map((item) => String(item || '').trim()).filter(Boolean).join('、') || fallback;
+};
+
+const clipPromptText = (value, max = 160) => {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (text.length <= max) return text;
+  return `${text.slice(0, max).trim()}...`;
+};
+
 // Prompt模板生成器
 export const generatePrompt = (type, params) => {
   const { aiConfig, trustLevel, emotionState, playerInput, dialogueHistory, cocktailRecipe } = params;
@@ -174,16 +185,30 @@ export const generatePrompt = (type, params) => {
     case PROMPT_TYPES.INITIAL: {
       const initialSurface = getEmotionNames(emotionState?.surface || []);
       const initialReal = getEmotionNames(emotionState?.reality || []);
+      const dialogueTone = String(aiConfig?.dialogueStyle?.tone || aiConfig?.voiceProfile?.tone || '').trim() || 'casual';
+      const dialogueFeatures = Array.isArray(aiConfig?.dialogueStyle?.features) ? aiConfig.dialogueStyle.features : [];
+      const voiceAnchors = Array.isArray(aiConfig?.voiceProfile?.anchors) ? aiConfig.voiceProfile.anchors : [];
+      const openingExamples = Array.isArray(aiConfig?.voiceProfile?.openingLines) ? aiConfig.voiceProfile.openingLines : [];
+      const backstorySummary = clipPromptText(aiConfig?.voiceProfile?.backstorySummary || aiConfig?.backstory || '', 140);
 
-      return renderTemplate(promptTemplates.generatePrompt.initial, {
-        ai_name: aiConfig.name,
-        personality: aiConfig.personality.join('、'),
-        initial_surface: initialSurface.join('、') || '平静',
-        initial_real: initialReal.join('、') || '复杂'
-      });
+      return `你是${aiConfig.name}。
+【角色性格】${joinListText(aiConfig.personality, '无')}
+${backstorySummary ? `【背景事实摘要】${backstorySummary}\n` : ''}【开场白优先级】先服从 dialogueStyle 和 voice anchors，再参考背景经历。不要把开场白写成设定文案。
+【语气】${dialogueTone}
+【说话特征】${joinListText(dialogueFeatures, '口语化、自然接话、少修辞')}
+【口吻锚点】${joinListText(voiceAnchors, '像人当面说话')}
+${openingExamples.length > 0 ? `【可参考的开口感觉】${joinListText(openingExamples.map((line) => clipPromptText(line, 50)), '无')}\n` : ''}【当前状态】表面更接近${joinListText(initialSurface, '平静')}，内里更接近${joinListText(initialReal, '复杂')}。这些只通过语气和细节轻轻漏出来，不要直接点名。
+
+请说一句开场白：
+1. 只输出角色说的话，不要旁白、动作、神态描写。
+2. 优先像真人第一次开口，不要像诗句、散文、角色设定介绍。
+3. 允许一点点意象，但只能点到为止。
+4. 句子自然、口语化、有当场感。
+5. 必须只用英文回复（English only），禁止出现中文、日文、韩文字符。
+直接给出开场白：`;
     }
 
-    case PROMPT_TYPES.RESPONSE:
+    case PROMPT_TYPES.RESPONSE: {
       const surfaceEmotions = getEmotionNames(emotionState?.surface || []);
       const realEmotions = getEmotionNames(emotionState?.reality || []);
       const recentAiReplies = (dialogueHistory || [])
@@ -192,42 +217,46 @@ export const generatePrompt = (type, params) => {
         .map((d) => String(d.content || '').trim())
         .filter(Boolean)
         .map((text) => text.length > 60 ? `${text.slice(0, 60)}...` : text);
-      
-      // 根据信任度决定情绪透露程度
-      const emotionGuidance = trustLevel < 0.4
-        ? `你不信任调酒师，用表面情绪（${surfaceEmotions.join('、')}）掩饰。真实感受（${realEmotions.join('、')}）只通过措辞、停顿、回避来暗示，绝不直说。`
-        : trustLevel < 0.7
-        ? `你开始信任调酒师。表面仍然是${surfaceEmotions.join('、')}，但真实情绪（${realEmotions.join('、')}）会偶尔在措辞中流露——比如话说一半又收回、用省略号停顿。`
-        : `你比较信任调酒师了。真实情绪（${realEmotions.join('、')}）会更明显地体现在你的话语中，虽然可能还带着一层${surfaceEmotions.join('、')}的外壳。`;
-      
-      // 🆕 记忆上下文注入
       const memoryCtx = params.memoryContext || '';
-      
-      return `你是${aiConfig.name}。性格：${aiConfig.personality.join('、')}。
-${memoryCtx ? `\n【酒吧背景】\n${memoryCtx}\n` : ''}
-【你的内心状态（用来指导你的语气和措辞，绝不能直接说出情绪名词）】
-${emotionGuidance}
+      const dialogueTone = String(aiConfig?.dialogueStyle?.tone || aiConfig?.voiceProfile?.tone || '').trim() || 'casual';
+      const dialogueFeatures = Array.isArray(aiConfig?.dialogueStyle?.features) ? aiConfig.dialogueStyle.features : [];
+      const voiceAnchors = Array.isArray(aiConfig?.voiceProfile?.anchors) ? aiConfig.voiceProfile.anchors : [];
+      const openingExamples = Array.isArray(aiConfig?.voiceProfile?.openingLines) ? aiConfig.voiceProfile.openingLines : [];
+      const backstorySummary = clipPromptText(aiConfig?.voiceProfile?.backstorySummary || aiConfig?.backstory || '', 160);
+
+      const emotionGuidance = trustLevel < 0.4
+        ? `你还不信任调酒师。表面更接近${joinListText(surfaceEmotions, '平静')}，真实感受只通过停顿、回避和细节轻轻漏出来，不要直接点名。`
+        : trustLevel < 0.7
+          ? `你开始松动了。表面仍接近${joinListText(surfaceEmotions, '克制')}，但真实感受${joinListText(realEmotions, '复杂')}会偶尔从措辞里露出来。`
+          : `你已经比较愿意让真实感受显出来。真实感受${joinListText(realEmotions, '复杂')}可以更明显，但仍然要像自然说话。`;
+
+      return `你是${aiConfig.name}。
+【角色性格】${joinListText(aiConfig.personality, '无')}
+${backstorySummary ? `【背景事实摘要】${backstorySummary}\n` : ''}【口吻优先级】先服从 dialogueStyle 和 voice anchors，再参考背景经历。背景只决定你经历过什么，不决定你说话必须写得像散文。
+【语气】${dialogueTone}
+【说话特征】${joinListText(dialogueFeatures, '口语化、自然接话、少修辞')}
+【口吻锚点】${joinListText(voiceAnchors, '像人当面说话')}
+${openingExamples.length > 0 ? `【可参考的开口感觉】${joinListText(openingExamples.map((line) => clipPromptText(line, 50)), '无')}\n` : ''}${memoryCtx ? `【记忆上下文】\n${memoryCtx}\n` : ''}【内心状态】${emotionGuidance}
 
 最近对话：
-${dialogueHistory.slice(-5).map(d => `${d.role === 'player' ? '调酒师' : aiConfig.name}：${d.content}`).join('\n')}
+${dialogueHistory.slice(-5).map((d) => `${d.role === 'player' ? '调酒师' : aiConfig.name}：${d.content}`).join('\n')}
 
-${recentAiReplies.length > 0 ? `你刚刚说过的话（禁止复读句式和关键词）：\n${recentAiReplies.map((line, i) => `${i + 1}. ${line}`).join('\n')}` : ''}
-
-${playerInput === '……' ? `调酒师没有说话。他只是安静地擦着杯子，看着你。\n这种沉默不是冷漠——是给你空间。\n\n请以角色身份回应这个沉默。\n你可能会：在沉默中说出原本不会说的话，或者也安静下来，或者反问调酒师为什么不说话。` : `调酒师："${playerInput}"`}
+${recentAiReplies.length > 0 ? `你刚刚说过的话（避免重复句式和关键词）：\n${recentAiReplies.map((line, i) => `${i + 1}. ${line}`).join('\n')}\n` : ''}${playerInput === '…'
+    ? '调酒师这次没有说话，只是把空间留给你。请以角色身份回应这段沉默。'
+    : `调酒师：“${playerInput}”`}
 
 回复要求（${aiConfig.dialogueStyle.length === 'short' ? '30-50字' : '50-70字'}）：
-1. 必须是完整的句子
-2. 不能以"还"、"有"、"很"、"的"等单字结尾
-3. 每句话必须有完整的主谓宾结构
-4. 通过语气、措辞、用词来自然地暗示你的内心感受
-5. 禁止直接说出情绪名词（如"我很孤独""我有压力"），要用具体的细节来体现
-6. 【极其重要】只输出角色说的话（台词），禁止添加任何动作描写、旁白、神态描写（如"她轻叹""目光飘忽""低头沉默"等）
-7. 与你最近两句回复保持明显不同：换角度、换关键词、换句式，不要同义改写
-8. 优先推进对话信息量：补充一个新细节，而不是重复“我很累/我想放松”这类结论
-9. 【语言硬约束】必须只用英文回复（English only）。禁止出现任何中文、日文、韩文字符。
-
+1. 只输出角色说的话，不要动作描写、旁白、神态描写。
+2. 优先口语、对话感、当场感，不要写成散文、诗句、设定文案。
+3. 可以有自然停顿和不那么工整的口语句，但整句仍要可读。
+4. 少用抽象判断，多用具体感受、物件、场景或经历碎片来带出情绪。
+5. 禁止直接说出情绪标签，如“我很孤独”“我压力很大”；要换成自然说法。
+6. 与最近两句回复明显不同，不能只是同义改写。
+7. 每次回复补充一个新信息点或新角度，不要原地打转。
+8. 如果角色设定偏文艺，也只保留一点点意象，整体仍然像真人说话。
+9. 必须只用英文回复（English only），禁止出现中文、日文、韩文字符。
 直接给出回复：`;
-
+    }
     case PROMPT_TYPES.COCKTAIL_FEEDBACK:
       const surfaceEmotions2 = getEmotionNames(emotionState?.surface || []);
       const realEmotions2 = getEmotionNames(emotionState?.reality || []);

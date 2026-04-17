@@ -247,8 +247,14 @@
     "真实情绪（英文ID，必须固定2个）：{{real_emotion_pool}}",
     "",
     "重要：emotionMask.reality 必须包含恰好2个情绪ID，不能多也不能少。",
+    "重要：dialogueStyle.tone 必填，必须从给定语调里选。",
+    "重要：dialogueStyle.features 至少3条，且必须是“可执行的说话特征”，例如“短句”“少修辞”“回答直接”“偶尔停顿”“不主动长篇解释”。不要写空泛性格词。",
+    "重要：initialDialogue 至少3句，必须像角色开口会说的话，不要写旁白，不要写设定介绍。",
+    "重要：backstory 只写事实背景摘要，控制在80字内。不要写成长篇文学段落，不要堆砌氛围词。",
+    "重要：personality 控制在3-5项，优先具体、可感知的特征，不要全是抽象词。",
+    "重要：整体风格优先口语和对话感，不要把角色写成散文、诗句或设定文案。",
     "",
     "返回格式：",
-    "{\"name\":\"身份·名字\",\"personality\":[\"性格1\",\"性格2\"],\"dialogueStyle\":{\"tone\":\"casual\",\"length\":\"medium\",\"features\":[\"特点1\"]},\"emotionMask\":{\"surface\":[\"trust\"],\"reality\":[\"fear\",\"sadness\"]},\"initialDialogue\":[\"开场白30字\"],\"backstory\":\"背景20字\"}"
+    "{\"name\":\"身份·名字\",\"personality\":[\"性格1\",\"性格2\",\"性格3\"],\"dialogueStyle\":{\"tone\":\"casual\",\"length\":\"medium\",\"features\":[\"短句\",\"少修辞\",\"回答直接\"]},\"emotionMask\":{\"surface\":[\"trust\"],\"reality\":[\"fear\",\"sadness\"]},\"initialDialogue\":[\"开场白1\",\"开场白2\",\"开场白3\"],\"backstory\":\"事实背景摘要\"}"
   ]
 }

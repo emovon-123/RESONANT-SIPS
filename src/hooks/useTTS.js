@@ -10,7 +10,8 @@ export const useTTS = () => {
   const currentAudioRef = useRef(null);
   const activeFetchRef = useRef(null);
 
-  const remoteTtsEnabled = String(import.meta.env.VITE_ENABLE_REMOTE_TTS ?? '1') !== '0';
+  // Default to browser TTS so spoken content matches on-screen text more reliably.
+  const remoteTtsEnabled = String(import.meta.env.VITE_ENABLE_REMOTE_TTS ?? '0') !== '0';
   const remoteTtsEndpoint = String(
     import.meta.env.VITE_GEMINI_TTS_ENDPOINT ||
       import.meta.env.VITE_GEMINI_ENDPOINT ||

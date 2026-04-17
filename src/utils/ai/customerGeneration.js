@@ -128,6 +128,14 @@ const validateLength = (length, options) => {
 
 const completeCustomerConfig = (parsedConfig, categoryConfig) => {
   const thresholds = categoryConfig.trustThresholdRange;
+  const normalizedVoice = normalizeRuntimeVoiceProfile({
+    name: parsedConfig.name || `${categoryConfig.category}访客`,
+    categoryId: categoryConfig.id,
+    personality: parsedConfig.personality || [],
+    dialogueStyle: parsedConfig.dialogueStyle || {},
+    backstory: parsedConfig.backstory || '',
+    openingLines: parsedConfig.initialDialogue || [],
+  });
 
   const surfaceEmotions = validateEmotions(
     parsedConfig.emotionMask?.surface,
@@ -146,9 +154,11 @@ const completeCustomerConfig = (parsedConfig, categoryConfig) => {
     avatar: pickRandom(categoryConfig.avatarOptions),
     personality: parsedConfig.personality || pickRandomMultiple(categoryConfig.personalityPool, 2, 3),
     dialogueStyle: {
-      tone: validateTone(parsedConfig.dialogueStyle?.tone, categoryConfig.toneOptions),
+      tone: validateTone(normalizedVoice.tone, categoryConfig.toneOptions),
       length: validateLength(parsedConfig.dialogueStyle?.length, categoryConfig.lengthOptions),
-      features: parsedConfig.dialogueStyle?.features || pickRandomMultiple(categoryConfig.featurePool, 2, 3),
+      features: normalizedVoice.features.length > 0
+        ? normalizedVoice.features
+        : pickRandomMultiple(categoryConfig.featurePool, 2, 3),
     },
     emotionMask: {
       surface: surfaceEmotions,
@@ -164,15 +174,13 @@ const completeCustomerConfig = (parsedConfig, categoryConfig) => {
       garnishes: pickRandomMultiple(categoryConfig.preferredGarnishes, 1, 2),
       decorations: pickRandomMultiple(categoryConfig.preferredDecorations, 1, 2),
     },
-    initialDialogue: parsedConfig.initialDialogue || [
-      '你好，我想在这里坐一会儿...',
-      '今天有点累，随便聊聊吧。',
-      '能给我推荐一杯酒吗？',
-    ],
+    initialDialogue: normalizedVoice.openingLines,
     triggerKeywords: parsedConfig.triggerKeywords || {},
     memoryStyle: pickRandom(categoryConfig.memoryStyleOptions),
     metaphorLevel: pickRandom(categoryConfig.metaphorLevelOptions),
-    backstory: parsedConfig.backstory || '',
+    backstory: normalizedVoice.backstorySummary,
+    rawBackstory: parsedConfig.backstory || '',
+    voiceProfile: normalizedVoice,
     categoryId: categoryConfig.id,
     isGenerated: true,
   };
@@ -229,6 +237,185 @@ const splitListLikeText = (value) => {
       .filter(Boolean);
   }
   return [];
+};
+
+const dedupeList = (items) => {
+  const seen = new Set();
+  return (Array.isArray(items) ? items : [])
+    .map((item) => String(item || '').trim())
+    .filter((item) => {
+      const key = item.toLowerCase();
+      if (!item || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+};
+
+const normalizeWhitespace = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+
+const clipText = (value, max = 220) => {
+  const text = normalizeWhitespace(value);
+  if (text.length <= max) return text;
+
+  const slice = text.slice(0, max);
+  const lastPunctuation = Math.max(
+    slice.lastIndexOf('. '),
+    slice.lastIndexOf('! '),
+    slice.lastIndexOf('? '),
+    slice.lastIndexOf('。'),
+    slice.lastIndexOf('！'),
+    slice.lastIndexOf('？')
+  );
+
+  if (lastPunctuation >= Math.floor(max * 0.5)) {
+    return slice.slice(0, lastPunctuation + 1).trim();
+  }
+
+  return `${slice.trim()}...`;
+};
+
+const summarizeBackstory = (value) => {
+  const text = normalizeWhitespace(value);
+  if (!text) return '';
+
+  const sentences = text
+    .split(/(?<=[.!?。！？])\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  const summary = sentences.slice(0, 2).join(' ');
+  return clipText(summary || text, 220);
+};
+
+const DEFAULT_DIALOGUE_FEATURES = {
+  formal: ['措辞克制', '少用比喻', '回答直接'],
+  tired: ['短句', '停顿多', '不展开长篇解释'],
+  cynical: ['句子偏短', '带一点防备', '少说空话'],
+  poetic: ['允许少量意象', '不要堆砌修辞', '说人话'],
+  dreamy: ['慢一点', '语气轻', '句子别太飘'],
+  melancholic: ['轻声', '短句', '少抒情'],
+  casual: ['口语化', '自然接话', '少解释'],
+  nervous: ['短句', '偶尔犹豫', '反应快'],
+  excited: ['口语化', '节奏快', '句子偏短'],
+};
+
+const DEFAULT_CATEGORY_FEATURES = {
+  workplace: ['回答务实', '少修辞', '不主动长篇倾诉'],
+  artistic: ['保留一点画面感', '但先像人在说话', '避免整段抒情'],
+  student: ['口语直接', '句子偏短', '反应真实'],
+  midlife: ['说慢一点', '多用具体经历', '少抽象感慨'],
+};
+
+const FEATURE_NORMALIZATION_RULES = [
+  { pattern: /诗|poetic|quote|典故/i, replacement: '保留一点意象，但不要整段抒情' },
+  { pattern: /意识流|stream/i, replacement: '可以有跳跃感，但句子要像真实说话' },
+  { pattern: /隐喻|metaphor/i, replacement: '比喻要少，用一句就够' },
+  { pattern: /停顿|ellipsis/i, replacement: '偶尔停顿' },
+  { pattern: /简短|短句|brief|short/i, replacement: '短句' },
+  { pattern: /直接|direct/i, replacement: '回答直接' },
+  { pattern: /口语|casual/i, replacement: '口语化' },
+];
+
+const normalizeFeatureText = (feature) => {
+  const text = normalizeWhitespace(feature);
+  if (!text) return '';
+
+  const matched = FEATURE_NORMALIZATION_RULES.find((rule) => rule.pattern.test(text));
+  return matched ? matched.replacement : text;
+};
+
+const normalizeDialogueFeatures = ({ features, tone, categoryId }) => {
+  const normalized = dedupeList((features || []).map(normalizeFeatureText)).slice(0, 5);
+  if (normalized.length >= 3) return normalized;
+
+  const toneDefaults = DEFAULT_DIALOGUE_FEATURES[tone] || [];
+  const categoryDefaults = DEFAULT_CATEGORY_FEATURES[categoryId] || [];
+  return dedupeList([...normalized, ...toneDefaults, ...categoryDefaults]).slice(0, 5);
+};
+
+const buildVoiceAnchors = ({ tone, features, personality = [], backstorySummary = '' }) => {
+  const anchors = [
+    '优先像人当面说话，不要像旁白或设定文案',
+    '多说具体感受、物件或场景，少说抽象判断',
+  ];
+
+  if (tone === 'poetic' || tone === 'dreamy' || tone === 'melancholic') {
+    anchors.push('可以有一点画面感，但每次最多一句，不要连续抒情');
+  } else {
+    anchors.push('少用修辞和解释，尽量自然接话');
+  }
+
+  if ((personality || []).some((trait) => /gentle|温柔|轻|nostalg/i.test(String(trait || '')))) {
+    anchors.push('语气轻一点，但不要写成散文');
+  }
+
+  if (/ocean|water|fish|robot|machine|ruin|海|水|机械|废墟/i.test(backstorySummary)) {
+    anchors.push('如果要提自己的经历，优先提具体物件或环境，不要抽象抒情');
+  }
+
+  anchors.push(...(features || []).map((feature) => `说话特征：${feature}`));
+  return dedupeList(anchors).slice(0, 6);
+};
+
+const buildFallbackOpeningLines = ({ name, categoryId }) => {
+  if (categoryId === 'artistic') {
+    return [
+      `${name} tonight. I just need something quiet.`,
+      'Do you have a drink that settles the room a little?',
+      'I am not looking for anything fancy. Just something that lands softly.',
+    ];
+  }
+
+  if (categoryId === 'workplace') {
+    return [
+      'Long day. I could use something simple.',
+      'Give me something steady. No need to impress me.',
+      'I just want a drink and a little quiet, if that is possible.',
+    ];
+  }
+
+  return [
+    `I am ${name}. I could use a drink tonight.`,
+    'Something that fits the mood would help.',
+    'I do not need much. Just something that feels right.',
+  ];
+};
+
+const normalizeRuntimeVoiceProfile = ({
+  name,
+  categoryId,
+  personality = [],
+  dialogueStyle = {},
+  backstory = '',
+  openingLines = [],
+}) => {
+  const tone = String(dialogueStyle?.tone || '').trim().toLowerCase() || 'casual';
+  const backstorySummary = summarizeBackstory(backstory);
+  const features = normalizeDialogueFeatures({
+    features: splitListLikeText(dialogueStyle?.features),
+    tone,
+    categoryId,
+  });
+  const normalizedOpeningLines = dedupeList(
+    (Array.isArray(openingLines) ? openingLines : [])
+      .map((line) => clipText(line, 90))
+      .filter(Boolean)
+  ).slice(0, 3);
+
+  return {
+    tone,
+    features,
+    openingLines: normalizedOpeningLines.length > 0
+      ? normalizedOpeningLines
+      : buildFallbackOpeningLines({ name, categoryId }),
+    backstorySummary,
+    anchors: buildVoiceAnchors({
+      tone,
+      features,
+      personality,
+      backstorySummary,
+    }),
+  };
 };
 
 const buildAvatarPrompt = (customerConfig) => {
@@ -405,29 +592,36 @@ export const generateCustomerFromCharacterId = async (characterId) => {
   const openingLines = Array.isArray(context?.dialogueStyle?.openingLines)
     ? context.dialogueStyle.openingLines.map((line) => String(line || '').trim()).filter(Boolean)
     : [];
+  const normalizedVoice = normalizeRuntimeVoiceProfile({
+    name: context?.displayName || roleId,
+    categoryId,
+    personality,
+    dialogueStyle: {
+      tone: context?.dialogueStyle?.tone || undefined,
+      features: dialogueFeatures,
+    },
+    backstory: context?.background?.backstory || '',
+    openingLines,
+  });
 
   const base = completeCustomerConfig({
     name: context?.displayName || roleId,
     personality,
     dialogueStyle: {
-      tone: context?.dialogueStyle?.tone || undefined,
+      tone: normalizedVoice.tone,
       length: 'medium',
-      features: dialogueFeatures,
+      features: normalizedVoice.features,
     },
-    backstory: context?.background?.backstory || `来自角色库的角色 ${roleId}，今晚来到酒吧。`,
-    initialDialogue: openingLines.length > 0
-      ? openingLines
-      : [
-        `我是 ${context?.displayName || roleId}。`,
-        '今晚想找个人说说话。',
-        '给我一杯适合我现在心情的酒。'
-      ],
+    backstory: normalizedVoice.backstorySummary || `来自角色库的角色 ${roleId}，今晚来到酒吧。`,
+    initialDialogue: normalizedVoice.openingLines,
   }, categoryConfig);
 
   base.customCharacterId = roleId;
   base.isCustomCharacter = true;
   base.customCharacterSource = context?.source || null;
   base.avatarCacheKey = `custom_${roleId}`;
+  base.voiceProfile = normalizedVoice;
+  base.rawBackstory = context?.background?.backstory || '';
 
   if (emotionAnalysis && typeof emotionAnalysis === 'object') {
     const top3 = Array.isArray(emotionAnalysis.top3)
