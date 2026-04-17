@@ -1,12 +1,11 @@
 import {
-  API_CONFIG,
   DEBUG_CONFIG,
   PROMPT_TYPES,
   generatePrompt,
   getActiveAPIType,
 } from '../../config/api.js';
 import { extractCleanJSON, tryRepairTruncatedJSON } from './jsonUtils.js';
-import { callDeepSeekAPIHelper } from './sharedApi.js';
+import { callDeepSeekAPIHelper, callGeminiAPIHelper } from './sharedApi.js';
 
 export const generateBarEvent = async (context) => {
   console.log('⚡ 开始AI生成事件...');
@@ -45,55 +44,16 @@ const callGeminiAPIForEvent = async (prompt) => {
     return text;
   }
 
-  const config = API_CONFIG.gemini;
-
-  if (!config.enabled) {
-    throw new Error('没有启用的API');
-  }
-
-  const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.85,
-        topK: 35,
-        topP: 0.9,
-        maxOutputTokens: 4096,
-        candidateCount: 1,
-      },
-    }),
+  const text = await callGeminiAPIHelper(prompt, {
+    temperature: 0.85,
+    topK: 35,
+    topP: 0.9,
+    maxOutputTokens: 4096,
+    candidateCount: 1,
+    label: 'Gemini',
   });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error('❌ Gemini API错误:', errorData);
-    throw new Error(`Gemini API调用失败: ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  if (data.candidates?.[0]?.content?.parts) {
-    const parts = data.candidates[0].content.parts;
-    console.log('📦 事件API返回parts数量:', parts.length, '| keys:', parts.map((part) => Object.keys(part).join(',')));
-
-    for (let i = parts.length - 1; i >= 0; i--) {
-      if (parts[i].text !== undefined && parts[i].text !== null) {
-        const text = parts[i].text;
-        console.log('📥 事件生成原始返回:', text);
-        return text;
-      }
-    }
-
-    console.error('❌ 所有parts都没有text字段:', JSON.stringify(parts).substring(0, 500));
-  } else {
-    console.error('❌ 响应结构异常:', JSON.stringify(data).substring(0, 500));
-  }
-
-  throw new Error('Gemini返回格式异常');
+  console.log('📥 事件生成原始返回:', text);
+  return text;
 };
 
 const parseEventJSON = (response) => {

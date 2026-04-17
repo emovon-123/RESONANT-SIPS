@@ -1,10 +1,6 @@
 // 酒吧氛围管理 Hook
 import { useState, useCallback, useRef } from 'react';
-import { generateDailyAtmosphere } from '../utils/aiService.js';
 import { getFallbackAtmosphere } from '../data/atmosphereTemplates.js';
-
-// 先聚焦核心循环：暂时关闭当晚影响（价格/目标/信任偏置等）
-const ATMOSPHERE_EFFECTS_ENABLED = false;
 
 const getNeutralModifiers = () => ({
   trustBonus: 0,
@@ -49,37 +45,16 @@ export const useBarAtmosphere = () => {
    */
   const generateAtmosphere = useCallback(async (day, recentCrossroadsSummaries = []) => {
     setIsGenerating(true);
-    
-    try {
-      console.log(`🌍 开始为第${day}天生成氛围...`);
-      const result = await generateDailyAtmosphere(day, recentAtmospheresRef.current, recentCrossroadsSummaries);
-      
-      if (result) {
-        console.log('✅ 氛围生成成功:', result);
-        const finalAtmosphere = ATMOSPHERE_EFFECTS_ENABLED ? result : stripAtmosphereEffects(result);
-        setAtmosphere(finalAtmosphere);
-        setShowAtmosphereOverlay(true);
-        setIsGenerating(false);
-        
-        // 维护最近氛围历史（保留最近3天）
-        recentAtmospheresRef.current = [
-          finalAtmosphere,
-          ...recentAtmospheresRef.current.slice(0, 2)
-        ];
-        
-        return finalAtmosphere;
-      }
-    } catch (error) {
-      console.error('❌ AI氛围生成失败，使用降级模板:', error);
-    }
-    
-    // 降级：使用模板
+    // 氛围仅作为背景展示，不再走AI生成。
+    void recentCrossroadsSummaries;
+    console.log(`🌍 开始为第${day}天生成背景氛围（本地模板）...`);
+
     const fallback = getFallbackAtmosphere(day, recentAtmospheresRef.current);
-    console.log('⚠️ 使用降级氛围模板:', fallback.weather);
-    const finalFallback = ATMOSPHERE_EFFECTS_ENABLED ? fallback : stripAtmosphereEffects(fallback);
+    console.log('✅ 使用本地氛围模板:', fallback.weather);
+    const finalFallback = stripAtmosphereEffects(fallback);
     setAtmosphere(finalFallback);
     setShowAtmosphereOverlay(true);
-    
+
     recentAtmospheresRef.current = [
       finalFallback,
       ...recentAtmospheresRef.current.slice(0, 2)

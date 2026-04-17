@@ -1,6 +1,9 @@
 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
 audioManager.js:42 音频系统初始化成功
 2App.jsx:100 ✅ 第一个顾客预加载完成: Captain Quick
+:5173/api/save/slots/slot_1776327686611/game-state:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+saveRepository.js:319 syncActiveSlotGameState failed: EPERM: operation not permitted, rename 'D:\MScIME25\SD5976-AI Tools For X\心灵特调\saves\slot_1776327686611\game_state.json.tmp-11932-1776394238414-uvubng' -> 'D:\MScIME25\SD5976-AI Tools For X\心灵特调\saves\slot_1776327686611\game_state.json'
+（匿名） @ saveRepository.js:319
 useGameInit.js:120 🔄 初始化第 1 天...
 useBarAtmosphere.js:54 🌍 开始为第1天生成氛围...
 atmosphereGeneration.js:13 🌍 开始生成第1天的氛围...
@@ -71,3 +74,255 @@ aiService.js:62 Prompt: 你是Captain Quick，性格：Charismatic、sunny "pop-
 aiService.js:63 ================
 useCustomerFlow.js:117 🔄 开始在后台生成下一个顾客...
 useCustomerFlow.js:133 ✅ 下一个顾客生成完成: Captain Quick
+App.jsx:100 ✅ 第一个顾客预加载完成: Captain Quick
+useGameInit.js:87 🔄 从会话恢复第 1 天（顾客1/2）
+useBarAtmosphere.js:54 🌍 开始为第1天生成氛围...
+atmosphereGeneration.js:13 🌍 开始生成第1天的氛围...
+atmosphereGeneration.js:23 === Atmosphere Prompt ===
+atmosphereGeneration.js:24 你是赛博朋克酒吧"未来酒馆"的世界模拟器。
+
+现在是第1天。请为今晚生成独特的酒吧氛围。
+
+【约束条件】
+- weather 只能是: clear, rainy, stormy, foggy, snowy, heatwave
+- timeOfDay 只能是: evening, night, late_night, dawn
+- lighting 只能是: bright, dim_warm, neon, candlelight, flickering
+- music 只能是: jazz_slow, electronic, classical, silence, lo_fi
+- crowdLevel 只能是: empty, sparse, moderate, crowded
+- emotionBias 只能从以下选取1-2个: joy, trust, fear, surprise, sadness, disgust, anger, anticipation
+- trustBonus 范围: -0.03 到 +0.05
+- targetShift 每项范围: -1 到 +1
+- priceMultiplier 范围: 0.8 到 1.5
+
+【历史氛围（避免重复）】
+无
+
+【近期酒吧故事（可选择性融入氛围叙述中）】
+无
+
+【创意要求】
+- narrative 要有画面感，50-80字，赛博朋克风格
+- scent 是酒吧内的气味描述，15-25字
+- 氛围要影响玩法（例如暴风雨夜 → 顾客偏好烈酒，人多时 → 信任度更难建立）
+- 保持内在逻辑一致性（雨天不应该是 heatwave）
+
+返回纯JSON：
+{"weather":"...","timeOfDay":"...","season":"...","lighting":"...","music":"...","crowdLevel":"...","scent":"...","narrative":"...","modifiers":{"trustBonus":0,"emotionBias":["..."],"targetShift":{"thickness":0,"sweetness":0,"strength":0},"priceMultiplier":1.0,"customerCountMod":0}}
+atmosphereGeneration.js:25 ========================
+api.302.ai/v1/gemini-2.5-flash:generateContent?key=sk-uCuUlhZ8aO1uVQZNhmZKt7cutxq6ztflekASQNcjNC77Ismi:1  Failed to load resource: the server responded with a status of 500 ()
+atmosphereGeneration.js:84 ❌ Gemini API错误: Object
+（匿名） @ atmosphereGeneration.js:84
+atmosphereGeneration.js:39 ❌ 氛围生成失败: Error: Gemini API调用失败: 500
+    at callGeminiAPIForAtmosphere (atmosphereGeneration.js:85:11)
+    at async generateDailyAtmosphere (atmosphereGeneration.js:28:22)
+    at async useBarAtmosphere.js:55:22
+    at async initializeFirstCustomer (useGameInit.js:113:9)
+（匿名） @ atmosphereGeneration.js:39
+useBarAtmosphere.js:78 ⚠️ 使用降级氛围模板: clear
+App.jsx:100 ✅ 第一个顾客预加载完成: Captain Quick
+useGameInit.js:120 🔄 初始化第 1 天...
+useBarAtmosphere.js:54 🌍 开始为第1天生成氛围...
+atmosphereGeneration.js:13 🌍 开始生成第1天的氛围...
+atmosphereGeneration.js:23 === Atmosphere Prompt ===
+atmosphereGeneration.js:24 你是赛博朋克酒吧"未来酒馆"的世界模拟器。
+
+现在是第1天。请为今晚生成独特的酒吧氛围。
+
+【约束条件】
+- weather 只能是: clear, rainy, stormy, foggy, snowy, heatwave
+- timeOfDay 只能是: evening, night, late_night, dawn
+- lighting 只能是: bright, dim_warm, neon, candlelight, flickering
+- music 只能是: jazz_slow, electronic, classical, silence, lo_fi
+- crowdLevel 只能是: empty, sparse, moderate, crowded
+- emotionBias 只能从以下选取1-2个: joy, trust, fear, surprise, sadness, disgust, anger, anticipation
+- trustBonus 范围: -0.03 到 +0.05
+- targetShift 每项范围: -1 到 +1
+- priceMultiplier 范围: 0.8 到 1.5
+
+【历史氛围（避免重复）】
+无
+
+【近期酒吧故事（可选择性融入氛围叙述中）】
+无
+
+【创意要求】
+- narrative 要有画面感，50-80字，赛博朋克风格
+- scent 是酒吧内的气味描述，15-25字
+- 氛围要影响玩法（例如暴风雨夜 → 顾客偏好烈酒，人多时 → 信任度更难建立）
+- 保持内在逻辑一致性（雨天不应该是 heatwave）
+
+返回纯JSON：
+{"weather":"...","timeOfDay":"...","season":"...","lighting":"...","music":"...","crowdLevel":"...","scent":"...","narrative":"...","modifiers":{"trustBonus":0,"emotionBias":["..."],"targetShift":{"thickness":0,"sweetness":0,"strength":0},"priceMultiplier":1.0,"customerCountMod":0}}
+atmosphereGeneration.js:25 ========================
+:5173/api/save/slots/slot_1776394377014/game-state:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+api.302.ai/v1/gemini-2.5-flash:generateContent?key=sk-uCuUlhZ8aO1uVQZNhmZKt7cutxq6ztflekASQNcjNC77Ismi:1  Failed to load resource: the server responded with a status of 500 ()
+atmosphereGeneration.js:84 ❌ Gemini API错误: Object
+（匿名） @ atmosphereGeneration.js:84
+atmosphereGeneration.js:39 ❌ 氛围生成失败: Error: Gemini API调用失败: 500
+    at callGeminiAPIForAtmosphere (atmosphereGeneration.js:85:11)
+    at async generateDailyAtmosphere (atmosphereGeneration.js:28:22)
+    at async useBarAtmosphere.js:55:22
+    at async initializeFirstCustomer (useGameInit.js:121:7)
+（匿名） @ atmosphereGeneration.js:39
+useBarAtmosphere.js:78 ⚠️ 使用降级氛围模板: clear
+useGameInit.js:124 ✅ 使用预加载的第一位顾客: Captain Quick
+saveRepository.js:319 syncActiveSlotGameState failed: EPERM: operation not permitted, rename 'D:\MScIME25\SD5976-AI Tools For X\心灵特调\saves\slot_1776394377014\meta.json.tmp-11932-1776394378035-55dpob' -> 'D:\MScIME25\SD5976-AI Tools For X\心灵特调\saves\slot_1776394377014\meta.json'
+（匿名） @ saveRepository.js:319
+aiService.js:58 === AI Prompt ===
+aiService.js:59 Type: initial
+aiService.js:60 API Type: gemini
+aiService.js:61 Streaming: true
+aiService.js:62 Prompt: 你是Captain Quick，性格：Charismatic、sunny "pop-star" vibe、media darling、confident、reckless、protective、driven by survivor's guilt、obsessive about truth。
+
+【你的内心（指导你的语气，但绝对不能直说这些词）】
+- 你表面上：平静
+- 你内心深处：信任、喜悦
+- 你要通过语气、措辞、用词来暗示内心感受，让细心的人能察觉
+
+刚坐在酒吧吧台前，调酒师看着你。
+
+请说一句开场白（30-50字），自然一点，完整的句子。
+开场白要微妙地反映你的内心状态，但不能直接说出情绪名称。
+
+【格式要求 - 极其重要】
+只输出角色说的话（直接引语），禁止添加任何动作描写、旁白、神态描写。
+错误示例：她轻叹一声，望向远处。"今晚的雨真大。"
+正确示例：今晚的雨真大。
+
+直接给出：
+aiService.js:63 ================
+useCustomerFlow.js:117 🔄 开始在后台生成下一个顾客...
+aiService.js:58 === AI Prompt ===
+aiService.js:59 Type: response
+aiService.js:60 API Type: gemini
+aiService.js:61 Streaming: true
+aiService.js:62 Prompt: 你是Captain Quick。性格：Charismatic、sunny "pop-star" vibe、media darling、confident、reckless、protective、driven by survivor's guilt、obsessive about truth。
+
+【酒吧背景】
+酒吧声誉：新开的小酒馆（50分）
+角色：Captain Quick
+历史摘要：晚上好！这里的氛围今晚感觉格外美好，我深信您一定能为我调配出最完美的惊喜。
+最近会话:
+ai: 晚上好！这里的氛围今晚感觉格外美好，我深信您一定能为我调配出最完美的惊喜。
+
+【你的内心状态（用来指导你的语气和措辞，绝不能直接说出情绪名词）】
+你不信任调酒师，用表面情绪（信任、喜悦）掩饰。真实感受（信任、喜悦）只通过措辞、停顿、回避来暗示，绝不直说。
+
+最近对话：
+Captain Quick：晚上好！这里的氛围今晚感觉格外美好，我深信您一定能为我调配出最完美的惊喜。
+
+你刚刚说过的话（禁止复读句式和关键词）：
+1. 晚上好！这里的氛围今晚感觉格外美好，我深信您一定能为我调配出最完美的惊喜。
+
+调酒师："最近工作还顺利吗？"
+
+回复要求（50-70字）：
+1. 必须是完整的句子
+2. 不能以"还"、"有"、"很"、"的"等单字结尾
+3. 每句话必须有完整的主谓宾结构
+4. 通过语气、措辞、用词来自然地暗示你的内心感受
+5. 禁止直接说出情绪名词（如"我很孤独""我有压力"），要用具体的细节来体现
+6. 【极其重要】只输出角色说的话（台词），禁止添加任何动作描写、旁白、神态描写（如"她轻叹""目光飘忽""低头沉默"等）
+7. 与你最近两句回复保持明显不同：换角度、换关键词、换句式，不要同义改写
+8. 优先推进对话信息量：补充一个新细节，而不是重复“我很累/我想放松”这类结论
+
+直接给出回复：
+aiService.js:63 ================
+useCustomerFlow.js:133 ✅ 下一个顾客生成完成: Captain Quick
+judgmentService.js:738 💬 开始调用AI判断对话信任度...
+judgmentService.js:739 📝 玩家输入: 最近工作还顺利吗？
+judgmentService.js:740 📊 当前信任度: 0
+judgmentService.js:753 === Trust Judgment Prompt ===
+judgmentService.js:754 你是对话质量评估器。需要判断调酒师的回复是否让顾客感到被理解和关心，从而影响信任度。
+
+【顾客信息】
+- 角色：Captain Quick
+- 性格：Charismatic、sunny "pop-star" vibe、media darling、confident、reckless、protective、driven by survivor's guilt、obsessive about truth
+- 当前信任度：0%
+- 沟通风格难度：低
+
+
+【暖场阶段提示】这是双方对话的前期（第1轮），顾客和调酒师还在互相试探。此阶段请提高宽容度：
+- 普通的寒暄、试探性的提问都应视为正面或中性
+- 除非明显冒犯，否则不应给出负面评分
+- 调酒师在尝试了解顾客，即使方式笨拙也应予以正面评价
+
+【顾客当前情绪状态】
+- 表面情绪：信任、喜悦
+- 真实情绪：信任、喜悦
+
+【最近对话】
+Captain Quick：晚上好！这里的氛围今晚感觉格外美好，我深信您一定能为我调配出最完美的惊喜。
+
+【调酒师刚才说的话】
+"最近工作还顺利吗？"
+
+【评估标准】
+1. 积极因素（增加信任度）：
+   - 表达真诚的关心和理解
+   - 提出有深度的问题，引导顾客敞开心扉
+   - 回应了顾客的情绪或困扰
+   - 给予安慰、鼓励或建设性建议
+   - 创造安全、舒适的交流氛围
+   - 承认自己没完全理解，请顾客多说一些（真诚的态度）
+   - 用自己的话尝试复述或回应顾客的隐喻（在认真思考）
+
+2. 消极因素（减少信任度）：
+   - 完全无视顾客说的内容，答非所问
+   - 说教或居高临下的评判
+   - 明显冒犯或触碰隐私底线
+   - 恶意或嘲讽的态度
+
+3. 轻微消极（小幅减少，-0.01 ~ -0.03）：
+   - 回复太短或敷衍，但没有恶意
+   - 重复之前说过的话
+   - 回应与话题略有偏差
+
+4. 中性因素（信任度不变）：
+   - 普通的寒暄或问候
+   - 简单的信息交流
+   - 理解不够精准但态度诚恳
+
+【输出要求】
+返回JSON，包含信任度变化和原因：
+
+{"change": 数字, "reason": "简短原因10字内"}
+
+change 取值范围：
+- +0.08 ~ +0.15：非常好的回应，深深触动顾客
+- +0.03 ~ +0.07：较好的回应，让顾客感到被理解
+- +0.01 ~ +0.02：尚可的回应，至少在认真倾听
+- 0：中性回应
+- -0.01 ~ -0.03：略有不足，但无恶意
+- -0.04 ~ -0.08：较差的回应，让顾客失望
+- -0.09 ~ -0.15：很差的回应，严重伤害信任（仅限明确冒犯时使用）
+
+【重要原则】
+- 倾向给出正面或中性评价。扣分需要明确理由。
+- "没有完美理解"≠"不关心"。态度比精准度更重要。
+- 低信任度时，顾客本身也在试探，对调酒师的要求不应过高。
+
+示例：
+- 真诚关心：{"change": 0.08, "reason": "表达了真诚关心"}
+- 尝试理解隐喻：{"change": 0.05, "reason": "认真回应了比喻"}
+- 请顾客多说说：{"change": 0.04, "reason": "真诚地想了解更多"}
+- 普通寒暄：{"change": 0, "reason": "普通交流"}
+- 略显敷衍：{"change": -0.02, "reason": "回复有些简短"}
+- 完全答非所问：{"change": -0.05, "reason": "忽视了顾客的话"}
+- 冒犯隐私：{"change": -0.10, "reason": "触碰敏感话题"}
+judgmentService.js:755 =============================
+api.302.ai/v1/gemini-2.5-flash:generateContent?key=sk-uCuUlhZ8aO1uVQZNhmZKt7cutxq6ztflekASQNcjNC77Ismi:1  Failed to load resource: the server responded with a status of 500 ()
+judgmentService.js:772 ❌ AI信任度判断失败: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
+    at callGeminiAPIForTrustJudgment (judgmentService.js:822:38)
+    at async callAIForTrustJudgment (judgmentService.js:759:22)
+    at async useDialogueHandlers.js:249:33
+（匿名） @ judgmentService.js:772
+GamePage.jsx:52  GET http://localhost:5173/src/hooks/useBarAtmosphere.js?t=1776394760515 net::ERR_ABORTED 500 (Internal Server Error)
+client:176 [hmr] Failed to reload /src/pages/GamePage.jsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+warnFailedUpdate @ client:176
+fetchUpdate @ client:213
+await in fetchUpdate
+queueUpdate @ client:186
+（匿名） @ client:642
+handleMessage @ client:640
+（匿名） @ client:550

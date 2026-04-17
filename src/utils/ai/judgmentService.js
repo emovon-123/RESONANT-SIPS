@@ -1,5 +1,5 @@
-import { API_CONFIG, DEBUG_CONFIG, PROMPT_TYPES, generatePrompt, getActiveAPIType } from '../../config/api.js';
-import { callDeepSeekAPIHelper } from './sharedApi.js';
+import { DEBUG_CONFIG, PROMPT_TYPES, generatePrompt, getActiveAPIType } from '../../config/api.js';
+import { callDeepSeekAPIHelper, callGeminiAPIHelper } from './sharedApi.js';
 import { normalizeEmotionList } from '../emotionSchema.js';
 
 export const callAIForCocktailJudgmentWithEmotionChange = async (params) => {
@@ -48,55 +48,16 @@ const callGeminiAPIForCombinedJudgment = async (prompt) => {
     return text;
   }
   
-  // 使用 Gemini
-  const config = API_CONFIG.gemini;
-  
-  if (!config.enabled) {
-    throw new Error('没有启用的API');
-  }
-  
-  const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
-  
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      contents: [{
-        parts: [{
-          text: prompt
-        }]
-      }],
-      generationConfig: {
-        temperature: 0.4, // 较低温度提高一致性
-        topK: 20,
-        topP: 0.8,
-        maxOutputTokens: 4096, // 思考模型需要更多token（思考+输出共享额度）
-        candidateCount: 1
-      }
-    })
+  const text = await callGeminiAPIHelper(prompt, {
+    temperature: 0.4,
+    topK: 20,
+    topP: 0.8,
+    maxOutputTokens: 4096,
+    candidateCount: 1,
+    label: 'Gemini',
   });
-  
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error('❌ Gemini API错误:', errorData);
-    throw new Error(`Gemini API调用失败: ${response.status}`);
-  }
-  
-  const data = await response.json();
-  
-  if (data.candidates && data.candidates.length > 0) {
-    const candidate = data.candidates[0];
-    
-    if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
-      const text = candidate.content.parts[0].text;
-      console.log('📥 合并判断原始返回:', text);
-      return text;
-    }
-  }
-  
-  throw new Error('Gemini返回格式异常');
+  console.log('📥 合并判断原始返回:', text);
+  return text;
 };
 
 /**
@@ -315,55 +276,16 @@ const callGeminiAPIForCocktailJudgment = async (prompt) => {
     return text;
   }
   
-  // 使用 Gemini
-  const config = API_CONFIG.gemini;
-  
-  if (!config.enabled) {
-    throw new Error('没有启用的API');
-  }
-  
-  const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
-  
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      contents: [{
-        parts: [{
-          text: prompt
-        }]
-      }],
-      generationConfig: {
-        temperature: 0.5, // 较低的温度，提高判断一致性
-        topK: 20,
-        topP: 0.8,
-        maxOutputTokens: 4096, // 思考模型需要更多token（思考+输出共享额度）
-        candidateCount: 1
-      }
-    })
+  const text = await callGeminiAPIHelper(prompt, {
+    temperature: 0.5,
+    topK: 20,
+    topP: 0.8,
+    maxOutputTokens: 4096,
+    candidateCount: 1,
+    label: 'Gemini',
   });
-  
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error('❌ Gemini API错误:', errorData);
-    throw new Error(`Gemini API调用失败: ${response.status}`);
-  }
-  
-  const data = await response.json();
-  
-  if (data.candidates && data.candidates.length > 0) {
-    const candidate = data.candidates[0];
-    
-    if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
-      const text = candidate.content.parts[0].text;
-      console.log('📥 调酒判断原始返回:', text);
-      return text;
-    }
-  }
-  
-  throw new Error('Gemini返回格式异常');
+  console.log('📥 调酒判断原始返回:', text);
+  return text;
 };
 
 /**
@@ -561,55 +483,16 @@ const callGeminiAPIForEmotionChange = async (prompt) => {
     return text;
   }
   
-  // 使用 Gemini
-  const config = API_CONFIG.gemini;
-  
-  if (!config.enabled) {
-    throw new Error('没有启用的API');
-  }
-  
-  const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
-  
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      contents: [{
-        parts: [{
-          text: prompt
-        }]
-      }],
-      generationConfig: {
-        temperature: 0.4, // 较低的温度，提高一致性
-        topK: 20,
-        topP: 0.8,
-        maxOutputTokens: 4096, // 思考模型需要更多token（思考+输出共享额度）
-        candidateCount: 1
-      }
-    })
+  const text = await callGeminiAPIHelper(prompt, {
+    temperature: 0.4,
+    topK: 20,
+    topP: 0.8,
+    maxOutputTokens: 4096,
+    candidateCount: 1,
+    label: 'Gemini',
   });
-  
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error('❌ Gemini API错误:', errorData);
-    throw new Error(`Gemini API调用失败: ${response.status}`);
-  }
-  
-  const data = await response.json();
-  
-  if (data.candidates && data.candidates.length > 0) {
-    const candidate = data.candidates[0];
-    
-    if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
-      const text = candidate.content.parts[0].text;
-      console.log('📥 情绪变化原始返回:', text);
-      return text;
-    }
-  }
-  
-  throw new Error('Gemini返回格式异常');
+  console.log('📥 情绪变化原始返回:', text);
+  return text;
 };
 
 /**
@@ -788,55 +671,16 @@ const callGeminiAPIForTrustJudgment = async (prompt) => {
     return text;
   }
   
-  // 使用 Gemini
-  const config = API_CONFIG.gemini;
-  
-  if (!config.enabled) {
-    throw new Error('没有启用的API');
-  }
-  
-  const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
-  
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      contents: [{
-        parts: [{
-          text: prompt
-        }]
-      }],
-      generationConfig: {
-        temperature: 0.3, // 较低的温度，提高判断一致性
-        topK: 15,
-        topP: 0.7,
-        maxOutputTokens: 2048, // 思考模型思考+输出共享额度，200太小会截断
-        candidateCount: 1
-      }
-    })
+  const text = await callGeminiAPIHelper(prompt, {
+    temperature: 0.3,
+    topK: 15,
+    topP: 0.7,
+    maxOutputTokens: 2048,
+    candidateCount: 1,
+    label: 'Gemini',
   });
-  
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error('❌ Gemini API错误:', errorData);
-    throw new Error(`Gemini API调用失败: ${response.status}`);
-  }
-  
-  const data = await response.json();
-  
-  if (data.candidates && data.candidates.length > 0) {
-    const candidate = data.candidates[0];
-    
-    if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
-      const text = candidate.content.parts[0].text;
-      console.log('📥 信任度判断原始返回:', text);
-      return text;
-    }
-  }
-  
-  throw new Error('Gemini返回格式异常');
+  console.log('📥 信任度判断原始返回:', text);
+  return text;
 };
 
 /**

@@ -1,5 +1,4 @@
 import {
-  API_CONFIG,
   DEBUG_CONFIG,
   PROMPT_TYPES,
   generatePrompt,
@@ -7,7 +6,7 @@ import {
 } from '../../config/api.js';
 import { normalizeEmotionList } from '../emotionSchema.js';
 import { extractCleanJSON, tryRepairTruncatedJSON } from './jsonUtils.js';
-import { callDeepSeekAPIHelper } from './sharedApi.js';
+import { callDeepSeekAPIHelper, callGeminiAPIHelper } from './sharedApi.js';
 
 export const generateDailyAtmosphere = async (day, recentAtmospheres = [], recentCrossroadsSummaries = []) => {
   console.log(`🌍 开始生成第${day}天的氛围...`);
@@ -50,55 +49,16 @@ const callGeminiAPIForAtmosphere = async (prompt) => {
     return text;
   }
 
-  const config = API_CONFIG.gemini;
-
-  if (!config.enabled) {
-    throw new Error('没有启用的API');
-  }
-
-  const url = `${config.endpoint}/${config.model}:generateContent?key=${config.apiKey}`;
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.8,
-        topK: 35,
-        topP: 0.9,
-        maxOutputTokens: 4096,
-        candidateCount: 1,
-      },
-    }),
+  const text = await callGeminiAPIHelper(prompt, {
+    temperature: 0.8,
+    topK: 35,
+    topP: 0.9,
+    maxOutputTokens: 4096,
+    candidateCount: 1,
+    label: 'Gemini',
   });
-
-  if (!response.ok) {
-    const raw = await response.text();
-    let errorData = raw;
-    try {
-      errorData = raw ? JSON.parse(raw) : { message: 'empty_error_body' };
-    } catch {
-      // Keep raw text when body is not valid JSON.
-    }
-    console.error('❌ Gemini API错误:', errorData);
-    throw new Error(`Gemini API调用失败: ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  if (data.candidates?.[0]?.content?.parts) {
-    const parts = data.candidates[0].content.parts;
-    for (let i = parts.length - 1; i >= 0; i--) {
-      if (parts[i].text) {
-        const text = parts[i].text;
-        console.log('📥 氛围生成原始返回:', text.substring(0, 200));
-        return text;
-      }
-    }
-  }
-
-  throw new Error('Gemini返回格式异常');
+  console.log('📥 氛围生成原始返回:', text.substring(0, 200));
+  return text;
 };
 
 const parseAtmosphereJSON = (response) => {
