@@ -8,7 +8,7 @@ import audioManager from '../utils/audioManager.js';
 export const useAudio = () => {
   const [isBgmPlaying, setIsBgmPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [bgmVolume, setBgmVolumeState] = useState(0.3);
+  const [bgmVolume, setBgmVolumeState] = useState(0.15); // 调小默认 BGM 音量
   const [sfxVolume, setSfxVolumeState] = useState(0.5);
 
   // 初始化
@@ -18,11 +18,11 @@ export const useAudio = () => {
     if (savedSettings) {
       try {
         const settings = JSON.parse(savedSettings);
-        setBgmVolumeState(settings.bgmVolume ?? 0.3);
+        setBgmVolumeState(settings.bgmVolume ?? 0.15);
         setSfxVolumeState(settings.sfxVolume ?? 0.5);
         setIsMuted(settings.isMuted ?? false);
         
-        audioManager.setBGMVolume(settings.bgmVolume ?? 0.3);
+        audioManager.setBGMVolume(settings.bgmVolume ?? 0.15);
         audioManager.setSFXVolume(settings.sfxVolume ?? 0.5);
         audioManager.setMuted(settings.isMuted ?? false);
       } catch (e) {

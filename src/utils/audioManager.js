@@ -9,7 +9,7 @@ class AudioManager {
     this.bgmNode = null;
     this.bgmGainNode = null;
     this.sfxGainNode = null;
-    this.bgmVolume = 0.3;
+    this.bgmVolume = 0.15; // 调小默认 BGM 音量
     this.sfxVolume = 0.5;
     this.isMuted = false;
     this.isBgmPlaying = false;
@@ -84,12 +84,12 @@ class AudioManager {
     document.addEventListener('touchstart', handler, { capture: true, once: false });
   }
 
-  // ==================== 背景音乐（使用真实 MP3）====================
+  // ==================== 背景音乐（使用真实 MP3/WAV）====================
 
   // BGM 曲目映射
   static BGM_TRACKS = {
-    home: '/audio/bgm-home.mp3',   // 开场/主界面
-    game: '/audio/bgm-game.mp3'    // 游戏内/调酒
+    home: '/audio/Bar_BGM.wav',   // 开场/主界面 (统一氛围音乐)
+    game: '/audio/Bar_BGM.wav'    // 游戏内/调酒 (统一氛围音乐)
   };
 
   /**
@@ -101,8 +101,8 @@ class AudioManager {
 
     const src = AudioManager.BGM_TRACKS[track] || AudioManager.BGM_TRACKS.game;
 
-    // 如果已经在播放同一首，不重复
-    if (this.isBgmPlaying && this.currentBgmTrack === track) return;
+    // 如果已经在播放相同音源，不重复
+    if (this.isBgmPlaying && this.bgmAudio && this.bgmAudio.src.endsWith(src)) return;
 
     // 停止当前 BGM
     this.stopBGM();
@@ -130,7 +130,8 @@ class AudioManager {
    * 切换到另一首 BGM（带淡入淡出）
    */
   switchBGM(track) {
-    if (this.currentBgmTrack === track && this.isBgmPlaying) return;
+    const src = AudioManager.BGM_TRACKS[track] || AudioManager.BGM_TRACKS.game;
+    if (this.isBgmPlaying && this.bgmAudio && this.bgmAudio.src.endsWith(src)) return;
 
     // 淡出当前
     if (this.bgmAudio) {
