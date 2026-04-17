@@ -59,6 +59,7 @@ const finalizeDialogueText = (text, { preferEllipsis = false } = {}) => {
   let normalized = String(text || '').trim();
   normalized = normalized.replace(/^(我说|我回答|林澈说|林澈|苏瑾说|苏瑾|小夏说|小夏|我：|回复：|["“])\s*/g, '');
   normalized = normalized.replace(/["”]$/g, '');
+  normalized = normalized.replace(/\*+([^*]+)\*+/g, '$1');
   normalized = stripNarration(normalized).trim();
   normalized = ensureEnglishOnlyDialogue(normalized);
 
