@@ -64,16 +64,16 @@ export const EMOTION_COMPATIBILITY = {
 export const GLASS_TYPES = {
   martini: {
     id: 'martini',
-    name: '马提尼杯（中杯）',
+    name: '马提尼杯',
     icon: '🍸',
     bonus: ['trust', 'joy'],
     description: '经典优雅，适合平衡型情绪',
-    maxPortions: 2,
+    maxPortions: 3,
     feeling: '这种杯子要求你直视它，没有地方躲。',
   },
   highball: {
     id: 'highball',
-    name: '高球杯（大杯）',
+    name: '高球杯',
     icon: '🥃',
     bonus: ['joy', 'anticipation'],
     description: '轻松随意，适合积极情绪',
@@ -82,12 +82,12 @@ export const GLASS_TYPES = {
   },
   rock: {
     id: 'rock',
-    name: '古典杯（中杯）',
+    name: '古典杯',
     icon: '🥛',
     bonus: ['sadness', 'fear'],
     description: '沉稳厚重，适合复杂情绪',
-    maxPortions: 2,
-    feeling: '这种杯子像一个承诺，分量不大但很重。',
+    maxPortions: 3,
+    feeling: '这种杯子像一个承诺，重量扎实而克制。',
   },
 };
 export const EMOTION_TARGETS = {
@@ -163,6 +163,17 @@ export const EMOTION_TARGETS = {
       { attr: 'strength', op: '>=', value: 2 },
     ],
   },
+};
+
+export const EMOTION_TASTE_PROTOTYPES = {
+  joy: { thickness: 1, sweetness: 2, strength: 1 },
+  trust: { thickness: 2, sweetness: 1, strength: 1 },
+  fear: { thickness: 0, sweetness: 0, strength: 2 },
+  surprise: { thickness: 1, sweetness: 1, strength: 2 },
+  sadness: { thickness: 2, sweetness: 0, strength: 1 },
+  disgust: { thickness: 1, sweetness: 0, strength: 2 },
+  anger: { thickness: 0, sweetness: 0, strength: 3 },
+  anticipation: { thickness: 1, sweetness: 2, strength: 2 },
 };
 
 export const getHintLevel = (trustLevel) => {

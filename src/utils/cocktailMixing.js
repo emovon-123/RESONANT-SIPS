@@ -4,7 +4,7 @@
  */
 
 import { INGREDIENTS, MAX_PORTIONS_PER_INGREDIENT, MAX_TOTAL_PORTIONS } from '../data/ingredients.js';
-import { EMOTION_TARGETS, GLASS_TYPES } from '../data/emotions.js';
+import { EMOTION_TARGETS, EMOTION_TASTE_PROTOTYPES, GLASS_TYPES } from '../data/emotions.js';
 import { ICE_TYPES, GARNISH_TYPES, DECORATION_TYPES } from '../data/addons.js';
 
 /**
@@ -368,6 +368,113 @@ export const generateSolvableTarget = (emotionId, availableIngredients, maxAttem
     conditions: easyConditions,
     hint: baseTarget.hint,
     description: '任意搭配皆可',
+    hasVariance: true,
+    relaxLevel: 'max'
+  };
+};
+
+const clampAttrValue = (attr, value) => {
+  const range = ATTRIBUTE_RANGES[attr];
+  if (!range) {
+    return value;
+  }
+  return Math.max(range.min, Math.min(range.max, value));
+};
+
+const buildConditionsFromVector = (vector, tolerance = 0.5) => {
+  const axes = ['thickness', 'sweetness', 'strength'];
+
+  return axes.flatMap((attr) => {
+    const center = Number(vector[attr] || 0);
+    const lower = clampAttrValue(attr, Math.floor(center - tolerance));
+    const upper = clampAttrValue(attr, Math.ceil(center + tolerance));
+
+    if (lower >= upper) {
+      return [{ attr, op: '=', value: lower }];
+    }
+
+    return [
+      { attr, op: '>=', value: lower },
+      { attr, op: '<=', value: upper }
+    ];
+  });
+};
+
+const averageEmotionVector = (emotionIds) => {
+  const validIds = (Array.isArray(emotionIds) ? emotionIds : [])
+    .filter((id) => Boolean(EMOTION_TASTE_PROTOTYPES[id]));
+
+  if (validIds.length === 0) {
+    return null;
+  }
+
+  const sum = validIds.reduce((acc, id) => {
+    const proto = EMOTION_TASTE_PROTOTYPES[id];
+    return {
+      thickness: acc.thickness + (proto.thickness || 0),
+      sweetness: acc.sweetness + (proto.sweetness || 0),
+      strength: acc.strength + (proto.strength || 0)
+    };
+  }, { thickness: 0, sweetness: 0, strength: 0 });
+
+  return {
+    thickness: sum.thickness / validIds.length,
+    sweetness: sum.sweetness / validIds.length,
+    strength: sum.strength / validIds.length,
+    validIds
+  };
+};
+
+export const generateSolvableTargetFromEmotionCombo = (emotionIds, availableIngredients, maxAttempts = 10) => {
+  const averaged = averageEmotionVector(emotionIds);
+  if (!averaged) {
+    return null;
+  }
+
+  const { validIds, ...vector } = averaged;
+  const baseConditions = buildConditionsFromVector(vector, 0.5);
+
+  if (findValidSolution(baseConditions, availableIngredients)) {
+    return {
+      emotionIds: validIds,
+      targetVector: vector,
+      conditions: baseConditions,
+      hint: `围绕 ${validIds.join(' + ')} 的综合口感去调制。`,
+      description: generateConditionDescription(baseConditions),
+      hasVariance: false
+    };
+  }
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const widened = buildConditionsFromVector(vector, 0.5 + attempt * 0.5);
+    if (findValidSolution(widened, availableIngredients)) {
+      return {
+        emotionIds: validIds,
+        targetVector: vector,
+        conditions: widened,
+        hint: `围绕 ${validIds.join(' + ')} 的综合口感去调制。`,
+        description: generateConditionDescription(widened),
+        hasVariance: true,
+        relaxLevel: attempt
+      };
+    }
+  }
+
+  const easyConditions = [
+    { attr: 'thickness', op: '>=', value: ATTRIBUTE_RANGES.thickness.min },
+    { attr: 'thickness', op: '<=', value: ATTRIBUTE_RANGES.thickness.max },
+    { attr: 'sweetness', op: '>=', value: ATTRIBUTE_RANGES.sweetness.min },
+    { attr: 'sweetness', op: '<=', value: ATTRIBUTE_RANGES.sweetness.max },
+    { attr: 'strength', op: '>=', value: ATTRIBUTE_RANGES.strength.min },
+    { attr: 'strength', op: '<=', value: ATTRIBUTE_RANGES.strength.max }
+  ];
+
+  return {
+    emotionIds: validIds,
+    targetVector: vector,
+    conditions: easyConditions,
+    hint: `围绕 ${validIds.join(' + ')} 的综合口感去调制。`,
+    description: '当前材料池下已自动放宽为自由调制区间。',
     hasVariance: true,
     relaxLevel: 'max'
   };

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { callAIAPI, callAIForTrustJudgment } from '../../utils/aiService.js';
 import { PROMPT_TYPES } from '../../config/api.js';
 import { INITIAL_UNLOCKED_INGREDIENTS } from '../../data/ingredients.js';
-import { generateSolvableTarget } from '../../utils/cocktailMixing.js';
+import { generateSolvableTargetFromEmotionCombo } from '../../utils/cocktailMixing.js';
 import { EVENT_TRIGGER_CONFIG } from '../../data/eventTemplates.js';
 import { TUTORIAL_RESPONSES, TUTORIAL_TARGET } from '../../data/tutorialData.js';
 import { getRelevantMemoryContext } from '../../utils/memoryContext.js';
@@ -396,9 +396,8 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
         cocktailFlow.setTargetConditions([]);
         cocktailFlow.setTargetHint('不看目标，听这个人需要什么，然后用酒说出来。');
       } else {
-        const primaryEmotion = emotionSystem.selectedEmotions[0];
         const availableIngredients = unlockedItems.ingredients || INITIAL_UNLOCKED_INGREDIENTS;
-        const target = generateSolvableTarget(primaryEmotion, availableIngredients);
+        const target = generateSolvableTargetFromEmotionCombo(emotionSystem.selectedEmotions, availableIngredients);
         if (target) {
           let finalConditions = target.conditions;
           const atmosphereShift = atmosphere?.modifiers?.targetShift;

@@ -13,19 +13,19 @@
   "glassTypes": {
     "martini": {
       "id": "martini",
-      "name": "马提尼杯（中杯）",
+      "name": "马提尼杯",
       "icon": "🍸",
       "bonus": [
         "trust",
         "joy"
       ],
       "description": "经典优雅",
-      "maxPortions": 2,
+      "maxPortions": 3,
       "feeling": "经典且克制"
     },
     "highball": {
       "id": "highball",
-      "name": "高球杯（大杯）",
+      "name": "高球杯",
       "icon": "🥃",
       "bonus": [
         "joy",
@@ -37,14 +37,14 @@
     },
     "rock": {
       "id": "rock",
-      "name": "古典杯（中杯）",
+      "name": "古典杯",
       "icon": "🥛",
       "bonus": [
         "sadness",
         "fear"
       ],
       "description": "沉稳厚重",
-      "maxPortions": 2,
+      "maxPortions": 3,
       "feeling": "厚重安定"
     }
   },

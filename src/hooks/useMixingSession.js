@@ -212,6 +212,14 @@ export const useMixingSession = ({
   }, [currentMixture, recipe]);
 
   const handleServe = useCallback(() => {
+    const glassData = GLASS_TYPES[recipe.glass];
+    const requiredPortions = glassData?.maxPortions || 3;
+    const currentPortions = getTotalPortions(recipe.ingredients);
+
+    if (currentPortions !== requiredPortions) {
+      return;
+    }
+
     const fullRecipe = {
       ...recipe,
       mixture: currentMixture,
@@ -258,8 +266,14 @@ export const useMixingSession = ({
       }
       case 'decoration':
         return true;
-      case 'preview':
-        return targetCheck.allMet || targetConditions.length === 0;
+      case 'preview': {
+        const glassData = GLASS_TYPES[recipe.glass];
+        const requiredPortions = glassData?.maxPortions || 3;
+        const currentPortions = getTotalPortions(recipe.ingredients);
+        const isPortionReady = currentPortions === requiredPortions;
+
+        return isPortionReady && (targetCheck.allMet || targetConditions.length === 0);
+      }
       default:
         return false;
     }

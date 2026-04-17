@@ -323,7 +323,7 @@ const buildReading = ({ maxPortions, mixingMode, modeCopy, session, signals, tot
   }
 
   if (mixingMode === 'strict') {
-    if (session.targetCheck?.allMet && totalConditions > 0) {
+    if (session.targetCheck?.allMet && totalConditions > 0 && totalPortions === maxPortions) {
       return {
         body: '条件、容量与结构都已经对齐，可以把这杯酒递出去。',
         footnote: `当前容量 ${totalPortions}/${maxPortions} 份。`,
