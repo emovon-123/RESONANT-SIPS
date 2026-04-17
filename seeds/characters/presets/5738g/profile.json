@@ -49,28 +49,33 @@
   },
   "emotionSchemaVersion": 2,
   "currentEmotionWeights": {
-    "joy": 0.125,
-    "trust": 0.125,
-    "fear": 0.125,
-    "surprise": 0.125,
-    "sadness": 0.125,
-    "disgust": 0.125,
-    "anger": 0.125,
-    "anticipation": 0.125
+    "joy": 0.13793103448275865,
+    "trust": 0.10344827586206898,
+    "fear": 0.06896551724137932,
+    "surprise": 0.10344827586206898,
+    "sadness": 0.20689655172413796,
+    "disgust": 0.03448275862068966,
+    "anger": 0.10344827586206898,
+    "anticipation": 0.24137931034482762
   },
   "currentEmotionTop3": [
-    "joy",
-    "trust",
-    "anticipation"
+    "anticipation",
+    "sadness",
+    "joy"
   ],
   "emotionAnalysis": {
-    "confidence": 0.6,
+    "confidence": 0.9,
     "rationale": [
-      "未检测到有效情绪线索，已回退均匀分布。"
+      "**Sadness (0.6):** The core of his character is 'survivor's guilt' and the 'death of his father' due to his prank. This is a strong, persistent source of sadness.",
+      "**Anticipation (0.7):** He is 'pulled into a conspiracy' by a 'clue about his biological parents'. This suggests a strong drive towards discovery and resolution, hence high anticipation.",
+      "**Joy (0.4):** While he has guilt, his 'Charismatic' nature, 'playful challenges', 'smirk', and 'occasional self-deprecating humor' indicate a capacity for joy and lightheartedness, even if it's a facade or coping mechanism.",
+      "**Trust (0.3):** As a 'City Hero' and someone who was 'raised by a firefighter', he likely has some level of trust in others, especially those he protects. However, his 'cynical' nature and being 'pulled into a conspiracy' suggest this trust isn't absolute.",
+      "**Fear (0.2):** His past trauma (father's death) could induce underlying fear, perhaps of failure or loss. However, his 'Reckless' and 'Confident' nature suggests he often pushes past or masks this fear.",
+      "**Surprise (0.3):** Being 'pulled into a conspiracy' implies unexpected turns and revelations, which would elicit surprise. His 'quick, punchy delivery' might also be a reaction to surprising situations."
     ],
-    "source": "heuristic",
+    "source": "model",
     "sourceHash": "bf334d74ada7e19a8b12f2e3aa62045368c8c20d",
-    "analyzedAt": 1776440282164
+    "analyzedAt": 1776440513600
   },
   "notes": "系统预置默认角色；在用户尚未添加任意非预置角色前，不允许取消。"
 }
