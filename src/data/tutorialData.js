@@ -23,7 +23,7 @@ export const TUTORIAL_CUSTOMER = {
     garnishes: ['bitters'],
     decorations: ['mint']
   },
-  initialDialogue: ['......有酒吗。'],
+  initialDialogue: ['...Do you have a drink?'],
   backstory: '他是第一个推开这扇门的人。后来你才知道，他是偶然走错路的——但那个晚上，他需要一杯酒。',
   categoryId: 'workplace',
   isTutorialCustomer: true,
@@ -57,8 +57,8 @@ export const TUTORIAL_RESPONSES = {
       '看你今天挺累的。',
       '随便坐，不着急。'
     ],
-    default: '......随便吧。什么都行。',
-    empathetic: '......你怎么知道？算了，就来一杯吧。'
+    default: '...Anything is fine. Whatever works.',
+    empathetic: '...How did you know? Fine, just make me one.'
   },
   round2: {
     quickOptions: [
@@ -67,9 +67,9 @@ export const TUTORIAL_RESPONSES = {
       '这个时间还在外面，辛苦了。',
       '……'
     ],
-    default: '嗯......公司的事。没什么大不了的。',
-    empathetic: '......没什么。就是有时候觉得，忙了一天回到家也没人说话。',
-    silence: '（他看了你一眼，沉默了一会儿）......你不问吗？大多数人都会问。'
+    default: 'Mm... work stuff. It is nothing major.',
+    empathetic: '...It is nothing. Sometimes I get home after a long day and there is no one to talk to.',
+    silence: '...You are not going to ask? Most people do.'
   },
   round3: {
     quickOptions: [
@@ -77,8 +77,8 @@ export const TUTORIAL_RESPONSES = {
       '有时候不说也没关系。',
       '你经常加班吗？'
     ],
-    default: '（沉默了一会儿）......谢谢。',
-    empathetic: '（他看了你一眼，像是没想到有人会这么说）......好久没人这么说了。'
+    default: '...Thank you.',
+    empathetic: '...No one has said that to me in a long time.'
   }
 };
 
@@ -98,7 +98,7 @@ export const TUTORIAL_TARGET = {
  * 教学顾客调酒成功后的固定反馈
  */
 export const TUTORIAL_COCKTAIL_FEEDBACK = 
-  '......（他接过酒，沉默了很久，喝了一口）\n嗯......挺好的。谢谢你。\n很久没喝过真正的酒了。外面那些合成的......不是一回事。';
+  '...Thank you.\nIt is good, really.\nI have not had a real drink in a long time. The synthetic stuff outside is not the same.';
 
 /**
  * 教学顾客调酒失败的提示

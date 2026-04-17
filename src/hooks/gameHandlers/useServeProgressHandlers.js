@@ -78,8 +78,8 @@ export const useServeProgressHandlers = ({ ctx }) => {
             cocktailRecipe: { ...recipe, mixture: { thickness: 0, sweetness: 0, strength: 0 } },
             dialogueHistory: dialogue.dialogueHistory, isSuccess: true, satisfaction: 0.6, cocktailAttitude
           });
-          dialogue.addMessage('ai', waterFeedback?.feedback || '……你只是把一杯白水放在了我面前。', true);
-        } catch { dialogue.addMessage('ai', '……你只是把一杯白水放在了我面前。', true); }
+          dialogue.addMessage('ai', waterFeedback?.feedback || '...You just placed a glass of water in front of me.', true);
+        } catch { dialogue.addMessage('ai', '...You just placed a glass of water in front of me.', true); }
         playSFX('serve');
         addToast('🚰 倒了一杯白水', 'info');
         dialogue.setIsLoading(false);
@@ -150,10 +150,10 @@ export const useServeProgressHandlers = ({ ctx }) => {
       } catch { /* fallback below */ }
       if (!aiJudgmentSuccess) {
         if (isSuccess) {
-          const opts = ['嗯...这杯酒正是我需要的，谢谢你。', '完美。你真的懂我想要什么。', '这个味道...恰到好处，很舒服。', '终于有人调出我想要的酒了。'];
+          const opts = ['Mm... this is exactly what I needed. Thank you.', 'Perfect. You really understand what I was looking for.', 'This flavor... lands just right. It feels comforting.', 'Finally, someone made the drink I wanted.'];
           feedback = opts[Math.floor(Math.random() * opts.length)];
         } else {
-          const opts = ['这杯酒...不太对味，好像少了什么。', '嗯，口感有点偏...不是我想要的感觉。', '差一点点...味道不太对。', '谢谢，但这不是我今天想喝的。'];
+          const opts = ['This drink... is not quite right. Something is missing.', 'Mm, the profile leans off... not the feeling I wanted.', 'Close... but the taste is still off.', 'Thank you, but this is not what I needed tonight.'];
           feedback = opts[Math.floor(Math.random() * opts.length)];
         }
       }

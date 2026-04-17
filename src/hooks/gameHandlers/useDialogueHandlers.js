@@ -28,7 +28,7 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
       emotionSystem.setDynamicCustomerEmotions({ surface: surfaceEmotionIds, reality: realityEmotions });
 
       if (tutorial.isTutorialMode) {
-        dialogue.addMessage('ai', '......有酒吗。');
+        dialogue.addMessage('ai', '...Do you have a drink?');
         const initialSurface = surfaceEmotionIds.map(emotionId => ({ id: emotionId }));
         emotionSystem.setSurfaceEmotions(initialSurface);
         dialogue.setQuickOptions(tutorial.getTutorialQuickOptions(1));
@@ -77,7 +77,7 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
       // 避免开场白后挂机也会自动弹出事件
     } catch (error) {
       console.error('开始对话失败:', error);
-      const fallback = '......今晚有点安静。';
+      const fallback = '...It is a quiet night.';
       dialogue.updateLastMessage(fallback);
       appendActiveNpcEvent({
         role: 'ai',

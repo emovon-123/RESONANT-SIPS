@@ -2,6 +2,15 @@ import { DEBUG_CONFIG, PROMPT_TYPES, generatePrompt, getActiveAPIType } from '..
 import { callDeepSeekAPIHelper, callGeminiAPIHelper } from './sharedApi.js';
 import { normalizeEmotionList } from '../emotionSchema.js';
 
+const CJK_RE = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]/;
+
+const ensureEnglishFeedback = (text, fallbackText) => {
+  const normalized = String(text || '').trim();
+  if (!normalized) return fallbackText;
+  if (CJK_RE.test(normalized)) return fallbackText;
+  return normalized;
+};
+
 export const callAIForCocktailJudgmentWithEmotionChange = async (params) => {
   const { aiConfig, trustLevel, emotionState, cocktailRecipe, dialogueHistory } = params;
   
@@ -116,7 +125,7 @@ const extractFromTruncatedCombinedJSON = (text, params) => {
     return {
       success,
       satisfaction: Math.max(0, Math.min(1, satisfaction)),
-      feedback: feedback || (success ? '让我感觉好多了。' : '不太对。'),
+      feedback: ensureEnglishFeedback(feedback, success ? 'This made me feel better.' : 'Something feels off.'),
       newEmotions: fallbackEmotions
     };
   }
@@ -136,9 +145,10 @@ const validateCombinedResult = (parsed, params) => {
   const satisfaction = typeof parsed.satisfaction === 'number' 
     ? Math.max(0, Math.min(1, parsed.satisfaction)) 
     : (success ? 0.7 : 0.3);
-  const feedback = typeof parsed.feedback === 'string' && parsed.feedback.length > 0 
-    ? parsed.feedback 
-    : (success ? '这杯酒让我感觉好多了。' : '这杯酒不太对味。');
+  const feedback = ensureEnglishFeedback(
+    typeof parsed.feedback === 'string' && parsed.feedback.length > 0 ? parsed.feedback : '',
+    success ? 'This drink made me feel better.' : 'This drink is not quite right.'
+  );
   
   // 解析新情绪
   let newEmotions = null;
@@ -216,7 +226,7 @@ const getFallbackCombinedJudgment = (params) => {
   return {
     success,
     satisfaction,
-    feedback: success ? '这杯酒...有种说不出的感觉，谢谢。' : '嗯...不太对味。',
+    feedback: success ? 'This drink... has a hard-to-name comfort. Thank you.' : 'Hmm... this does not feel quite right.',
     newEmotions: getFallbackEmotionChangeSimple(params, success)
   };
 };
@@ -358,7 +368,7 @@ const extractFromTruncatedJSON = (text) => {
       return {
         success,
         satisfaction: satisfaction !== null ? Math.max(0, Math.min(1, satisfaction)) : (success ? 0.6 : 0.4),
-        feedback: feedback || (success ? '这杯酒还不错。' : '这杯酒不太对味。'),
+        feedback: ensureEnglishFeedback(feedback, success ? 'This drink is pretty good.' : 'This drink does not taste right.'),
         reason: reason || ''
       };
     }
@@ -379,9 +389,10 @@ const validateCocktailJudgment = (parsed) => {
     satisfaction: typeof parsed.satisfaction === 'number' 
       ? Math.max(0, Math.min(1, parsed.satisfaction)) 
       : (parsed.success ? 0.7 : 0.3),
-    feedback: typeof parsed.feedback === 'string' && parsed.feedback.length > 0 
-      ? parsed.feedback 
-      : (parsed.success ? '谢谢你的酒，让我感觉好多了。' : '这杯酒...不太对味。'),
+    feedback: ensureEnglishFeedback(
+      typeof parsed.feedback === 'string' && parsed.feedback.length > 0 ? parsed.feedback : '',
+      parsed.success ? 'Thank you. This drink helped me feel better.' : 'This drink... does not feel right.'
+    ),
     reason: typeof parsed.reason === 'string' 
       ? parsed.reason 
       : ''
@@ -400,8 +411,8 @@ const getFallbackCocktailJudgment = (params, rawResponse) => {
   
   // 尝试从原始响应中提取反馈文本（如果有的话）
   let feedback = success 
-    ? '这杯酒...有种说不出的感觉，谢谢。' 
-    : '嗯...这杯酒不太对味，可能不是我想要的。';
+    ? 'This drink... has a hard-to-name comfort. Thank you.' 
+    : 'Hmm... this drink is not quite what I needed.';
   
   if (rawResponse && typeof rawResponse === 'string' && rawResponse.length > 10) {
     // 如果有原始响应但 JSON 解析失败，尝试直接使用文本
@@ -410,6 +421,10 @@ const getFallbackCocktailJudgment = (params, rawResponse) => {
       feedback = cleanText;
     }
   }
+
+  feedback = ensureEnglishFeedback(feedback, success
+    ? 'This drink... has a hard-to-name comfort. Thank you.'
+    : 'Hmm... this drink is not quite what I needed.');
   
   return {
     success,

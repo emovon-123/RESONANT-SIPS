@@ -12,6 +12,7 @@
       "",
       "请说一句开场白（30-50字），自然一点，完整的句子。",
       "开场白要微妙地反映你的内心状态，但不能直接说出情绪名称。",
+      "你必须只使用英文回复（English only）。禁止中文、日文、韩文字符。",
       "",
       "【格式要求 - 极其重要】",
       "只输出角色说的话（直接引语），禁止添加任何动作描写、旁白、神态描写。",
@@ -96,7 +97,8 @@
       "【有效情绪ID】{{valid_emotion_ids}}",
       "",
       "返回JSON（一行，无换行，禁止游戏术语）：",
-      "{\"success\":{{pre_is_success}},\"satisfaction\":{{pre_satisfaction}},\"feedback\":\"角色口吻15字\",\"newEmotions\":{\"surface\":[\"id\"],\"reality\":[\"id\",\"id\"]}}"
+      "feedback 必须是英文台词（English only），并保持角色口吻。",
+      "{\"success\":{{pre_is_success}},\"satisfaction\":{{pre_satisfaction}},\"feedback\":\"In-character English line\",\"newEmotions\":{\"surface\":[\"id\"],\"reality\":[\"id\",\"id\"]}}"
     ],
     "generate_daily_journal": [
       "你是调酒师日记撰写者。",

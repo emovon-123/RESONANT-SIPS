@@ -44,6 +44,31 @@ const stripNarration = (text) => {
   return cleaned;
 };
 
+const CJK_RE = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]/;
+
+const ensureEnglishOnlyDialogue = (text) => {
+  const normalized = String(text || '').trim();
+  if (!normalized) return 'I need a moment to find the right words.';
+  if (CJK_RE.test(normalized)) {
+    return 'I need a moment to find the right words.';
+  }
+  return normalized;
+};
+
+const finalizeDialogueText = (text, { preferEllipsis = false } = {}) => {
+  let normalized = String(text || '').trim();
+  normalized = normalized.replace(/^(我说|我回答|林澈说|林澈|苏瑾说|苏瑾|小夏说|小夏|我：|回复：|["“])\s*/g, '');
+  normalized = normalized.replace(/["”]$/g, '');
+  normalized = stripNarration(normalized).trim();
+  normalized = ensureEnglishOnlyDialogue(normalized);
+
+  if (!/[.!?…]$/.test(normalized)) {
+    normalized += preferEllipsis ? '...' : '.';
+  }
+
+  return normalized;
+};
+
 // 调用AI API（支持流式响应）
 // onStreamChunk: (fullText, newChunk) => void - 可选的流式回调函数
 export const callAIAPI = async (type, params, onStreamChunk = null) => {
@@ -126,33 +151,19 @@ const callDeepSeekAPI = async (prompt, onStreamChunk = null) => {
       }
       console.log('========================');
     }
-    
+
     // 提取回应文本
     if (data.choices && data.choices.length > 0) {
       let text = data.choices[0].message?.content || '';
       console.log('✅ DeepSeek原始返回:', text);
-      
-      // 清理文本
-      text = text.trim();
-      
-      // 移除可能的前缀和引号
-      text = text.replace(/^(我说|我回答|林澈说|林澈|苏瑾说|苏瑾|小夏说|小夏|我：|回复：|[""])\s*/g, '');
-      text = text.replace(/[""]$/g, ''); // 移除结尾引号
-      
-      // 检查句子是否完整
-      if (!/[。！？.!?…]$/.test(text)) {
-        text = text + '。';
-      }
-      
-      // 后处理：去除动作描写/旁白，只保留台词
-      text = stripNarration(text);
-      
+
+      text = finalizeDialogueText(text);
       console.log('✅ 最终返回:', text);
-      
+
       if (!text || text.trim().length === 0) {
         throw new Error('API返回空内容');
       }
-      
+
       return text;
     }
     
@@ -239,20 +250,7 @@ const callDeepSeekAPIStreaming = async (prompt, onStreamChunk) => {
     reader.releaseLock();
   }
   
-  // 清理和返回完整文本
-  let text = fullText.trim();
-  
-  // 移除可能的前缀和引号
-  text = text.replace(/^(我说|我回答|林澈说|林澈|苏瑾说|苏瑾|小夏说|小夏|我：|回复：|[""])\s*/g, '');
-  text = text.replace(/[""]$/g, '');
-  
-  // 确保句子完整
-  if (!/[。！？.!?…]$/.test(text)) {
-    text = text + '。';
-  }
-  
-  // 后处理：去除动作描写/旁白
-  text = stripNarration(text);
+  let text = finalizeDialogueText(fullText);
   
   console.log('✅ 流式响应最终结果:', text);
   return text;
@@ -341,12 +339,7 @@ const callGeminiAPI = async (prompt, onStreamChunk = null) => {
         let text = candidate.content.parts[0].text;
         console.log('✅ Gemini原始返回:', text);
         
-        // 清理文本
         text = text.trim();
-        
-        // 移除可能的前缀和引号
-        text = text.replace(/^(我说|我回答|林澈说|林澈|苏瑾说|苏瑾|小夏说|小夏|我：|回复：|[""])\s*/g, '');
-        text = text.replace(/[""]$/g, ''); // 移除结尾引号
         
         // 检查句子是否完整
         const hasProperEnding = /[。！？.!?]$/.test(text);
@@ -391,7 +384,7 @@ const callGeminiAPI = async (prompt, onStreamChunk = null) => {
                   const withoutWord = text.substring(0, text.length - word.length).trim();
                   // 如果移除后还有内容，并且以有效字符结尾
                   if (withoutWord.length > 5 && /[\u4e00-\u9fa5a-zA-Z]$/.test(withoutWord)) {
-                    text = withoutWord + '。';
+                    text = withoutWord + '.';
                     console.log('✅ 移除不完整词并添加句号');
                     break;
                   }
@@ -412,19 +405,13 @@ const callGeminiAPI = async (prompt, onStreamChunk = null) => {
               text = text + '……';
               console.log('✅ 添加省略号');
             } else {
-              text = text + '。';
+              text = text + '.';
               console.log('✅ 添加句号');
             }
           }
         }
         
-        // 最后再检查一次是否以标点结尾（包含省略号）
-        if (!/[。！？.!?…]$/.test(text)) {
-          text = text + '。';
-        }
-        
-        // 🆕 后处理：去除动作描写/旁白，只保留台词
-        text = stripNarration(text);
+        text = finalizeDialogueText(text, { preferEllipsis: true });
         
         console.log('✅ 最终返回:', text);
         
@@ -504,11 +491,7 @@ const callGeminiViaOpenAICompatible = async (prompt, onStreamChunk = null) => {
       reader.releaseLock();
     }
 
-    let text = fullText.trim();
-    text = text.replace(/^(我说|我回答|我：|回复：|["“])\s*/g, '');
-    text = text.replace(/["”]$/g, '');
-    if (!/[。！？.!?…]$/.test(text)) text += '。';
-    return stripNarration(text);
+    return finalizeDialogueText(fullText);
   }
 
   const response = await fetch(url, {
@@ -534,11 +517,7 @@ const callGeminiViaOpenAICompatible = async (prompt, onStreamChunk = null) => {
 
   const data = await response.json();
   let text = data?.choices?.[0]?.message?.content || '';
-  text = String(text).trim();
-  text = text.replace(/^(我说|我回答|我：|回复：|["“])\s*/g, '');
-  text = text.replace(/["”]$/g, '');
-  if (!/[。！？.!?…]$/.test(text)) text += '。';
-  text = stripNarration(text);
+  text = finalizeDialogueText(text);
   if (!text) throw new Error('Gemini(OpenAI兼容)返回空内容');
   return text;
 };
@@ -628,20 +607,7 @@ const callGeminiAPIStreaming = async (prompt, onStreamChunk) => {
     reader.releaseLock();
   }
   
-  // 清理和返回完整文本
-  let text = fullText.trim();
-  
-  // 移除可能的前缀和引号
-  text = text.replace(/^(我说|我回答|林澈说|林澈|苏瑾说|苏瑾|小夏说|小夏|我：|回复：|[""])\s*/g, '');
-  text = text.replace(/[""]$/g, '');
-  
-  // 确保句子完整
-  if (!/[。！？.!?…]$/.test(text)) {
-    text = text + '。';
-  }
-  
-  // 🆕 后处理：去除动作描写/旁白
-  text = stripNarration(text);
+  let text = finalizeDialogueText(fullText);
   
   console.log('✅ 流式响应最终结果:', text);
   return text;
