@@ -126,6 +126,7 @@ function App() {
   const checkAIConnectivity = useCallback(async () => {
     const apiType = getActiveAPIType();
     const config = getActiveAPIConfig();
+    const endpointHint = config?.endpoint ? ` [endpoint: ${config.endpoint}]` : '';
 
     if (apiType === 'none' || !config?.apiKey) {
       return { ok: false, message: getAPIUnavailableReason() || '未配置可用 API Key。' };
@@ -200,12 +201,12 @@ function App() {
 
       return {
         ok: false,
-        message: details || `HTTP ${response.status}`,
+        message: `${details || `HTTP ${response.status}`}${endpointHint}`,
       };
     } catch (error) {
       return {
         ok: false,
-        message: error?.message || 'network_error',
+        message: `${error?.message || 'network_error'}${endpointHint}`,
       };
     }
   }, []);

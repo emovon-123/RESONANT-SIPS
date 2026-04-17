@@ -16,12 +16,16 @@ const normalizeApiKey = (raw) => {
   return value;
 };
 
-const deepseekApiKey =
-  normalizeApiKey(LOCAL_API_KEYS?.deepseek?.apiKey) ||
-  normalizeApiKey(import.meta.env.VITE_DEEPSEEK_API_KEY);
-const geminiApiKey =
-  normalizeApiKey(LOCAL_API_KEYS?.gemini?.apiKey) ||
-  normalizeApiKey(import.meta.env.VITE_GEMINI_API_KEY);
+const localDeepseekApiKey = normalizeApiKey(LOCAL_API_KEYS?.deepseek?.apiKey);
+const envDeepseekApiKey = normalizeApiKey(import.meta.env.VITE_DEEPSEEK_API_KEY);
+const deepseekApiKey = localDeepseekApiKey || envDeepseekApiKey;
+
+const localGeminiApiKey = normalizeApiKey(LOCAL_API_KEYS?.gemini?.apiKey);
+const envGeminiApiKey = normalizeApiKey(import.meta.env.VITE_GEMINI_API_KEY);
+const geminiApiKey = localGeminiApiKey || envGeminiApiKey;
+
+const preferLocalDeepseekConfig = !!localDeepseekApiKey;
+const preferLocalGeminiConfig = !!localGeminiApiKey;
 const requestedProvider = String(
   LOCAL_API_KEYS?.provider || import.meta.env.VITE_AI_PROVIDER || ''
 )
@@ -43,41 +47,51 @@ const resolveProvider = () => {
 };
 
 const activeProvider = resolveProvider();
-const geminiEndpoint =
-  LOCAL_API_KEYS?.gemini?.endpoint ||
-  import.meta.env.VITE_GEMINI_ENDPOINT ||
-  'https://generativelanguage.googleapis.com/v1/models';
+const deepseekModel = preferLocalDeepseekConfig
+  ? (LOCAL_API_KEYS?.deepseek?.model || import.meta.env.VITE_DEEPSEEK_MODEL || 'deepseek-chat')
+  : (import.meta.env.VITE_DEEPSEEK_MODEL || LOCAL_API_KEYS?.deepseek?.model || 'deepseek-chat');
+
+const deepseekEndpoint = preferLocalDeepseekConfig
+  ? (LOCAL_API_KEYS?.deepseek?.endpoint || import.meta.env.VITE_DEEPSEEK_ENDPOINT || 'https://api.deepseek.com/chat/completions')
+  : (import.meta.env.VITE_DEEPSEEK_ENDPOINT || LOCAL_API_KEYS?.deepseek?.endpoint || 'https://api.deepseek.com/chat/completions');
+
+const geminiModel = preferLocalGeminiConfig
+  ? (LOCAL_API_KEYS?.gemini?.model || import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5')
+  : (import.meta.env.VITE_GEMINI_MODEL || LOCAL_API_KEYS?.gemini?.model || 'gemini-2.5');
+
+const geminiEndpoint = preferLocalGeminiConfig
+  ? (LOCAL_API_KEYS?.gemini?.endpoint || import.meta.env.VITE_GEMINI_ENDPOINT || 'https://generativelanguage.googleapis.com/v1/models')
+  : (import.meta.env.VITE_GEMINI_ENDPOINT || LOCAL_API_KEYS?.gemini?.endpoint || 'https://generativelanguage.googleapis.com/v1/models');
 const geminiOpenAICompatible = isOpenAICompatibleEndpoint(geminiEndpoint);
+
+const geminiImageModel = preferLocalGeminiConfig
+  ? (LOCAL_API_KEYS?.gemini?.imageModel || import.meta.env.VITE_GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image')
+  : (import.meta.env.VITE_GEMINI_IMAGE_MODEL || LOCAL_API_KEYS?.gemini?.imageModel || 'gemini-2.5-flash-image');
+
+const geminiImageEndpoint = preferLocalGeminiConfig
+  ? (LOCAL_API_KEYS?.gemini?.imageEndpoint || import.meta.env.VITE_GEMINI_IMAGE_ENDPOINT || 'https://generativelanguage.googleapis.com/v1beta/models')
+  : (import.meta.env.VITE_GEMINI_IMAGE_ENDPOINT || LOCAL_API_KEYS?.gemini?.imageEndpoint || 'https://generativelanguage.googleapis.com/v1beta/models');
 
 export const API_CONFIG = {
   deepseek: {
     enabled: activeProvider === 'deepseek' && !!deepseekApiKey,
     apiKey: deepseekApiKey,
-    model: LOCAL_API_KEYS?.deepseek?.model || import.meta.env.VITE_DEEPSEEK_MODEL || 'deepseek-chat',
-    endpoint:
-      LOCAL_API_KEYS?.deepseek?.endpoint ||
-      import.meta.env.VITE_DEEPSEEK_ENDPOINT ||
-      'https://api.deepseek.com/chat/completions'
+    model: deepseekModel,
+    endpoint: deepseekEndpoint
   },
 
   gemini: {
     enabled: activeProvider === 'gemini' && !!geminiApiKey,
     apiKey: geminiApiKey,
-    model: LOCAL_API_KEYS?.gemini?.model || import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5',
+    model: geminiModel,
     endpoint: geminiEndpoint,
     openaiCompatible: geminiOpenAICompatible,
   },
 
   imageGen: {
     enabled: !!geminiApiKey && !geminiOpenAICompatible,
-    model:
-      LOCAL_API_KEYS?.gemini?.imageModel ||
-      import.meta.env.VITE_GEMINI_IMAGE_MODEL ||
-      'gemini-2.5-flash-image',
-    endpoint:
-      LOCAL_API_KEYS?.gemini?.imageEndpoint ||
-      import.meta.env.VITE_GEMINI_IMAGE_ENDPOINT ||
-      'https://generativelanguage.googleapis.com/v1beta/models'
+    model: geminiImageModel,
+    endpoint: geminiImageEndpoint
   },
 
   mock: {
