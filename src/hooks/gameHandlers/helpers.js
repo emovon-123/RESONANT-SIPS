@@ -17,6 +17,47 @@ const ATTR_ADJUST_HINTS = {
   strength: { higher: '更烈一点', lower: '更柔和一点' }
 };
 
+const HIT_REWARD_TABLE = {
+  3: { tipMultiplier: 1.8, trustGain: 0.18 },
+  2: { tipMultiplier: 1.4, trustGain: 0.1 },
+  1: { tipMultiplier: 1.15, trustGain: 0.05 },
+  0: { tipMultiplier: 1.0, trustGain: 0.02 }
+};
+
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+export const calculateCocktailServeRewards = ({
+  guessedEmotions = [],
+  actualTop3 = [],
+  surfaceEmotions = [],
+  satisfaction = 0.5,
+  baseTip = 10,
+}) => {
+  const guessedSet = Array.from(new Set((Array.isArray(guessedEmotions) ? guessedEmotions : []).filter(Boolean)));
+  const top3Set = new Set((Array.isArray(actualTop3) ? actualTop3 : []).filter(Boolean));
+  const surfaceSet = new Set((Array.isArray(surfaceEmotions) ? surfaceEmotions : []).filter(Boolean));
+
+  const hitCount = guessedSet.filter((emotionId) => top3Set.has(emotionId)).length;
+  const surfaceHitCount = guessedSet.filter((emotionId) => surfaceSet.has(emotionId)).length;
+
+  const tier = HIT_REWARD_TABLE[hitCount] || HIT_REWARD_TABLE[0];
+  const extraTrust = Math.min(0.015 * surfaceHitCount, 0.03);
+  const qualityCoefficient = clamp(0.6 + Number(satisfaction || 0), 0.6, 1.6);
+  const finalTrustGain = tier.trustGain + extraTrust;
+  const tipAmount = Math.max(0, Math.round(baseTip * tier.tipMultiplier * qualityCoefficient));
+
+  return {
+    hitCount,
+    surfaceHitCount,
+    baseTrustGain: tier.trustGain,
+    extraTrust,
+    finalTrustGain,
+    tipMultiplier: tier.tipMultiplier,
+    qualityCoefficient,
+    tipAmount,
+  };
+};
+
 export const buildGuessReadinessStatus = ({ mixingMode = 'strict', trustLevel = 0, clueCount = 0, playerTurns = 0, tutorialMode = false }) => {
   if (tutorialMode) {
     return {
@@ -114,4 +155,3 @@ export const buildStrictJudgmentExplanation = (targetCheck) => {
     details
   };
 };
-

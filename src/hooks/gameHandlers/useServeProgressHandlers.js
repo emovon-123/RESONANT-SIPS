@@ -7,11 +7,13 @@ import { checkTargetConditions } from '../../utils/cocktailMixing.js';
 import { interpretCocktailAttitude, getAttitudeInfluence } from '../../utils/cocktailAttitude.js';
 import { RESONANCE_EFFECTS, getTransitionalFailureHint, judgeCocktail } from '../../utils/cocktailJudgment.js';
 import { TUTORIAL_COCKTAIL_FEEDBACK, TUTORIAL_TARGET, getTutorialFailHint } from '../../data/tutorialData.js';
-import { buildStrictJudgmentExplanation } from './helpers.js';
+import { buildStrictJudgmentExplanation, calculateCocktailServeRewards } from './helpers.js';
 import { appendActiveNpcEvent, queueActiveSlotGameStateSync } from '../../utils/saveRepository.js';
 
 // 先聚焦核心玩法：暂时关闭图鉴联动（黄金组合发现）
 const ENCYCLOPEDIA_ENABLED = false;
+const BASE_COCKTAIL_TIP = 10;
+const clamp01 = (value) => Math.max(0, Math.min(1, value));
 
 export const useServeProgressHandlers = ({ ctx }) => {
   const {
@@ -115,6 +117,18 @@ export const useServeProgressHandlers = ({ ctx }) => {
         ? judgment.satisfaction
         : (targetCheck?.satisfaction || 0.5);
       const strictExplanation = buildStrictJudgmentExplanation(targetCheck);
+      const guessedEmotions = Array.isArray(cocktailFlow.lastCorrectGuesses) ? cocktailFlow.lastCorrectGuesses : [];
+      const actualTop3 = Array.isArray(aiConfig?.currentEmotionTop3) && aiConfig.currentEmotionTop3.length > 0
+        ? aiConfig.currentEmotionTop3
+        : currentEmotions.reality;
+      const rewardBreakdown = calculateCocktailServeRewards({
+        guessedEmotions,
+        actualTop3,
+        surfaceEmotions: currentEmotions.surface,
+        satisfaction,
+        baseTip: BASE_COCKTAIL_TIP,
+      });
+      const projectedTrustLevel = clamp01(trustLevel + rewardBreakdown.finalTrustGain);
 
       // 教学模式
       if (tutorial.isTutorialMode) {
@@ -170,9 +184,14 @@ export const useServeProgressHandlers = ({ ctx }) => {
         timestamp: Date.now()
       }).catch(() => {});
       playSFX('serve');
-      customerFlow.updateGameProgressRef.current(isSuccess, recipe, satisfaction);
+      customerFlow.updateGameProgressRef.current(isSuccess, recipe, satisfaction, rewardBreakdown);
       queueActiveSlotGameStateSync('serve_result');
       showResultToast(isSuccess, recipe, '');
+      cocktailFlow.addTrustFly(rewardBreakdown.finalTrustGain);
+      addToast(
+        `🎁 命中 ${rewardBreakdown.hitCount}/3，表象命中 ${rewardBreakdown.surfaceHitCount}，小费 +${rewardBreakdown.tipAmount}，信任 +${Math.round(rewardBreakdown.finalTrustGain * 100)}%`,
+        rewardBreakdown.hitCount >= 2 ? 'success' : 'info'
+      );
       if (!tutorial.isTutorialMode && mixingMode === 'strict') {
         if (isSuccess) {
           addToast(`🧭 复盘：${strictExplanation.summary}`, 'success');
@@ -186,6 +205,7 @@ export const useServeProgressHandlers = ({ ctx }) => {
         targetCheck,
         glass: recipe.glass,
         ingredients: recipe.ingredients,
+        rewards: rewardBreakdown,
         judgment: {
           mixingMode,
           method: judgment?.method || null,
@@ -210,7 +230,7 @@ export const useServeProgressHandlers = ({ ctx }) => {
         if (!isSuccess) {
           // 失败后离开概率较高
           earlyLeaveChance = cocktailCount === 1 ? 0.25 : 0.40;
-          if (trustLevel < 0.2) earlyLeaveChance += 0.30; // 信任很低加大离开概率
+          if (projectedTrustLevel < 0.2) earlyLeaveChance += 0.30; // 信任很低加大离开概率
         } else {
           // 成功但可能满足了就走
           earlyLeaveChance = cocktailCount === 1 ? 0.05 : 0.15;
@@ -233,7 +253,6 @@ export const useServeProgressHandlers = ({ ctx }) => {
         const positivePool = ['joy', 'trust', 'anticipation', 'surprise'];
         const negativePool = ['fear', 'sadness', 'anger', 'disgust'];
         const currentReality = [...currentEmotions.reality];
-        const guessedEmotions = cocktailFlow.lastCorrectGuesses || [];
         const emotionsToReplace = currentReality.filter(e => guessedEmotions.includes(e));
         const emotionsToKeep = currentReality.filter(e => !guessedEmotions.includes(e));
         const replacementPool = isSuccess ? positivePool : negativePool;
@@ -283,7 +302,7 @@ export const useServeProgressHandlers = ({ ctx }) => {
 
   // ==================== 进度 & 事件 & 商店 ====================
 
-  const updateGameProgress = useCallback((isSuccess, recipe, satisfaction = 0.5) => {
+  const updateGameProgress = useCallback((isSuccess, recipe, satisfaction = 0.5, rewardBreakdown = null) => {
     const newStats = {
       ...progress.gameStats,
       totalServed: progress.gameStats.totalServed + 1,
@@ -305,8 +324,24 @@ export const useServeProgressHandlers = ({ ctx }) => {
     customerFlow.setCustomerCocktailCount(customerFlow.customerCocktailCountRef.current);
     customerFlow.dailyCocktailCountRef.current += 1;
 
-    if (!isSuccess) {
+    const trustDelta = rewardBreakdown?.finalTrustGain;
+    const tipAmount = rewardBreakdown?.tipAmount || 0;
+    const nextTrustLevel = trustDelta === undefined
+      ? trustLevel
+      : clamp01(trustLevel + trustDelta);
+    const nextMoney = money + tipAmount;
+
+    if (trustDelta !== undefined) {
+      setTrustLevel(prev => clamp01(prev + trustDelta));
+    } else if (!isSuccess) {
       setTrustLevel(prev => Math.max(0, prev - 0.1));
+    }
+
+    if (tipAmount > 0) {
+      setMoney(prev => prev + tipAmount);
+    }
+
+    if (!isSuccess) {
       showGameHint('cocktail_failed');
     }
 
@@ -314,7 +349,6 @@ export const useServeProgressHandlers = ({ ctx }) => {
       const newSuccessCount = customerFlow.customerSuccessCountRef.current + 1;
       customerFlow.customerSuccessCountRef.current = newSuccessCount;
       customerFlow.setCustomerSuccessCount(newSuccessCount);
-      setTrustLevel(prev => Math.min(1, prev + 0.05));
 
       const newUnlocked = { ...unlockedItems, successCount: newStats.successCount };
       if (newStats.successCount % 5 === 0 && newUnlocked.glasses.length < 4) {
@@ -328,7 +362,7 @@ export const useServeProgressHandlers = ({ ctx }) => {
       setUnlockedItems(newUnlocked);
       saveUnlockedItems(newUnlocked);
     }
-    saveGameProgress({ day: customerFlow.currentDay, money, stats: newStats, trustLevel });
+    saveGameProgress({ day: customerFlow.currentDay, money: nextMoney, stats: newStats, trustLevel: nextTrustLevel });
   }, [progress.gameStats, aiConfig, customerFlow.currentDay, money, trustLevel, customerFlow.customerSuccessCount,
     unlockedItems, atmosphere, setMoney, setUnlockedItems, showGameHint, addToast, updateStreak]);
   customerFlow.updateGameProgressRef.current = updateGameProgress;

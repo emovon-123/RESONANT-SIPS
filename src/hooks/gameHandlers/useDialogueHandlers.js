@@ -412,7 +412,6 @@ export const useDialogueHandlers = ({ ctx, refs }) => {
         }
       }
     }
-    setTrustLevel(prev => Math.min(1, prev + 0.1));
     showGameHint('emotion_guessed');
   }, [emotionSystem.selectedEmotions, emotionSystem.dynamicCustomerEmotions, emotionSystem.observedClues, emotionSystem.surfaceEmotions, aiConfig, cocktailFlow.guessAttempts, unlockedItems, atmosphere, tutorial, addToast, playSFX, showGameHint, chapterSystem]);
 

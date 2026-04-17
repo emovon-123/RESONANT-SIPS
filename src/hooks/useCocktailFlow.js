@@ -107,8 +107,7 @@ export const useCocktailFlow = ({ playSFX = () => {}, addToast = () => {} } = {}
     setEmotionFlash('guess-correct-flash');
     setEmotionCardAnim('guess-correct-flip');
     setTimeout(() => { setEmotionFlash(''); setEmotionCardAnim(''); }, 800);
-    addTrustFly(0.1);
-  }, [addTrustFly]);
+  }, []);
 
   /** 猜错动画 */
   const triggerGuessWrongAnim = useCallback(() => {
