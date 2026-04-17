@@ -9,6 +9,9 @@ export const useTTS = () => {
   const [voices, setVoices] = useState([]);
   const currentAudioRef = useRef(null);
   const activeFetchRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const currentSourceRef = useRef(null);
+  const OPENAI_TTS_VOICES = ['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'onyx', 'nova', 'sage', 'shimmer', 'verse'];
   const strictTextSync = String(import.meta.env.VITE_TTS_STRICT_TEXT_SYNC ?? '1') !== '0';
   const remoteTtsEnabled = String(import.meta.env.VITE_ENABLE_REMOTE_TTS ?? '1') !== '0';
   const ttsDebug = String(import.meta.env.VITE_TTS_DEBUG ?? '1') !== '0';
@@ -43,6 +46,8 @@ export const useTTS = () => {
       ].filter(Boolean)
     )
   );
+
+  const isOpenAiTtsModel = remoteTtsModels.some((model) => /^openai\//.test(model));
 
   useEffect(() => {
     const synth = window.speechSynthesis;
@@ -127,6 +132,74 @@ export const useTTS = () => {
     return Math.abs(hash);
   };
 
+  const pickVoiceFromPool = useCallback((seed, pool) => {
+    const options = Array.isArray(pool) && pool.length > 0 ? pool : OPENAI_TTS_VOICES;
+    const index = hashStr(String(seed || 'default')) % options.length;
+    return options[index];
+  }, []);
+
+  const resolveCharacterTtsVoice = useCallback((aiConfig) => {
+    const explicitVoice = String(
+      aiConfig?.ttsVoice ||
+      aiConfig?.voiceProfile?.ttsVoice ||
+      aiConfig?.dialogueStyle?.ttsVoice ||
+      ''
+    ).trim().toLowerCase();
+
+    if (explicitVoice) {
+      return explicitVoice;
+    }
+
+    if (!isOpenAiTtsModel) {
+      return remoteTtsVoice;
+    }
+
+    const descriptorText = [
+      ...(Array.isArray(aiConfig?.personality) ? aiConfig.personality : []),
+      ...(Array.isArray(aiConfig?.dialogueStyle?.features) ? aiConfig.dialogueStyle.features : []),
+      ...(Array.isArray(aiConfig?.voiceProfile?.anchors) ? aiConfig.voiceProfile.anchors : []),
+      aiConfig?.dialogueStyle?.tone,
+      aiConfig?.voiceProfile?.tone,
+      aiConfig?.backstory,
+      aiConfig?.voiceProfile?.backstorySummary,
+    ]
+      .map((item) => String(item || '').trim().toLowerCase())
+      .filter(Boolean)
+      .join(' ');
+
+    const tone = String(aiConfig?.dialogueStyle?.tone || aiConfig?.voiceProfile?.tone || '').trim().toLowerCase();
+
+    if (/robot|android|machine|cyber|metal|synthetic|机械|机器人/i.test(descriptorText)) {
+      return /gentle|nostalg|quiet|soft|melanch|dream|温柔|怀旧|安静/i.test(descriptorText) ? 'ballad' : 'echo';
+    }
+
+    if (/gentle|soft|quiet|calm|dream|melanch|nostalg|温柔|轻|安静|怀旧|忧郁/i.test(descriptorText)) {
+      return /curious|playful|bright|sunny|好奇|活泼/i.test(descriptorText) ? 'coral' : 'ballad';
+    }
+
+    if (/confident|bold|tough|guarded|cynical|rebell|protective|sharp|冷硬|嘴硬|警惕|愤世嫉俗/i.test(descriptorText)) {
+      return /charismatic|flirt|showy|perform|耀眼|张扬/i.test(descriptorText) ? 'onyx' : 'ash';
+    }
+
+    if (/formal|analytical|precise|wise|scholar|measured|理性|正式|克制|学者/i.test(descriptorText) || tone === 'formal') {
+      return /warm|empathetic|patient|温和|共情/i.test(descriptorText) ? 'sage' : 'fable';
+    }
+
+    if (/playful|excited|sunny|curious|bubbly|energetic|乐观|好奇|兴奋|活泼/i.test(descriptorText)) {
+      return /artistic|poetic|music|performer|艺术|诗意|歌手/i.test(descriptorText) ? 'verse' : 'nova';
+    }
+
+    if (/poetic|artistic|romantic|lyrical|诗意|文艺|浪漫/i.test(descriptorText) || tone === 'poetic' || tone === 'dreamy') {
+      return 'shimmer';
+    }
+
+    if (/tired|casual|work|practical|plain|疲惫|务实|日常/i.test(descriptorText) || tone === 'tired' || tone === 'casual') {
+      return 'alloy';
+    }
+
+    return pickVoiceFromPool(aiConfig?.id || aiConfig?.name || descriptorText, ['alloy', 'nova', 'coral', 'sage', 'ash', 'ballad']);
+  }, [isOpenAiTtsModel, pickVoiceFromPool, remoteTtsVoice]);
+
   const pcm16ToWavBlob = (pcmBytes, sampleRate = 24000, channels = 1, trailingSilenceMs = 900) => {
     const bytesPerSample = 2;
     const blockAlign = channels * bytesPerSample;
@@ -168,6 +241,38 @@ export const useTTS = () => {
     body.set(pcmBytes);
     return new Blob([wav], { type: 'audio/wav' });
   };
+
+  const getAudioContext = useCallback(async () => {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+
+    if (!audioContextRef.current) {
+      audioContextRef.current = new Ctx();
+    }
+
+    if (audioContextRef.current.state === 'suspended') {
+      await audioContextRef.current.resume();
+    }
+
+    return audioContextRef.current;
+  }, []);
+
+  const pcm16ToFloat32 = useCallback((pcmBytes) => {
+    const view = new DataView(
+      pcmBytes.buffer,
+      pcmBytes.byteOffset,
+      pcmBytes.byteLength
+    );
+    const sampleCount = Math.floor(pcmBytes.byteLength / 2);
+    const floats = new Float32Array(sampleCount);
+
+    for (let i = 0; i < sampleCount; i += 1) {
+      const sample = view.getInt16(i * 2, true);
+      floats[i] = sample < 0 ? sample / 32768 : sample / 32767;
+    }
+
+    return floats;
+  }, []);
 
   const decodeBase64AudioChunks = useCallback((chunks) => {
     const decodedChunks = [];
@@ -251,6 +356,16 @@ export const useTTS = () => {
       activeFetchRef.current.abort();
       activeFetchRef.current = null;
     }
+    if (currentSourceRef.current) {
+      try {
+        currentSourceRef.current.onended = null;
+        currentSourceRef.current.stop();
+      } catch {
+        // noop
+      }
+      currentSourceRef.current.disconnect?.();
+      currentSourceRef.current = null;
+    }
     if (currentAudioRef.current) {
       try {
         currentAudioRef.current.pause();
@@ -313,7 +428,47 @@ export const useTTS = () => {
     return true;
   }, [logTtsDebug, waitForAudioReady]);
 
-  const playSpeechEndpointTTS = useCallback(async (spokenScript, model, verbatimInstruction) => {
+  const playPcm16Bytes = useCallback(async (pcmBytes, metadata = {}) => {
+    if (!pcmBytes || pcmBytes.length === 0) {
+      logTtsDebug('empty_audio_blob', metadata);
+      return false;
+    }
+
+    const audioContext = await getAudioContext();
+    if (!audioContext) {
+      const wavBlob = pcm16ToWavBlob(pcmBytes, 24000, 1);
+      return playAudioBlob(wavBlob, metadata);
+    }
+
+    const sampleRate = 24000;
+    const channelData = pcm16ToFloat32(pcmBytes);
+    const trailingSeconds = 0.9;
+    const trailingSamples = Math.round(sampleRate * trailingSeconds);
+    const audioBuffer = audioContext.createBuffer(1, channelData.length + trailingSamples, sampleRate);
+    audioBuffer.copyToChannel(channelData, 0, 0);
+
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioContext.destination);
+    currentSourceRef.current = source;
+
+    source.onended = () => {
+      if (currentSourceRef.current === source) {
+        currentSourceRef.current.disconnect?.();
+        currentSourceRef.current = null;
+      }
+    };
+
+    source.start(0);
+    logTtsDebug('playback_started', {
+      ...metadata,
+      engine: 'webaudio_pcm16',
+      bytes: pcmBytes.length,
+    });
+    return true;
+  }, [getAudioContext, logTtsDebug, pcm16ToFloat32, playAudioBlob]);
+
+  const playSpeechEndpointTTS = useCallback(async (spokenScript, model, verbatimInstruction, voice) => {
     const speechResponseFormat = remoteTtsFormat === 'pcm16' ? 'wav' : remoteTtsFormat;
     const controller = new AbortController();
     activeFetchRef.current = controller;
@@ -329,7 +484,7 @@ export const useTTS = () => {
         },
         body: JSON.stringify({
           model,
-          voice: remoteTtsVoice,
+          voice,
           input: spokenScript,
           instructions: verbatimInstruction,
           response_format: speechResponseFormat,
@@ -362,6 +517,7 @@ export const useTTS = () => {
 
       const played = await playAudioBlob(blob, {
         model,
+        voice,
         format: speechResponseFormat,
         bytes: bytes.length,
         transcript: spokenScript,
@@ -383,11 +539,10 @@ export const useTTS = () => {
     remoteTtsApiKey,
     remoteTtsEndpoint,
     remoteTtsFormat,
-    remoteTtsVoice,
   ]);
 
   const playRemoteTTS = useCallback(
-    async (spokenScript) => {
+    async (spokenScript, voice) => {
       if (!remoteTtsEnabled || !remoteTtsApiKey || !spokenScript) return false;
 
       const verbatimInstruction = [
@@ -431,7 +586,7 @@ export const useTTS = () => {
 
       for (const model of remoteTtsModels) {
         if (/^openai\//.test(model) && !isOpenRouterEndpoint) {
-          const played = await playSpeechEndpointTTS(spokenScript, model, verbatimInstruction);
+          const played = await playSpeechEndpointTTS(spokenScript, model, verbatimInstruction, voice);
           if (played) {
             return true;
           }
@@ -458,7 +613,7 @@ export const useTTS = () => {
                 ],
                 modalities: ['text', 'audio'],
                 audio: {
-                  voice: remoteTtsVoice,
+                  voice,
                   format: chatAudioFormat,
                 },
                 temperature: 0,
@@ -472,6 +627,7 @@ export const useTTS = () => {
               logTtsDebug('response_not_ok', {
                 status: response.status,
                 model,
+                voice,
                 format: chatAudioFormat,
               });
               continue;
@@ -519,6 +675,7 @@ export const useTTS = () => {
               if (!isTranscriptCloseEnough(spokenScript, remoteTranscript)) {
                 logTtsDebug('drop_transcript_mismatch', {
                   model,
+                  voice,
                   format: chatAudioFormat,
                   spokenScript,
                   remoteTranscript,
@@ -530,16 +687,20 @@ export const useTTS = () => {
             }
 
             const bytes = decodeBase64AudioChunks(audioChunks);
-            const blob = chatAudioFormat === 'mp3'
-              ? new Blob([bytes], { type: 'audio/mpeg' })
-              : pcm16ToWavBlob(bytes, 24000, 1);
-
-            const played = await playAudioBlob(blob, {
-              model,
-              format: chatAudioFormat,
-              bytes: bytes.length,
-              transcript: remoteTranscript,
-            });
+            const played = chatAudioFormat === 'mp3'
+              ? await playAudioBlob(new Blob([bytes], { type: 'audio/mpeg' }), {
+                  model,
+                  voice,
+                  format: chatAudioFormat,
+                  bytes: bytes.length,
+                  transcript: remoteTranscript,
+                })
+              : await playPcm16Bytes(bytes, {
+                  model,
+                  voice,
+                  format: chatAudioFormat,
+                  transcript: remoteTranscript,
+                });
             if (!played) {
               continue;
             }
@@ -549,6 +710,7 @@ export const useTTS = () => {
           } catch (error) {
             logTtsDebug('play_remote_error', {
               model,
+              voice,
               error: error?.message || String(error),
             });
             continue;
@@ -566,12 +728,12 @@ export const useTTS = () => {
       remoteTtsEnabled,
       remoteTtsEndpoint,
       remoteTtsModels,
-      remoteTtsVoice,
       remoteTtsFormat,
       getPreferredChatAudioFormats,
       isOpenRouterEndpoint,
       decodeBase64AudioChunks,
       playAudioBlob,
+      playPcm16Bytes,
       playSpeechEndpointTTS,
       normalizeTtsComparisonText,
       isTranscriptCloseEnough,
@@ -591,14 +753,20 @@ export const useTTS = () => {
 
       const cleanText = normalizeSpokenText(text);
       const spokenScript = createTtsScript(cleanText);
+      const selectedVoice = resolveCharacterTtsVoice(aiConfig);
 
       if (!spokenScript) return;
 
       void (async () => {
-        await playRemoteTTS(spokenScript);
+        logTtsDebug('voice_selected', {
+          characterId: aiConfig?.id || aiConfig?.name || 'unknown',
+          voice: selectedVoice,
+          tone: aiConfig?.dialogueStyle?.tone || aiConfig?.voiceProfile?.tone || '',
+        });
+        await playRemoteTTS(spokenScript, selectedVoice);
       })();
     },
-    [createTtsScript, normalizeSpokenText, playRemoteTTS, stopRemoteAudio]
+    [createTtsScript, logTtsDebug, normalizeSpokenText, playRemoteTTS, resolveCharacterTtsVoice, stopRemoteAudio]
   );
 
   const stop = useCallback(() => {
