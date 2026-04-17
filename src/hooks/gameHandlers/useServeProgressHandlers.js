@@ -128,7 +128,6 @@ export const useServeProgressHandlers = ({ ctx }) => {
         satisfaction,
         baseTip: BASE_COCKTAIL_TIP,
       });
-      const projectedTrustLevel = clamp01(trustLevel + rewardBreakdown.finalTrustGain);
 
       // 教学模式
       if (tutorial.isTutorialMode) {
@@ -221,31 +220,9 @@ export const useServeProgressHandlers = ({ ctx }) => {
         addToast(`💡 ${getTransitionalFailureHint()}`, 'info');
       }
 
-      // 顾客离开判定：基于总杯数（成功+失败）+ 提前离开概率
-      const cocktailCount = customerFlow.customerCocktailCountRef.current;
-      let willLeave = cocktailCount >= customerFlow.MAX_COCKTAILS_PER_CUSTOMER; // 3杯到了必走
-      if (!willLeave && cocktailCount >= 1) {
-        // 提前离开概率：信任度低或失败时更容易走
-        let earlyLeaveChance = 0;
-        if (!isSuccess) {
-          // 失败后离开概率较高
-          earlyLeaveChance = cocktailCount === 1 ? 0.25 : 0.40;
-          if (projectedTrustLevel < 0.2) earlyLeaveChance += 0.30; // 信任很低加大离开概率
-        } else {
-          // 成功但可能满足了就走
-          earlyLeaveChance = cocktailCount === 1 ? 0.05 : 0.15;
-        }
-        if (Math.random() < earlyLeaveChance) {
-          willLeave = true;
-          // 提前离开：直接触发（不等 useEffect，因为 cocktailCount 还没到3）
-          const leaveReason = isSuccess ? 'success_complete' : 'trust_zero';
-          console.log(`🚶 顾客决定提前离开（第${cocktailCount}杯后，概率${Math.round(earlyLeaveChance * 100)}%）`);
-          setTimeout(() => customerFlow.handleCustomerLeaveRef.current(leaveReason), 1500);
-        }
-      }
-      if (!willLeave) {
-        setTimeout(() => tryTriggerEventAfterServe(isSuccess), 2000);
-      }
+      // 当前节奏改为单杯闭环：递酒结算后，顾客说完这句反馈就离开。
+      const leaveReason = isSuccess ? 'success_complete' : 'served_complete';
+      setTimeout(() => customerFlow.handleCustomerLeaveRef.current?.(leaveReason), 1800);
 
       // 情绪变化
       {

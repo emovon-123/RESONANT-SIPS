@@ -208,6 +208,19 @@ export const useGameInit = (ctx) => {
     }
   }, [trustLevel]);
 
+  // 当今日没有下一位顾客时，自动推进到下一天，避免停在日结算弹窗等待点击。
+  useEffect(() => {
+    if (!customerFlow.showDayEnd || progress.autoTestRunning) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      startNewDay();
+    }, 1800);
+
+    return () => clearTimeout(timer);
+  }, [customerFlow.showDayEnd, progress.autoTestRunning, startNewDay]);
+
   // 🆕 进阶引导：信任度达到阈值
   useEffect(() => {
     if (!tutorial.isTutorialMode && ctx.advancedGuides && trustLevel >= 0.6) {

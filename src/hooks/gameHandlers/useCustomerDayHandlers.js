@@ -105,11 +105,18 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
     customerFlow.setShowCustomerLeave(true);
     const messages = {
       trust_zero: '😢 顾客失望地离开了...',
-      success_complete: '😊 顾客满意地离开了！'
+      success_complete: '😊 顾客满意地离开了！',
+      served_complete: '🚶 顾客放下杯子，留下一句话后离开了。'
     };
     addToast(messages[reason] || '顾客离开了', reason === 'success_complete' ? 'success' : 'warning');
 
-    const parting = reason === 'success_complete' ? 'satisfied' : reason === 'trust_zero' ? 'disappointed' : 'neutral';
+    const parting = reason === 'success_complete'
+      ? 'satisfied'
+      : reason === 'trust_zero'
+        ? 'disappointed'
+        : reason === 'served_complete'
+          ? 'neutral'
+          : 'neutral';
     appendActiveNpcEvent({
       role: 'system',
       type: 'customer_leave',
