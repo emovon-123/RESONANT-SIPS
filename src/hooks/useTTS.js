@@ -18,6 +18,7 @@ export const useTTS = () => {
   ).replace(/\/$/, '');
   const remoteTtsApiKey = String(import.meta.env.VITE_GEMINI_API_KEY || '').trim();
   const remoteTtsVoice = String(import.meta.env.VITE_GEMINI_TTS_VOICE || 'Kore').trim();
+  const remoteTtsFormat = String(import.meta.env.VITE_GEMINI_TTS_FORMAT || 'pcm16').trim().toLowerCase();
   const remoteTtsModelRaw = String(
     import.meta.env.VITE_GEMINI_TTS_MODEL || 'gemini-2.5-flash-preview-tts'
   ).trim();
@@ -53,6 +54,43 @@ export const useTTS = () => {
       hash = str.charCodeAt(i) + ((hash << 5) - hash);
     }
     return Math.abs(hash);
+  };
+
+  const pcm16ToWavBlob = (pcmBytes, sampleRate = 24000, channels = 1) => {
+    const bytesPerSample = 2;
+    const blockAlign = channels * bytesPerSample;
+    const byteRate = sampleRate * blockAlign;
+    const wavHeaderSize = 44;
+    const dataSize = pcmBytes.length;
+    const totalSize = wavHeaderSize + dataSize;
+
+    const wav = new ArrayBuffer(totalSize);
+    const view = new DataView(wav);
+    let offset = 0;
+
+    const writeStr = (s) => {
+      for (let i = 0; i < s.length; i += 1) {
+        view.setUint8(offset + i, s.charCodeAt(i));
+      }
+      offset += s.length;
+    };
+
+    writeStr('RIFF');
+    view.setUint32(offset, totalSize - 8, true); offset += 4;
+    writeStr('WAVE');
+    writeStr('fmt ');
+    view.setUint32(offset, 16, true); offset += 4;
+    view.setUint16(offset, 1, true); offset += 2; // PCM
+    view.setUint16(offset, channels, true); offset += 2;
+    view.setUint32(offset, sampleRate, true); offset += 4;
+    view.setUint32(offset, byteRate, true); offset += 4;
+    view.setUint16(offset, blockAlign, true); offset += 2;
+    view.setUint16(offset, 16, true); offset += 2; // bits per sample
+    writeStr('data');
+    view.setUint32(offset, dataSize, true); offset += 4;
+
+    new Uint8Array(wav, wavHeaderSize).set(pcmBytes);
+    return new Blob([wav], { type: 'audio/wav' });
   };
 
   const stopRemoteAudio = useCallback(() => {
@@ -93,7 +131,7 @@ export const useTTS = () => {
               modalities: ['text', 'audio'],
               audio: {
                 voice: remoteTtsVoice,
-                format: 'mp3',
+                format: remoteTtsFormat === 'mp3' ? 'mp3' : 'pcm16',
               },
               stream: true,
             }),
@@ -145,7 +183,9 @@ export const useTTS = () => {
           for (let i = 0; i < bin.length; i += 1) {
             bytes[i] = bin.charCodeAt(i);
           }
-          const blob = new Blob([bytes], { type: 'audio/mpeg' });
+          const blob = remoteTtsFormat === 'mp3'
+            ? new Blob([bytes], { type: 'audio/mpeg' })
+            : pcm16ToWavBlob(bytes, 24000, 1);
           if (!blob || blob.size === 0) continue;
 
           const audioUrl = URL.createObjectURL(blob);
@@ -175,6 +215,7 @@ export const useTTS = () => {
       remoteTtsEndpoint,
       remoteTtsModels,
       remoteTtsVoice,
+      remoteTtsFormat,
     ]
   );
 
