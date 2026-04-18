@@ -92,6 +92,10 @@ export const useAudio = () => {
     audioManager.setMuted(muted);
     if (muted) {
       setIsBgmPlaying(false);
+    } else {
+      audioManager.init();
+      audioManager.playBGM('game');
+      setIsBgmPlaying(true);
     }
     saveSettings({ bgmVolume, sfxVolume, isMuted: muted });
   }, [bgmVolume, sfxVolume, saveSettings]);
