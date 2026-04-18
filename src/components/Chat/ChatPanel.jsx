@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CustomerAvatar from '../Avatar/CustomerAvatar.jsx';
-import BalancedPixelText from '../Common/BalancedPixelText.jsx';
 import { useTTS } from '../../hooks/useTTS.js';
 import './ChatPanel.css';
 
@@ -71,7 +70,7 @@ const ChatPanel = ({
     }
 
     const lastMsg = dialogueHistory[dialogueHistory.length - 1];
-    if (lastMsg.role !== 'ai' || lastMsg.isThinking || lastMsg.isStreaming) {
+    if (lastMsg.role !== 'ai' || lastMsg.isThinking) {
       return;
     }
 
@@ -89,7 +88,6 @@ const ChatPanel = ({
       window.clearTimeout(speakTimerRef.current);
     }
 
-    // Give streamed text enough time to settle before starting TTS.
     speakTimerRef.current = window.setTimeout(() => {
       if (isLoading || signature === lastSpokenSignature.current) {
         return;
@@ -97,7 +95,7 @@ const ChatPanel = ({
 
       lastSpokenSignature.current = signature;
       speak(content, aiConfig);
-    }, 1400);
+    }, 450);
   }, [dialogueHistory, aiConfig, speak, isLoading]);
 
   useEffect(() => () => {
@@ -146,12 +144,16 @@ const ChatPanel = ({
     }
   };
 
-  const renderMessageContent = (content, isThinking = false) => {
+  const renderMessageContent = (content, hasEmotionClue, isThinking = false) => {
     if (isThinking) {
       return <span className="thinking-ellipsis" aria-label="思考中">……</span>;
     }
 
-    return <BalancedPixelText text={content} />;
+    return (
+      <span className={hasEmotionClue ? 'emotion-clue' : ''}>
+        {content}
+      </span>
+    );
   };
 
   return (
@@ -180,7 +182,7 @@ const ChatPanel = ({
               className={`trust-fill ${trustAnim}`}
               style={{
                 width: `${trustLevel * 100}%`,
-                backgroundColor: trustLevel < 0.3 ? '#E63946' : trustLevel < 0.6 ? '#FFB703' : '#A855F7'
+                backgroundColor: trustLevel < 0.3 ? '#E63946' : trustLevel < 0.6 ? '#FFB703' : '#06FFA5'
               }}
             />
           </div>
@@ -191,7 +193,7 @@ const ChatPanel = ({
       <div className="chat-messages">
         {dialogueHistory.length === 0 && (
           <div className="welcome-message">
-            <p>欢迎来到 Resonant Sips</p>
+            <p>欢迎来到 Mixologist</p>
             <p className="subtitle">通过对话了解顾客的真实情绪，再为 TA 调制专属鸡尾酒</p>
           </div>
         )}
@@ -212,7 +214,7 @@ const ChatPanel = ({
               )}
             </div>
             <div className="message-bubble">
-              {renderMessageContent(msg.content, msg.isThinking)}
+              {renderMessageContent(msg.content, msg.hasEmotionClue, msg.isThinking)}
               {!msg.isThinking && (
                 <span className="message-time">
                   {new Date(msg.timestamp).toLocaleTimeString('zh-CN', {
@@ -278,26 +280,11 @@ const ChatPanel = ({
         </button>
       </div>
 
-      <div className="chat-input-container" style={{ position: 'relative' }}>
-        {!inputValue && (
-          <div
-            style={{
-              position: 'absolute',
-              left: '38px',
-              top: '34px',
-              pointerEvents: 'none',
-              color: 'rgba(255, 255, 255, 0.4)',
-              fontSize: '14px',
-              zIndex: 10
-            }}
-          >
-            <BalancedPixelText text="输入你的回应... (Enter发送，Shift+Enter换行)" />
-          </div>
-        )}
+      <div className="chat-input-container">
         <textarea
           ref={inputRef}
           className="chat-input"
-          placeholder=""
+          placeholder="输入你的回应... (Enter发送，Shift+Enter换行)"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
