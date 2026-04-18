@@ -171,7 +171,7 @@ const HomePage = ({
     : undefined;
 
   return (
-    <div className="home-page">
+    <div className="home-page home-page--main-menu">
       <div className="home-video-background" style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 0 }}>
           <video 
             src="/asset/预览/游戏动画1.mp4" 
@@ -184,38 +184,62 @@ const HomePage = ({
       </div>
       <div className="home-content-layer" style={{ position: "relative", zIndex: 50, width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
 
+      {/* 右侧暗角用 CSS 渐变，避免纯色 black base.png 硬断层 */}
+      <div className="home-ui-panel-base" aria-hidden="true" />
+
       {showSplash && (
         <div className={`splash-overlay ${isSplashRevealing ? 'phase-reveal' : ''}`} />
       )}
 
-      <div className="home-center">
+      <div className="home-center home-menu-render">
+        <div className="home-menu-render__column">
+          <div className="home-menu-render__panel">
         <div
-          className={headerClassName}
+          className={`${headerClassName} home-header--asset-title`}
           style={showSplash ? { '--splash-lift': `${splashLift}px` } : undefined}
         >
-          <div className="title-icon">{COPY.titleIcon}</div>
-          <h1 className="game-title">Resonant Sips</h1>
+          <div className="title-icon" aria-hidden="true">{COPY.titleIcon}</div>
+          <h1 className="game-title game-title--asset">
+            <img
+              className="game-title-img"
+              src="/asset/按钮/headline.png"
+              alt="Resonant Sips"
+              draggable={false}
+            />
+          </h1>
           <p className="game-description">{COPY.description}</p>
         </div>
 
         <div className={controlsClassName} ref={controlsRef} style={controlsStyle}>
             <button
-              className={`start-button ${isSplashHiding ? 'splash-hidden' : isSplashRevealing ? 'splash-reveal-delay1' : ''}`}
+              type="button"
+              className={`start-button start-button--asset ${isSplashHiding ? 'splash-hidden' : isSplashRevealing ? 'splash-reveal-delay1' : ''}`}
               onClick={onNewGame}
+              aria-label={COPY.newGame}
             >
-              <span className="start-icon">{COPY.startIcon}</span>
-              <span className="start-text">{COPY.newGame}</span>
+              <img
+                className="start-button-img"
+                src="/asset/按钮/new%20game.png"
+                alt=""
+                draggable={false}
+              />
             </button>
 
             <button
-              className={`start-button ${isSplashHiding ? 'splash-hidden' : isSplashRevealing ? 'splash-reveal-delay1' : ''}`}
+              type="button"
+              className={`start-button start-button--asset ${isSplashHiding ? 'splash-hidden' : isSplashRevealing ? 'splash-reveal-delay1' : ''}`}
               onClick={onLoadGame}
+              aria-label={COPY.loadGame}
             >
-              <span className="start-icon">{COPY.loadIcon}</span>
-              <span className="start-text">{COPY.loadGame}</span>
+              <img
+                className="start-button-img"
+                src="/asset/按钮/archive.png"
+                alt=""
+                draggable={false}
+              />
             </button>
 
-          <div className={`home-nav-buttons ${isSplashHiding ? 'splash-hidden' : isSplashRevealing ? 'splash-reveal-delay2' : ''}`}>
+          <div className={`home-nav-buttons home-nav-buttons--render ${isSplashHiding ? 'splash-hidden' : isSplashRevealing ? 'splash-reveal-delay2' : ''}`}>
             {ENCYCLOPEDIA_ENABLED && (
               <button
                 className="nav-button encyclopedia"
@@ -227,12 +251,16 @@ const HomePage = ({
               </button>
             )}
             <button
-              className="nav-button settings"
+              type="button"
+              className="nav-button settings home-nav-settings-pixel"
               onClick={() => onNavigate && onNavigate('settings')}
+              aria-label={COPY.settings}
             >
-              <span className="nav-icon">{COPY.settingsIcon}</span>
+              <span className="nav-icon" aria-hidden="true">{COPY.settingsIcon}</span>
               <span className="nav-text">{COPY.settings}</span>
             </button>
+          </div>
+        </div>
           </div>
         </div>
       </div>

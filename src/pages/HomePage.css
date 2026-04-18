@@ -1271,3 +1271,245 @@
   color: #A855F7 !important;
   letter-spacing: 2px !important;
 }
+
+/*
+ * Main menu layout — match public/asset/按钮/游戏界面渲染图.jpg proportions;
+ * black base.png: full-height strip glued to top / right / bottom of the viewport.
+ */
+.home-header--asset-title .title-icon {
+  display: none;
+}
+
+/* Home menu: kill horizontal padding on .home-page (was 40px) so black base can touch viewport right */
+.home-page.home-page--main-menu {
+  padding-left: 0;
+  padding-right: 0;
+  align-items: stretch;
+  width: 100vw;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+.home-page .home-content-layer {
+  min-height: 100vh;
+  position: relative;
+  width: 100%;
+  max-width: 100vw;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/*
+ * 右侧压暗：右缘不透明最强，向左渐隐为 0（替代纯色 black base.png，避免中间硬边）
+ * gradient: to left → 起点在右、终点在左
+ */
+.home-content-layer > .home-ui-panel-base {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: auto;
+  width: min(56vw, 780px);
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.55) 38%,
+    rgba(0, 0, 0, 0.18) 68%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* Override generic .home-center { align-items: center } so the stack stays right-weighted */
+.home-center.home-menu-render {
+  position: relative;
+  z-index: 1;
+  max-width: none !important;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-start;
+  align-content: flex-start;
+  box-sizing: border-box;
+  text-align: center;
+  /* Smaller padding-right = UI sits further right; top/bottom unchanged */
+  padding: clamp(7vh, 10vh, 13vh) clamp(10px, 2.5vw, 36px) clamp(20px, 3.5vh, 48px) clamp(10px, 2vw, 28px);
+  margin: 0;
+}
+
+.home-menu-render__column {
+  flex: 0 0 auto;
+  margin-left: auto;
+  margin-right: 0;
+  width: min(38vw, 480px);
+  max-width: calc(100vw - 16px);
+}
+
+.home-content-layer > .splash-overlay {
+  z-index: 4;
+}
+
+.home-menu-render__panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(16px, 2.5vh, 28px);
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(14px, 2vh, 22px) clamp(14px, 2.4vw, 22px);
+}
+
+.home-menu-render__column .home-header {
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.home-menu-render__column .game-description {
+  margin: clamp(6px, 1vh, 12px) auto 0;
+  max-width: 36ch;
+  text-align: center;
+  font-size: clamp(11px, 1.35vw, 13px);
+  line-height: 1.55;
+  opacity: 0.92;
+}
+
+.game-title.game-title--asset {
+  font-size: 0 !important;
+  line-height: 0 !important;
+  letter-spacing: 0 !important;
+  text-shadow: none !important;
+  margin-bottom: clamp(6px, 1.2vh, 12px) !important;
+  padding: 0 !important;
+}
+
+/* headline.png: ×1.5 vs previous cap (44vh / 400px) */
+.game-title-img {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  height: auto;
+  max-height: min(66vh, 600px);
+  object-fit: contain;
+  object-position: center;
+  image-rendering: auto;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.home-menu-render .home-controls {
+  width: 100%;
+  align-items: stretch;
+  margin-top: clamp(2px, 0.5vh, 8px);
+  gap: clamp(12px, 2vh, 22px);
+}
+
+/*
+ * new game.png / archive.png are full ribbon plates (purple field + pink banner).
+ * Do not stack the global pixel .start-button frame on top, and do not cap height
+ * (wide ~4:1 art would look crushed).
+ */
+.home-menu-render .start-button.start-button--asset {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 0 !important;
+  box-sizing: border-box;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible;
+  cursor: pointer;
+}
+
+.home-menu-render .start-button.start-button--asset:hover {
+  background: transparent !important;
+  color: inherit !important;
+  box-shadow: none !important;
+  transform: none !important;
+  filter: brightness(1.08);
+}
+
+.home-menu-render .start-button.start-button--asset:active {
+  transform: scale(0.985) !important;
+  box-shadow: none !important;
+  filter: brightness(0.95);
+}
+
+.home-menu-render .start-button-img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+  object-position: center center;
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+.home-nav-buttons.home-nav-buttons--render {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: clamp(10px, 1.6vh, 20px) 0 0;
+  gap: 10px;
+}
+
+/* Settings: same pixel language as global .nav-button (see block above) */
+.home-nav-buttons--render .nav-button.home-nav-settings-pixel {
+  width: auto;
+  max-width: min(100%, 300px);
+  min-height: 48px;
+  padding: 12px 28px;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.home-nav-buttons--render .nav-button.home-nav-settings-pixel .nav-icon {
+  font-size: 22px;
+  line-height: 1;
+  filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.9));
+}
+
+.home-nav-buttons--render .nav-button.home-nav-settings-pixel .nav-text {
+  font-family: "zpix", "PressStart2P", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+}
+
+@media (max-width: 768px) {
+  .home-content-layer > .home-ui-panel-base {
+    width: min(96vw, 680px);
+    right: 0;
+  }
+
+  .home-center.home-menu-render {
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: clamp(18px, 4vh, 36px) clamp(8px, 3vw, 20px) clamp(18px, 3vh, 32px) clamp(8px, 3vw, 16px);
+  }
+
+  .home-menu-render__column {
+    width: min(90vw, 440px);
+  }
+
+  .game-title-img {
+    max-height: min(51vh, 450px);
+  }
+}
