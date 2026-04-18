@@ -71,7 +71,7 @@ const ChatPanel = ({
     }
 
     const lastMsg = dialogueHistory[dialogueHistory.length - 1];
-    if (lastMsg.role !== 'ai' || lastMsg.isThinking) {
+    if (lastMsg.role !== 'ai' || lastMsg.isThinking || lastMsg.isStreaming) {
       return;
     }
 
@@ -89,6 +89,7 @@ const ChatPanel = ({
       window.clearTimeout(speakTimerRef.current);
     }
 
+    // Give streamed text enough time to settle before starting TTS.
     speakTimerRef.current = window.setTimeout(() => {
       if (isLoading || signature === lastSpokenSignature.current) {
         return;
@@ -96,7 +97,7 @@ const ChatPanel = ({
 
       lastSpokenSignature.current = signature;
       speak(content, aiConfig);
-    }, 450);
+    }, 1400);
   }, [dialogueHistory, aiConfig, speak, isLoading]);
 
   useEffect(() => () => {

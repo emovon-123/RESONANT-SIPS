@@ -110,8 +110,18 @@ export const useTTS = () => {
     return overlap >= 0.85;
   }, [normalizeTtsComparisonText]);
 
+  const smoothTtsText = useCallback((text) => {
+    return String(text || '')
+      .replace(/\b(that|just|something|maybe|like|well|so|and|but)\s*(?:\.{3}|…)\s*/gi, '$1 ')
+      .replace(/([,;:])\s*(?:\.{3}|…)\s*/g, '$1 ')
+      .replace(/(?:\.{3}|…)\s*(?=[a-z])/gi, ', ')
+      .replace(/\b(that|just|something|maybe|like|and|but|so)\s*$/i, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }, []);
+
   const createTtsScript = useCallback((text) => {
-    return normalizeSpokenText(text)
+    return smoothTtsText(normalizeSpokenText(text))
       .replace(/\s*\.\.\.\s*/g, ', ')
       .replace(/\s*…\s*/g, ', ')
       .replace(/\s*--\s*/g, ', ')
@@ -146,6 +156,22 @@ export const useTTS = () => {
     if (!ttsDebug) return;
     console.log(`[TTS] ${label}`, payload);
   }, [ttsDebug]);
+
+  const estimateMinSpeechDuration = useCallback((text) => {
+    const normalized = normalizeSpokenText(text);
+    if (!normalized) return 0;
+
+    const words = normalized.split(/\s+/).filter(Boolean).length;
+    const punctuationPauses = (normalized.match(/[.,!?;:]/g) || []).length;
+    const ellipsisPauses = (normalized.match(/\.{3}|…/g) || []).length;
+
+    const estimatedSeconds =
+      (words * 0.28) +
+      (punctuationPauses * 0.14) +
+      (ellipsisPauses * 0.22);
+
+    return Math.max(1.2, estimatedSeconds * 0.6);
+  }, [normalizeSpokenText]);
 
   const hashStr = (str) => {
     let hash = 0;
@@ -425,6 +451,16 @@ export const useTTS = () => {
     });
   }, []);
 
+  const isAudioDurationSuspicious = useCallback((durationSec, transcript) => {
+    const actual = Number(durationSec);
+    if (!Number.isFinite(actual) || actual <= 0) return false;
+
+    const minExpected = estimateMinSpeechDuration(transcript);
+    if (!minExpected) return false;
+
+    return actual < minExpected;
+  }, [estimateMinSpeechDuration]);
+
   const playAudioBlob = useCallback(async (blob, metadata = {}) => {
     if (!blob || blob.size === 0) {
       logTtsDebug('empty_audio_blob', metadata);
@@ -442,6 +478,18 @@ export const useTTS = () => {
     currentAudioRef.current = audio;
 
     await waitForAudioReady(audio);
+    if (isAudioDurationSuspicious(audio.duration, metadata?.transcript || '')) {
+      logTtsDebug('drop_short_audio_blob', {
+        ...metadata,
+        durationSec: audio.duration,
+        minExpectedSec: estimateMinSpeechDuration(metadata?.transcript || ''),
+      });
+      URL.revokeObjectURL(audioUrl);
+      if (currentAudioRef.current === audio) {
+        currentAudioRef.current = null;
+      }
+      return false;
+    }
     await audio.play();
 
     logTtsDebug('playback_started', metadata);
@@ -454,7 +502,7 @@ export const useTTS = () => {
     };
 
     return true;
-  }, [logTtsDebug, waitForAudioReady]);
+  }, [estimateMinSpeechDuration, isAudioDurationSuspicious, logTtsDebug, waitForAudioReady]);
 
   const playPcm16Bytes = useCallback(async (pcmBytes, metadata = {}) => {
     if (!pcmBytes || pcmBytes.length === 0) {
@@ -475,6 +523,15 @@ export const useTTS = () => {
 
     const sampleRate = 24000;
     const channelData = pcm16ToFloat32(pcmBytes);
+    const durationSec = channelData.length / sampleRate;
+    if (isAudioDurationSuspicious(durationSec, metadata?.transcript || '')) {
+      logTtsDebug('drop_short_pcm_audio', {
+        ...metadata,
+        durationSec,
+        minExpectedSec: estimateMinSpeechDuration(metadata?.transcript || ''),
+      });
+      return false;
+    }
     const trailingSeconds = 0.9;
     const trailingSamples = Math.round(sampleRate * trailingSeconds);
     const audioBuffer = audioContext.createBuffer(1, channelData.length + trailingSamples, sampleRate);
@@ -499,7 +556,7 @@ export const useTTS = () => {
       bytes: pcmBytes.length,
     });
     return true;
-  }, [getAudioContext, logTtsDebug, pcm16ToFloat32, playAudioBlob]);
+  }, [estimateMinSpeechDuration, getAudioContext, isAudioDurationSuspicious, logTtsDebug, pcm16ToFloat32, playAudioBlob]);
 
   const playSpeechEndpointTTS = useCallback(async (spokenScript, model, verbatimInstruction, voice, requestSeq) => {
     const speechResponseFormat = remoteTtsFormat === 'pcm16' ? 'wav' : remoteTtsFormat;
@@ -619,11 +676,20 @@ export const useTTS = () => {
       };
 
       for (const model of remoteTtsModels) {
-        if (/^openai\//.test(model) && !isOpenRouterEndpoint) {
+        // Prefer direct speech synthesis first. It is usually more stable than streamed chat-audio,
+        // especially when the streamed PCM transcript is complete but the audio payload is truncated.
+        if (/^openai\//.test(model)) {
           const played = await playSpeechEndpointTTS(spokenScript, model, verbatimInstruction, voice, requestSeq);
           if (played) {
             return true;
           }
+          logTtsDebug('speech_endpoint_fallback_to_chat_audio', {
+            model,
+            voice,
+            requestSeq,
+            endpoint: remoteTtsEndpoint,
+            openRouter: isOpenRouterEndpoint,
+          });
         }
 
         for (const chatAudioFormat of getPreferredChatAudioFormats(model)) {
