@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getSettings, saveSettings, clearAllCache, getStorageUsage } from '../utils/storage.js';
 import { DEBUG_CONFIG, getActiveAPIConfig, getActiveAPIName, getActiveAPIType } from '../config/api.js';
 import { clearAvatarCache, getAvatarCacheStats } from '../utils/avatarCache.js';
+import audioManager from '../utils/audioManager.js';
 import './SettingsPage.css';
 
 const SettingsPage = ({ onBack }) => {
@@ -19,6 +20,18 @@ const SettingsPage = ({ onBack }) => {
     const nextSettings = { ...settings, [key]: value };
     setSettings(nextSettings);
     saveSettings(nextSettings);
+
+    if (key === 'musicVolume') {
+      audioManager.setBGMVolume(value);
+    }
+
+    if (key === 'sfxVolume') {
+      audioManager.setSFXVolume(value);
+    }
+
+    if (key === 'soundEnabled') {
+      audioManager.setMuted(!value);
+    }
   };
 
   const handleClearCache = () => {

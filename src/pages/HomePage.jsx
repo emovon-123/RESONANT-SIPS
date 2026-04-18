@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Toast from '../components/Common/Toast.jsx';
 import PrologueScreen from '../components/Prologue/PrologueScreen.jsx';
 import audioManager from '../utils/audioManager.js';
+import { getSettings, saveSettings } from '../utils/storage.js';
 import './HomePage.css';
 
 const ENCYCLOPEDIA_ENABLED = false;
@@ -75,6 +76,10 @@ const HomePage = ({
 
   useEffect(() => {
     if (!showPrologue && !showTransition) {
+      const settings = getSettings();
+      audioManager.setBGMVolume(settings?.musicVolume ?? 0.5);
+      audioManager.setSFXVolume(settings?.sfxVolume ?? 0.7);
+      audioManager.setMuted(settings?.soundEnabled === false);
       audioManager.init();
       audioManager.playBGM('home');
     }
@@ -125,6 +130,11 @@ const HomePage = ({
 
   const handleMusicChoice = (enableMusic) => {
     audioManager.init();
+    const currentSettings = getSettings();
+    saveSettings({
+      ...currentSettings,
+      soundEnabled: enableMusic
+    });
 
     if (enableMusic) {
       audioManager.setMuted(false);
