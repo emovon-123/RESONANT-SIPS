@@ -1,4 +1,3 @@
-// 游戏顶部导航栏组件（精简版）
 import React, { useState } from 'react';
 import CustomerAvatar from '../Avatar/CustomerAvatar.jsx';
 import {
@@ -12,48 +11,44 @@ const GameHeader = ({
   onShowRules,
   currentDay = 1,
   aiConfig,
-  customerSuccessCount = 0,
-  customerCocktailCount = 0,
   currentCustomerIndex = 0,
-  totalCustomers = 0,
   isMuted = false,
   toggleMute,
   sfxVolume = 0.5,
   setSfxVolume,
   playSFX = () => {},
   atmosphere = null,
-  // 帮助系统
   onShowHelp
 }) => {
   const [showAudioSettings, setShowAudioSettings] = useState(false);
   const [showAtmoDetail, setShowAtmoDetail] = useState(false);
 
-  // 构建氛围修正摘要
   const atmoModifiers = [];
   if (atmosphere?.modifiers?.targetShift) {
-    const s = atmosphere.modifiers.targetShift;
-    if (s.sweetness) atmoModifiers.push(`甜${s.sweetness > 0 ? '+' : ''}${s.sweetness}`);
-    if (s.thickness) atmoModifiers.push(`浓${s.thickness > 0 ? '+' : ''}${s.thickness}`);
-    if (s.strength) atmoModifiers.push(`烈${s.strength > 0 ? '+' : ''}${s.strength}`);
+    const shift = atmosphere.modifiers.targetShift;
+    if (shift.sweetness) atmoModifiers.push(`甜${shift.sweetness > 0 ? '+' : ''}${shift.sweetness}`);
+    if (shift.thickness) atmoModifiers.push(`浓${shift.thickness > 0 ? '+' : ''}${shift.thickness}`);
+    if (shift.strength) atmoModifiers.push(`烈${shift.strength > 0 ? '+' : ''}${shift.strength}`);
   }
 
   return (
     <div className="game-header">
-      {/* 左侧：返回 + 帮助 */}
       <div className="header-left">
         <button className="back-button" onClick={onBack} title="返回主页">←</button>
         <button className="header-icon-btn" onClick={onShowRules} title="查看规则">?</button>
-        {onShowHelp && <button className="header-icon-btn help-icon-btn" onClick={onShowHelp} title="帮助">📖</button>}
+        {onShowHelp && (
+          <button className="header-icon-btn help-icon-btn" onClick={onShowHelp} title="帮助">
+            📖
+          </button>
+        )}
       </div>
 
-      {/* 中间：天数 + 顾客进度 */}
       <div className="header-center">
         <div className="day-badge">
-          <span className="day-icon">📅</span>
+          <span className="day-icon">📆</span>
           <span className="day-text">第 {currentDay} 天</span>
         </div>
 
-        {/* 顾客进度（紧凑版） */}
         <div className="customer-compact">
           <span className="customer-avatar-mini">
             <CustomerAvatar
@@ -64,20 +59,11 @@ const GameHeader = ({
             />
           </span>
           <span className="customer-name-mini">{aiConfig?.name || '顾客'}</span>
-          <div className="progress-dots">
-            {[0, 1, 2].map(i => (
-              <span key={i} className={`progress-dot ${i < customerCocktailCount ? (i < customerSuccessCount ? 'filled' : 'failed') : ''}`}>
-                {i < customerCocktailCount ? (i < customerSuccessCount ? '🍸' : '💔') : '○'}
-              </span>
-            ))}
-          </div>
           <span className="queue-badge">{currentCustomerIndex + 1}号</span>
         </div>
       </div>
 
-      {/* 右侧：氛围图标 + 音频 */}
       <div className="header-right">
-        {/* 氛围指示器（折叠为图标，hover 展开） */}
         {atmosphere && (
           <div
             className="atmo-compact"
@@ -85,7 +71,7 @@ const GameHeader = ({
             onMouseLeave={() => setShowAtmoDetail(false)}
           >
             <span className="atmo-icon-btn" title="今日氛围">
-              {WEATHER_ICONS[atmosphere.weather] || '🌙'}
+              {WEATHER_ICONS[atmosphere.weather] || '🌤'}
               {atmoModifiers.length > 0 && <span className="atmo-dot" />}
             </span>
             {showAtmoDetail && (
@@ -98,8 +84,8 @@ const GameHeader = ({
                 </div>
                 {atmoModifiers.length > 0 && (
                   <div className="atmo-detail-modifiers">
-                    {atmoModifiers.map((m, i) => (
-                      <span key={i} className="atmo-modifier-tag">{m}</span>
+                    {atmoModifiers.map((modifier, index) => (
+                      <span key={index} className="atmo-modifier-tag">{modifier}</span>
                     ))}
                   </div>
                 )}
@@ -111,14 +97,20 @@ const GameHeader = ({
         <div className="audio-controls">
           <button
             className={`audio-btn ${isMuted ? 'muted' : ''}`}
-            onClick={() => { playSFX('click'); toggleMute && toggleMute(); }}
+            onClick={() => {
+              playSFX('click');
+              toggleMute && toggleMute();
+            }}
             title={isMuted ? '取消静音' : '静音'}
           >
             {isMuted ? '🔇' : '🔊'}
           </button>
           <button
             className="audio-btn settings-btn"
-            onClick={() => { playSFX('click'); setShowAudioSettings(!showAudioSettings); }}
+            onClick={() => {
+              playSFX('click');
+              setShowAudioSettings(!showAudioSettings);
+            }}
             title="音量设置"
           >
             ⚙️
@@ -127,9 +119,11 @@ const GameHeader = ({
           {showAudioSettings && (
             <div className="audio-settings-panel">
               <div className="audio-setting-item">
-                <label>🔔 音效</label>
+                <label>🔂 音效</label>
                 <input
-                  type="range" min="0" max="100"
+                  type="range"
+                  min="0"
+                  max="100"
                   value={sfxVolume * 100}
                   onChange={(e) => setSfxVolume && setSfxVolume(e.target.value / 100)}
                 />

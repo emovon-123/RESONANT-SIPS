@@ -370,8 +370,8 @@ const GamePage = ({
 
       <GameHeader
         onBack={onBack} onShowRules={() => progress.setShowRules(true)} currentDay={customerFlow.currentDay} money={money}
-        aiConfig={aiConfig} customerSuccessCount={customerFlow.customerSuccessCount} customerCocktailCount={customerFlow.customerCocktailCount}
-        currentCustomerIndex={customerFlow.currentCustomerIndex} totalCustomers={customerFlow.dailyCustomers.length}
+        aiConfig={aiConfig}
+        currentCustomerIndex={customerFlow.currentCustomerIndex}
         isMuted={isMuted} toggleMute={toggleMute} sfxVolume={sfxVolume} setSfxVolume={setSfxVolume} playSFX={playSFX} atmosphere={atmosphere}
         onShowHelp={() => setShowHelp(true)}
       />
