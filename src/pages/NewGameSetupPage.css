@@ -67,8 +67,8 @@
 }
 
 .newgame-role-input:focus {
-  border-color: rgba(6, 255, 165, 0.45);
-  box-shadow: 0 0 0 2px rgba(6, 255, 165, 0.16);
+  border-color: rgba(168, 85, 247, 0.45);
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.16);
 }
 
 .newgame-role-add-btn {
@@ -78,7 +78,7 @@
   cursor: pointer;
   color: #041622;
   font-weight: 700;
-  background: linear-gradient(135deg, #06ffa5, #2fd4ff);
+  background: linear-gradient(135deg, #A855F7, #2fd4ff);
 }
 
 .newgame-role-list {
@@ -146,7 +146,7 @@
 
 .newgame-start-btn {
   color: #041622;
-  background: linear-gradient(135deg, #06ffa5, #2fd4ff);
+  background: linear-gradient(135deg, #A855F7, #2fd4ff);
 }
 
 @media (max-width: 768px) {

@@ -179,7 +179,7 @@ const ChatPanel = ({
               className={`trust-fill ${trustAnim}`}
               style={{
                 width: `${trustLevel * 100}%`,
-                backgroundColor: trustLevel < 0.3 ? '#E63946' : trustLevel < 0.6 ? '#FFB703' : '#06FFA5'
+                backgroundColor: trustLevel < 0.3 ? '#E63946' : trustLevel < 0.6 ? '#FFB703' : '#A855F7'
               }}
             />
           </div>

@@ -57,7 +57,7 @@
   margin: 0;
   font-size: 24px;
   font-weight: 700;
-  background: linear-gradient(135deg, #B8A9F7, #06FFA5);
+  background: linear-gradient(135deg, #B8A9F7, #A855F7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -155,7 +155,7 @@
 .tc-continue-btn {
   width: 100%;
   padding: 16px 30px;
-  background: linear-gradient(135deg, #06FFA5, #00C896);
+  background: linear-gradient(135deg, #A855F7, #7E22CE);
   border: none;
   border-radius: 12px;
   font-size: 18px;
@@ -163,12 +163,12 @@
   color: #0a0a1a;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 5px 20px rgba(6, 255, 165, 0.3);
+  box-shadow: 0 5px 20px rgba(168, 85, 247, 0.3);
 }
 
 .tc-continue-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 30px rgba(6, 255, 165, 0.5);
+  box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5);
 }
 
 /* 预告区块 */

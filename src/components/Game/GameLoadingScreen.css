@@ -44,10 +44,10 @@
 
 .loading-particle {
   position: absolute;
-  background: rgba(6, 255, 165, 0.4);
+  background: rgba(168, 85, 247, 0.4);
   border-radius: 50%;
   animation: particleFloat ease-in-out infinite;
-  box-shadow: 0 0 6px rgba(6, 255, 165, 0.3);
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.3);
 }
 
 @keyframes particleFloat {
@@ -71,13 +71,13 @@
 
 .loading-neon-top {
   top: 20%;
-  background: linear-gradient(90deg, transparent 10%, rgba(6, 255, 165, 0.15) 30%, rgba(139, 92, 246, 0.1) 70%, transparent 90%);
+  background: linear-gradient(90deg, transparent 10%, rgba(168, 85, 247, 0.15) 30%, rgba(139, 92, 246, 0.1) 70%, transparent 90%);
   animation: neonLinePulse 4s ease-in-out infinite;
 }
 
 .loading-neon-bottom {
   bottom: 25%;
-  background: linear-gradient(90deg, transparent 15%, rgba(139, 92, 246, 0.12) 40%, rgba(6, 255, 165, 0.08) 65%, transparent 85%);
+  background: linear-gradient(90deg, transparent 15%, rgba(139, 92, 246, 0.12) 40%, rgba(168, 85, 247, 0.08) 65%, transparent 85%);
   animation: neonLinePulse 5s ease-in-out infinite 1s;
 }
 
@@ -93,12 +93,12 @@
   background: rgba(8, 8, 24, 0.7);
   border-radius: 24px;
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(6, 255, 165, 0.08);
+  border: 1px solid rgba(168, 85, 247, 0.08);
   max-width: 440px;
   width: 90%;
   z-index: 1;
   animation: contentFadeIn 0.8s ease-out;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(6, 255, 165, 0.03);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(168, 85, 247, 0.03);
 }
 
 @keyframes contentFadeIn {
@@ -149,7 +149,7 @@
   flex-direction: column;
   align-items: center;
   animation: martiniFloat 3s ease-in-out infinite;
-  filter: drop-shadow(0 8px 20px rgba(6, 255, 165, 0.15));
+  filter: drop-shadow(0 8px 20px rgba(168, 85, 247, 0.15));
 }
 
 @keyframes martiniFloat {
@@ -165,10 +165,10 @@
   transform: translateX(-50%);
   width: 2px;
   height: 0;
-  background: linear-gradient(180deg, rgba(6, 255, 165, 0.6), rgba(139, 92, 246, 0.4));
+  background: linear-gradient(180deg, rgba(168, 85, 247, 0.6), rgba(139, 92, 246, 0.4));
   border-radius: 2px;
   animation: pourIn 1.8s ease-in-out 1.5s forwards;
-  box-shadow: 0 0 8px rgba(6, 255, 165, 0.3);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
 }
 
 @keyframes pourIn {
@@ -203,7 +203,7 @@
   position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 0;
-  background: linear-gradient(180deg, rgba(6, 255, 165, 0.5), rgba(139, 92, 246, 0.6));
+  background: linear-gradient(180deg, rgba(168, 85, 247, 0.5), rgba(139, 92, 246, 0.6));
   clip-path: polygon(12% 0%, 88% 0%, 65% 100%, 35% 100%);
   animation: liquidFill 2s ease-out 1.8s forwards, liquidWave 2.5s ease-in-out 3.8s infinite;
 }
@@ -295,7 +295,7 @@
   display: inline-block;
   width: 2px;
   height: 1em;
-  background: rgba(6, 255, 165, 0.8);
+  background: rgba(168, 85, 247, 0.8);
   margin-left: 2px;
   vertical-align: text-bottom;
   animation: cursorBlink 0.8s step-end infinite;
@@ -319,12 +319,12 @@
   display: inline-block;
   width: 1.5em;
   text-align: left;
-  color: #06FFA5;
+  color: #A855F7;
 }
 
 .loading-subtext {
   font-size: 0.8rem;
-  color: rgba(6, 255, 165, 0.65);
+  color: rgba(168, 85, 247, 0.65);
   margin: 0 0 0.8rem;
   font-family: monospace;
   letter-spacing: 0.05em;
@@ -338,7 +338,7 @@
 }
 
 .loading-action-btn {
-  border: 1px solid rgba(6, 255, 165, 0.3);
+  border: 1px solid rgba(168, 85, 247, 0.3);
   background: rgba(8, 8, 24, 0.7);
   color: rgba(255, 255, 255, 0.9);
   font-size: 0.78rem;
@@ -350,11 +350,11 @@
 
 .loading-action-btn:hover {
   transform: translateY(-1px);
-  border-color: rgba(6, 255, 165, 0.65);
+  border-color: rgba(168, 85, 247, 0.65);
 }
 
 .loading-action-primary {
-  background: linear-gradient(90deg, rgba(6, 255, 165, 0.22), rgba(64, 191, 255, 0.16));
+  background: linear-gradient(90deg, rgba(168, 85, 247, 0.22), rgba(64, 191, 255, 0.16));
 }
 
 .loading-action-secondary {
@@ -396,7 +396,7 @@
 }
 
 .terminal-ok {
-  color: #06FFA5;
+  color: #A855F7;
   font-weight: 600;
   font-size: 0.65rem;
   opacity: 0;
@@ -409,7 +409,7 @@
 }
 
 .terminal-cursor {
-  color: #06FFA5;
+  color: #A855F7;
   animation: cursorBlink 0.6s step-end infinite;
 }
 
@@ -426,11 +426,11 @@
 .loading-bar-fill {
   height: 100%;
   width: 30%;
-  background: linear-gradient(90deg, #06FFA5, #8B5CF6, #06FFA5);
+  background: linear-gradient(90deg, #A855F7, #8B5CF6, #A855F7);
   background-size: 200% 100%;
   border-radius: 4px;
   animation: barSweep 2s ease-in-out infinite;
-  box-shadow: 0 0 6px rgba(6, 255, 165, 0.3);
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.3);
 }
 
 @keyframes barSweep {

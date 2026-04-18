@@ -174,7 +174,7 @@ const HomePage = ({
     <div className="home-page">
       <div className="home-video-background" style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 0 }}>
           <video 
-            src="/asset/场景/外景（开始界面）.mp4" 
+            src="/asset/预览/游戏动画1.mp4" 
           autoPlay 
           loop 
           muted 

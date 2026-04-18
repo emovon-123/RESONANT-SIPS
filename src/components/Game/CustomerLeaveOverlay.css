@@ -67,7 +67,7 @@
   100% {
     transform: translateX(80px);
     opacity: 0;
-    filter: drop-shadow(-30px 0 20px rgba(6, 255, 165, 0.3));
+    filter: drop-shadow(-30px 0 20px rgba(168, 85, 247, 0.3));
   }
 }
 

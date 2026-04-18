@@ -48,7 +48,7 @@
   position: absolute;
   width: 1px;
   height: 100%;
-  background: linear-gradient(180deg, transparent 0%, #06FFA5 50%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, #A855F7 50%, transparent 100%);
   animation: neonMove 7s linear infinite;
   opacity: 0.2;
 }
@@ -96,10 +96,10 @@
 
 .home-particle {
   position: absolute;
-  background: rgba(6, 255, 165, 0.5);
+  background: rgba(168, 85, 247, 0.5);
   border-radius: 50%;
   animation: homeParticleFloat ease-in-out infinite;
-  box-shadow: 0 0 6px rgba(6, 255, 165, 0.3);
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.3);
 }
 
 @keyframes homeParticleFloat {
@@ -162,7 +162,7 @@
 .home-glow-2 {
   width: 300px;
   height: 300px;
-  background: rgba(6, 255, 165, 0.07);
+  background: rgba(168, 85, 247, 0.07);
   bottom: 5%;
   right: -3%;
   animation: glowBreath2 10s ease-in-out infinite 2s;
@@ -291,7 +291,7 @@
   transform: translate(-50%, -50%);
   width: 300px;
   height: 200px;
-  background: radial-gradient(ellipse, rgba(6, 255, 165, 0.08) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
   border-radius: 50%;
   animation: titleGlow 4s ease-in-out infinite;
   pointer-events: none;
@@ -306,7 +306,7 @@
   font-size: 64px;
   text-align: center;
   margin-bottom: 12px;
-  filter: drop-shadow(0 0 25px rgba(6, 255, 165, 0.5));
+  filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.5));
   animation: iconFloat 3s ease-in-out infinite;
   position: relative;
 }
@@ -320,7 +320,7 @@
 .game-title {
   font-size: 56px;
   font-weight: bold;
-  background: linear-gradient(135deg, #06FFA5, #00C896, #8B5CF6);
+  background: linear-gradient(135deg, #A855F7, #7E22CE, #8B5CF6);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -351,7 +351,7 @@
   gap: 15px;
   padding: 22px 70px;
   margin-bottom: 40px;
-  background: linear-gradient(135deg, #06FFA5, #00C896);
+  background: linear-gradient(135deg, #A855F7, #7E22CE);
   border: none;
   border-radius: 50px;
   font-size: 22px;
@@ -359,7 +359,7 @@
   color: #0a0a1a;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 35px rgba(6, 255, 165, 0.35);
+  box-shadow: 0 8px 35px rgba(168, 85, 247, 0.35);
   position: relative;
   overflow: hidden;
 }
@@ -384,7 +384,7 @@
 
 .start-button:hover {
   transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 15px 50px rgba(6, 255, 165, 0.5);
+  box-shadow: 0 15px 50px rgba(168, 85, 247, 0.5);
 }
 
 .start-button:active {
@@ -395,7 +395,7 @@
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
-  box-shadow: 0 4px 20px rgba(6, 255, 165, 0.2);
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.2);
 }
 
 .start-icon {
@@ -492,10 +492,10 @@
 }
 
 .nav-button.settings:hover {
-  background: rgba(6, 255, 165, 0.1);
-  border-color: rgba(6, 255, 165, 0.3);
-  color: #06FFA5;
-  box-shadow: 0 5px 20px rgba(6, 255, 165, 0.1);
+  background: rgba(168, 85, 247, 0.1);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: #A855F7;
+  box-shadow: 0 5px 20px rgba(168, 85, 247, 0.1);
 }
 
 .nav-button.dev-mode {
@@ -653,7 +653,7 @@
 
 .headphone-icon {
   font-size: 80px;
-  filter: drop-shadow(0 0 30px rgba(6, 255, 165, 0.5));
+  filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.5));
   animation: headphoneFloat 2s ease-in-out infinite;
 }
 
@@ -672,7 +672,7 @@
   color: rgba(255, 255, 255, 0.75);
   letter-spacing: 0.15em;
   margin: 0;
-  text-shadow: 0 0 20px rgba(6, 255, 165, 0.3);
+  text-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
 }
 
 /* 闊充箰寮圭獥 */
@@ -695,15 +695,15 @@
   gap: 24px;
   padding: 40px 50px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(6, 255, 165, 0.2);
+  border: 1px solid rgba(168, 85, 247, 0.2);
   border-radius: 20px;
   backdrop-filter: blur(20px);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 60px rgba(6, 255, 165, 0.08);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 60px rgba(168, 85, 247, 0.08);
 }
 
 .music-dialog-icon {
   font-size: 48px;
-  filter: drop-shadow(0 0 15px rgba(6, 255, 165, 0.4));
+  filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.4));
 }
 
 .music-dialog-title {
@@ -730,14 +730,14 @@
 }
 
 .music-btn-yes {
-  background: linear-gradient(135deg, #06FFA5, #00C896);
+  background: linear-gradient(135deg, #A855F7, #7E22CE);
   color: #0a0a1a;
-  box-shadow: 0 4px 20px rgba(6, 255, 165, 0.35);
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.35);
 }
 
 .music-btn-yes:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 30px rgba(6, 255, 165, 0.5);
+  box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5);
 }
 
 .music-btn-no {
@@ -758,7 +758,7 @@
 
 .home-page {
   background:
-    radial-gradient(circle at 20% 22%, rgba(6, 255, 165, 0.08), transparent 18%),
+    radial-gradient(circle at 20% 22%, rgba(168, 85, 247, 0.08), transparent 18%),
     radial-gradient(circle at 80% 16%, rgba(255, 194, 120, 0.12), transparent 18%),
     linear-gradient(145deg, #02050c 0%, #07101d 38%, #070910 100%);
 }
@@ -828,7 +828,7 @@
 .home-header::before {
   width: 420px;
   height: 240px;
-  background: radial-gradient(circle, rgba(6, 255, 165, 0.14) 0%, rgba(255, 194, 122, 0.05) 42%, transparent 72%);
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.14) 0%, rgba(255, 194, 122, 0.05) 42%, transparent 72%);
 }
 
 .title-icon {
@@ -849,7 +849,7 @@
   -webkit-text-fill-color: transparent;
   color: transparent;
   display: inline-block;
-  text-shadow: 0 12px 40px rgba(6, 255, 165, 0.14);
+  text-shadow: 0 12px 40px rgba(168, 85, 247, 0.14);
 }
 
 .game-description {
@@ -869,9 +869,9 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   background:
     linear-gradient(135deg, rgba(11, 19, 29, 0.35), rgba(11, 19, 29, 0.1)),
-    linear-gradient(135deg, #f5e4b6 0%, #6df2cf 35%, #06FFA5 100%);
+    linear-gradient(135deg, #f5e4b6 0%, #c084fc 35%, #A855F7 100%);
   box-shadow:
-    0 18px 50px rgba(6, 255, 165, 0.18),
+    0 18px 50px rgba(168, 85, 247, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.35);
   gap: 12px;
 }
@@ -924,16 +924,16 @@
 }
 
 .nav-button::before {
-  background: linear-gradient(120deg, transparent 20%, rgba(109, 242, 207, 0.22) 50%, transparent 80%);
+  background: linear-gradient(120deg, transparent 20%, rgba(192, 132, 252, 0.22) 50%, transparent 80%);
   background-size: 200% 200%;
 }
 
 .nav-button:hover {
   transform: translateY(-4px);
-  border-color: rgba(109, 242, 207, 0.24);
+  border-color: rgba(192, 132, 252, 0.24);
   box-shadow:
     0 18px 30px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(109, 242, 207, 0.08) inset;
+    0 0 0 1px rgba(192, 132, 252, 0.08) inset;
 }
 
 .nav-text {
@@ -1022,7 +1022,7 @@
   margin-bottom: 10px;
   padding-bottom: 0.12em;
   overflow: visible;
-  text-shadow: 0 8px 28px rgba(6, 255, 165, 0.2);
+  text-shadow: 0 8px 28px rgba(168, 85, 247, 0.2);
 }
 
 .game-description {
@@ -1051,12 +1051,12 @@
   padding: 20px 62px;
   border-radius: 46px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 36px rgba(6, 255, 165, 0.24);
+  box-shadow: 0 10px 36px rgba(168, 85, 247, 0.24);
 }
 
 .start-button:hover {
   transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 16px 44px rgba(6, 255, 165, 0.3);
+  box-shadow: 0 16px 44px rgba(168, 85, 247, 0.3);
 }
 
 .start-text {
@@ -1153,8 +1153,8 @@
 }
 
 .character-pool-input:focus {
-  border-color: rgba(6, 255, 165, 0.45);
-  box-shadow: 0 0 0 2px rgba(6, 255, 165, 0.16);
+  border-color: rgba(168, 85, 247, 0.45);
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.16);
 }
 
 .character-pool-add-btn {
@@ -1164,7 +1164,7 @@
   cursor: pointer;
   color: #041622;
   font-weight: 700;
-  background: linear-gradient(135deg, #06ffa5, #2fd4ff);
+  background: linear-gradient(135deg, #A855F7, #2fd4ff);
 }
 
 .character-pool-list {
@@ -1227,8 +1227,8 @@
 /* --- HomePage Pixel Art UI --- */
 .start-button {
   background: var(--bg-dark) !important;
-  color: #06FFA5 !important;
-  border: 4px solid #06FFA5 !important;
+  color: #A855F7 !important;
+  border: 4px solid #A855F7 !important;
   box-shadow: 6px 6px 0px rgba(0,0,0,0.85) !important;
   border-radius: 0 !important;
 }
@@ -1236,7 +1236,7 @@
   display: none !important;
 }
 .start-button:hover {
-  background: #06FFA5 !important;
+  background: #A855F7 !important;
   color: var(--bg-dark) !important;
   box-shadow: 6px 6px 0px rgba(0,0,0,0.85) !important;
   transform: none !important;
@@ -1255,8 +1255,8 @@
 }
 .nav-button::before { display: none !important; }
 .nav-button:hover {
-  border-color: #06FFA5 !important;
-  background: rgba(6, 255, 165, 0.2) !important;
+  border-color: #A855F7 !important;
+  background: rgba(168, 85, 247, 0.2) !important;
   transform: none !important;
 }
 .nav-button:active {
@@ -1267,7 +1267,7 @@
 .game-title {
   text-shadow: 4px 4px 0px rgba(0,0,0,0.5) !important;
   background: none !important;
-  -webkit-text-fill-color: #06FFA5 !important;
-  color: #06FFA5 !important;
+  -webkit-text-fill-color: #A855F7 !important;
+  color: #A855F7 !important;
   letter-spacing: 2px !important;
 }

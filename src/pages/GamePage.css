@@ -53,7 +53,7 @@
   height: 40px;
   margin: 0 auto;
   border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #06FFA5;
+  border-top-color: #A855F7;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -70,7 +70,7 @@
 
 .loading-hint {
   font-size: 12px;
-  color: rgba(6, 255, 165, 0.7);
+  color: rgba(168, 85, 247, 0.7);
   margin-top: 15px;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -366,9 +366,9 @@
   gap: 15px;
   padding: 16px 24px;
   background: linear-gradient(135deg, rgba(30, 30, 60, 0.95), rgba(20, 20, 50, 0.95));
-  border: 1px solid rgba(6, 255, 165, 0.4);
+  border: 1px solid rgba(168, 85, 247, 0.4);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 255, 165, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(168, 85, 247, 0.2);
   z-index: 1000;
   animation: hintSlideUp 0.4s ease-out;
   max-width: 500px;
@@ -397,7 +397,7 @@
 .hint-title {
   font-size: 14px;
   font-weight: 600;
-  color: #06FFA5;
+  color: #A855F7;
   margin-bottom: 4px;
 }
 
@@ -515,7 +515,7 @@
 }
 
 .guess-description strong {
-  color: #06FFA5;
+  color: #A855F7;
 }
 
 .guess-warning {
@@ -564,7 +564,7 @@
 .guess-complete {
   text-align: center;
   font-size: 16px;
-  color: #06FFA5;
+  color: #A855F7;
   padding: 30px;
 }
 
@@ -637,17 +637,17 @@
 }
 
 .audio-btn.bgm-btn.playing {
-  background: linear-gradient(135deg, rgba(6, 255, 165, 0.2), rgba(0, 200, 150, 0.2));
-  border-color: rgba(6, 255, 165, 0.4);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(126, 34, 206, 0.2));
+  border-color: rgba(168, 85, 247, 0.4);
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(6, 255, 165, 0.4);
+    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
   }
   50% {
-    box-shadow: 0 0 15px 3px rgba(6, 255, 165, 0.3);
+    box-shadow: 0 0 15px 3px rgba(168, 85, 247, 0.3);
   }
 }
 
@@ -710,10 +710,10 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  background: linear-gradient(135deg, #06FFA5, #00C896);
+  background: linear-gradient(135deg, #A855F7, #7E22CE);
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(6, 255, 165, 0.4);
+  box-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
   transition: transform 0.2s ease;
 }
 
@@ -724,17 +724,17 @@
 .audio-setting-item input[type="range"]::-moz-range-thumb {
   width: 16px;
   height: 16px;
-  background: linear-gradient(135deg, #06FFA5, #00C896);
+  background: linear-gradient(135deg, #A855F7, #7E22CE);
   border-radius: 50%;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 8px rgba(6, 255, 165, 0.4);
+  box-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
 }
 
 .audio-setting-item span {
   flex: 0 0 40px;
   font-size: 12px;
-  color: #06FFA5;
+  color: #A855F7;
   text-align: right;
 }
 
@@ -866,9 +866,9 @@
 }
 
 .atmo-indicator.modifier {
-  background: rgba(6, 255, 165, 0.1);
-  border-color: rgba(6, 255, 165, 0.3);
-  color: #06FFA5;
+  background: rgba(168, 85, 247, 0.1);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: #A855F7;
   font-weight: 600;
 }
 

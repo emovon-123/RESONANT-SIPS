@@ -99,15 +99,15 @@
 
 /* 已解锁卡片 — 微光边框 + 悬浮效果 */
 .encyclopedia-card.unlocked {
-  border-color: rgba(6, 255, 165, 0.15);
-  box-shadow: 0 0 0 1px rgba(6, 255, 165, 0.05);
+  border-color: rgba(168, 85, 247, 0.15);
+  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.05);
   transition: all 0.3s ease;
 }
 
 .encyclopedia-card.unlocked:hover {
   transform: translateY(-5px);
-  border-color: rgba(6, 255, 165, 0.4);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(6, 255, 165, 0.1);
+  border-color: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(168, 85, 247, 0.1);
 }
 
 /* 未解锁卡片 — 灰度 + 模糊 + 虚线边框 */
@@ -312,8 +312,8 @@
 }
 
 .recipe-badge.compatible {
-  background: rgba(6, 255, 165, 0.2);
-  color: #06FFA5;
+  background: rgba(168, 85, 247, 0.2);
+  color: #A855F7;
 }
 
 .recipe-badge.conflict {
@@ -327,8 +327,8 @@
 }
 
 .recipe-badge.success {
-  background: rgba(6, 255, 165, 0.2);
-  color: #06FFA5;
+  background: rgba(168, 85, 247, 0.2);
+  color: #A855F7;
 }
 
 .recipe-badge.failed {
@@ -440,7 +440,7 @@
 
 .satisfaction-fill {
   height: 100%;
-  background: linear-gradient(90deg, #E63946 0%, #FFB703 50%, #06FFA5 100%);
+  background: linear-gradient(90deg, #E63946 0%, #FFB703 50%, #A855F7 100%);
   transition: width 0.3s ease;
 }
 
@@ -609,7 +609,7 @@
 
 .achievement-category-count {
   font-size: 13px;
-  color: rgba(6, 255, 165, 0.8);
+  color: rgba(168, 85, 247, 0.8);
   font-family: monospace;
   font-weight: 600;
 }
@@ -625,7 +625,7 @@
 
 .achievement-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #06FFA5, #8B5CF6);
+  background: linear-gradient(90deg, #A855F7, #8B5CF6);
   border-radius: 3px;
   transition: width 0.5s ease;
 }
@@ -648,8 +648,8 @@
 }
 
 .achievement-item.unlocked {
-  background: rgba(6, 255, 165, 0.04);
-  border-color: rgba(6, 255, 165, 0.1);
+  background: rgba(168, 85, 247, 0.04);
+  border-color: rgba(168, 85, 247, 0.1);
 }
 
 .achievement-item.locked {

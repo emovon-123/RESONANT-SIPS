@@ -9,10 +9,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(6, 255, 165, 0.15), rgba(0, 200, 150, 0.15));
-  border: 1px solid rgba(6, 255, 165, 0.35);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(126, 34, 206, 0.15));
+  border: 1px solid rgba(168, 85, 247, 0.35);
   border-radius: 50%;
-  color: var(--color-primary, #06FFA5);
+  color: var(--color-primary, #A855F7);
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -22,8 +22,8 @@
 
 .header-icon-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(6, 255, 165, 0.25);
-  background: linear-gradient(135deg, rgba(6, 255, 165, 0.25), rgba(0, 200, 150, 0.25));
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.25);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(126, 34, 206, 0.25));
 }
 
 /* ---- 三栏布局 ---- */
@@ -123,9 +123,9 @@
   right: 4px;
   width: 6px;
   height: 6px;
-  background: var(--color-primary, #06FFA5);
+  background: var(--color-primary, #A855F7);
   border-radius: 50%;
-  box-shadow: 0 0 6px rgba(6, 255, 165, 0.5);
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.5);
 }
 
 .atmo-detail-panel {
@@ -167,11 +167,11 @@
 
 .atmo-modifier-tag {
   padding: 3px 8px;
-  background: rgba(6, 255, 165, 0.15);
-  border: 1px solid rgba(6, 255, 165, 0.3);
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
   border-radius: 6px;
   font-size: 11px;
-  color: var(--color-primary, #06FFA5);
+  color: var(--color-primary, #A855F7);
   font-weight: 600;
 }
 
@@ -249,8 +249,8 @@
 }
 
 .header-icon-btn {
-  background: linear-gradient(135deg, rgba(6, 255, 165, 0.15), rgba(0, 200, 150, 0.15));
-  border: 1px solid rgba(6, 255, 165, 0.35);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(126, 34, 206, 0.15));
+  border: 1px solid rgba(168, 85, 247, 0.35);
 }
 
 .customer-compact {

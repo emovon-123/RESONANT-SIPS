@@ -36,7 +36,7 @@
   position: absolute;
   width: 1px;
   height: 100%;
-  background: linear-gradient(180deg, transparent 0%, var(--neon-color, #06FFA5) 50%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, var(--neon-color, #A855F7) 50%, transparent 100%);
   animation: gameNeonMove linear infinite;
   opacity: 0.08;
 }
@@ -71,7 +71,7 @@
 
 .game-glow-2 {
   width: 300px; height: 300px;
-  background: rgba(6, 255, 165, 0.03);
+  background: rgba(168, 85, 247, 0.03);
   bottom: 10%; right: -3%;
   animation: gameGlowBreath 12s ease-in-out infinite 3s;
 }
@@ -172,7 +172,7 @@
 }
 
 /* ====== 灯光变体 ====== */
-.lighting-warm { --neon-color: #06FFA5; }
+.lighting-warm { --neon-color: #A855F7; }
 .lighting-cold { --neon-color: #6488FF; }
 .lighting-dim .game-glow { opacity: 0.15; }
 .lighting-neon .game-neon-line { opacity: 0.12; }

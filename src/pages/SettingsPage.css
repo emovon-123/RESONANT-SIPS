@@ -125,7 +125,7 @@
 }
 
 .toggle-switch input:checked + .toggle-slider {
-  background: linear-gradient(135deg, #06FFA5, #00C896);
+  background: linear-gradient(135deg, #A855F7, #7E22CE);
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
@@ -155,7 +155,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #06FFA5, #00C896);
+  background: linear-gradient(135deg, #A855F7, #7E22CE);
   cursor: pointer;
 }
 
@@ -163,7 +163,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #06FFA5, #00C896);
+  background: linear-gradient(135deg, #A855F7, #7E22CE);
   cursor: pointer;
   border: none;
 }
@@ -175,7 +175,7 @@
 
 .volume-value {
   font-size: 14px;
-  color: #06FFA5;
+  color: #A855F7;
   font-weight: bold;
   min-width: 40px;
   text-align: right;
@@ -201,7 +201,7 @@
 }
 
 .storage-value {
-  color: #06FFA5;
+  color: #A855F7;
   font-weight: bold;
 }
 
@@ -293,7 +293,7 @@
   border-radius: 4px;
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 12px;
-  color: #06FFA5;
+  color: #A855F7;
 }
 
 /* 调试信息 */
@@ -313,7 +313,7 @@
 }
 
 .debug-status {
-  color: #06FFA5;
+  color: #A855F7;
   font-weight: bold;
 }
 
@@ -329,7 +329,7 @@
   border-radius: 4px;
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 11px;
-  color: #06FFA5;
+  color: #A855F7;
 }
 
 /* 关于信息 */
@@ -392,7 +392,7 @@
   background: rgba(0,0,0,0.6) !important;
 }
 .back-btn:hover {
-  border-color: #06FFA5 !important;
+  border-color: #A855F7 !important;
   transform: none !important;
 }
 .back-btn:active {

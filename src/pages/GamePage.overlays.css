@@ -123,7 +123,7 @@
 .day-end-left .next-day-button {
   width: 100%;
   padding: 16px 30px;
-  background: linear-gradient(135deg, #06FFA5, #00C896);
+  background: linear-gradient(135deg, #A855F7, #7E22CE);
   border: none;
   border-radius: 12px;
   font-size: 18px;
@@ -131,12 +131,12 @@
   color: #0a0a1a;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 5px 20px rgba(6, 255, 165, 0.3);
+  box-shadow: 0 5px 20px rgba(168, 85, 247, 0.3);
 }
 
 .day-end-left .next-day-button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(6, 255, 165, 0.4);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
 }
 
 .day-end-right {
@@ -161,7 +161,7 @@
 .day-end-title {
   font-size: 28px;
   margin: 0 0 30px 0;
-  background: linear-gradient(135deg, #B8A9F7, #06FFA5);
+  background: linear-gradient(135deg, #B8A9F7, #A855F7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -189,8 +189,8 @@
 }
 
 .stat-item.total {
-  background: linear-gradient(135deg, rgba(6, 255, 165, 0.2), rgba(0, 200, 150, 0.2));
-  border: 1px solid rgba(6, 255, 165, 0.4);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(126, 34, 206, 0.2));
+  border: 1px solid rgba(168, 85, 247, 0.4);
 }
 
 .stat-icon {
@@ -215,7 +215,7 @@
 }
 
 .stat-item.total .stat-value {
-  color: #06FFA5;
+  color: #A855F7;
 }
 
 .day-end-message {
@@ -251,7 +251,7 @@
 .next-day-button {
   width: 100%;
   padding: 16px 30px;
-  background: linear-gradient(135deg, #06FFA5, #00C896);
+  background: linear-gradient(135deg, #A855F7, #7E22CE);
   border: none;
   border-radius: 12px;
   color: #0a0a1a;
@@ -263,7 +263,7 @@
 
 .next-day-button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(6, 255, 165, 0.4);
+  box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
 }
 
 /* ==================== 日记展示 ==================== */
@@ -304,8 +304,8 @@
 }
 
 .perf-strength {
-  color: #06FFA5;
-  background: rgba(6, 255, 165, 0.08);
+  color: #A855F7;
+  background: rgba(168, 85, 247, 0.08);
 }
 
 .perf-growth {
@@ -479,9 +479,9 @@
 }
 
 @keyframes guessCorrectFlash {
-  0% { box-shadow: inset 0 0 0 0 rgba(6, 255, 165, 0); }
-  20% { box-shadow: inset 0 0 30px 5px rgba(6, 255, 165, 0.2); }
-  100% { box-shadow: inset 0 0 0 0 rgba(6, 255, 165, 0); }
+  0% { box-shadow: inset 0 0 0 0 rgba(168, 85, 247, 0); }
+  20% { box-shadow: inset 0 0 30px 5px rgba(168, 85, 247, 0.2); }
+  100% { box-shadow: inset 0 0 0 0 rgba(168, 85, 247, 0); }
 }
 
 /* ====== 递酒动画 ====== */
@@ -503,12 +503,12 @@
   30% {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1.2) rotate(5deg);
-    filter: drop-shadow(0 0 30px rgba(6, 255, 165, 0.6));
+    filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.6));
   }
   60% {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1) rotate(0deg);
-    filter: drop-shadow(0 0 20px rgba(6, 255, 165, 0.3));
+    filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.3));
   }
   100% {
     opacity: 0;
@@ -635,8 +635,8 @@
   color: rgba(255, 255, 255, 0.9);
   font-weight: 200;
   letter-spacing: 0.35em;
-  text-shadow: 0 0 30px rgba(6, 255, 165, 0.3),
-               0 0 60px rgba(6, 255, 165, 0.1);
+  text-shadow: 0 0 30px rgba(168, 85, 247, 0.3),
+               0 0 60px rgba(168, 85, 247, 0.1);
   animation: dayTextReveal 2.4s ease 0.6s both;
 }
 
@@ -667,7 +667,7 @@
 .day-transition-line {
   width: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(6, 255, 165, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.4), transparent);
   animation: dayLineExpand 2s ease 0.8s both;
 }
 
@@ -694,8 +694,8 @@
   border-radius: 20px 20px 35px 35px;
   background: radial-gradient(
     ellipse at center,
-    rgba(6, 255, 165, 0.3) 0%,
-    rgba(6, 255, 165, 0.1) 40%,
+    rgba(168, 85, 247, 0.3) 0%,
+    rgba(168, 85, 247, 0.1) 40%,
     transparent 70%
   );
   animation: cocktailGlow 2s ease-in-out infinite;
@@ -718,10 +718,10 @@
   background: var(--color-primary);
   border-radius: 50%;
   box-shadow:
-    -30px -20px 0 rgba(6, 255, 165, 0.8),
-    30px -15px 0 rgba(6, 255, 165, 0.6),
-    -15px -35px 0 rgba(6, 255, 165, 0.7),
-    20px -40px 0 rgba(6, 255, 165, 0.5),
+    -30px -20px 0 rgba(168, 85, 247, 0.8),
+    30px -15px 0 rgba(168, 85, 247, 0.6),
+    -15px -35px 0 rgba(168, 85, 247, 0.7),
+    20px -40px 0 rgba(168, 85, 247, 0.5),
     -40px -10px 0 rgba(139, 92, 246, 0.6),
     40px -30px 0 rgba(139, 92, 246, 0.7);
   animation: successParticles 1s ease-out forwards;
@@ -817,7 +817,7 @@
   border-radius: inherit;
   background: linear-gradient(
     135deg,
-    rgba(6, 255, 165, 0.4),
+    rgba(168, 85, 247, 0.4),
     rgba(139, 92, 246, 0.4)
   );
   z-index: -1;
@@ -848,19 +848,19 @@
 @keyframes emotionReveal {
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 rgba(6, 255, 165, 0);
+    box-shadow: 0 0 0 rgba(168, 85, 247, 0);
   }
   30% {
     transform: scale(1.15);
-    box-shadow: 0 0 40px rgba(6, 255, 165, 0.6);
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.6);
   }
   60% {
     transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(6, 255, 165, 0.4);
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.4);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 0 15px rgba(6, 255, 165, 0.2);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
   }
 }
 
@@ -921,7 +921,7 @@
 
 .game-page {
   background:
-    radial-gradient(circle at 12% 0%, rgba(6, 255, 165, 0.08), transparent 20%),
+    radial-gradient(circle at 12% 0%, rgba(168, 85, 247, 0.08), transparent 20%),
     radial-gradient(circle at 86% 10%, rgba(255, 193, 110, 0.09), transparent 18%),
     linear-gradient(180deg, #04060c 0%, #070b13 48%, #03050a 100%);
 }

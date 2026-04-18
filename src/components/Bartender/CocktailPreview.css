@@ -576,16 +576,16 @@
 
 /* 满杯状态 - 发光效果 */
 .portions-indicator.full {
-  background: rgba(6, 255, 165, 0.15);
-  border-color: rgba(6, 255, 165, 0.4);
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.4);
   box-shadow: 
     inset 0 1px 3px rgba(0, 0, 0, 0.2),
-    0 0 15px rgba(6, 255, 165, 0.2);
+    0 0 15px rgba(168, 85, 247, 0.2);
 }
 
 .portions-indicator.full .portions-current {
-  color: #06FFA5;
-  text-shadow: 0 0 10px rgba(6, 255, 165, 0.5);
+  color: #A855F7;
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
 }
 
 /* 份数增加动画 */
@@ -595,7 +595,7 @@
 
 @keyframes portionBump {
   0% { transform: scale(1); }
-  50% { transform: scale(1.3); color: #06FFA5; }
+  50% { transform: scale(1.3); color: #A855F7; }
   100% { transform: scale(1); }
 }
 
@@ -624,18 +624,18 @@
   0% {
     box-shadow:
       0 15px 40px rgba(0, 0, 0, 0.35),
-      0 0 0 rgba(6, 255, 165, 0);
+      0 0 0 rgba(168, 85, 247, 0);
   }
   50% {
     box-shadow:
       0 15px 40px rgba(0, 0, 0, 0.35),
-      0 0 40px rgba(6, 255, 165, 0.4),
-      0 0 80px rgba(6, 255, 165, 0.2);
+      0 0 40px rgba(168, 85, 247, 0.4),
+      0 0 80px rgba(168, 85, 247, 0.2);
   }
   100% {
     box-shadow:
       0 15px 40px rgba(0, 0, 0, 0.35),
-      0 0 0 rgba(6, 255, 165, 0);
+      0 0 0 rgba(168, 85, 247, 0);
   }
 }
 

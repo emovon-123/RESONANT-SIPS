@@ -74,8 +74,8 @@
 }
 
 .attribute-condition.met {
-  background: rgba(6, 255, 165, 0.2);
-  color: #06FFA5;
+  background: rgba(168, 85, 247, 0.2);
+  color: #A855F7;
 }
 
 .attribute-condition.unmet {
@@ -111,7 +111,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  background: rgba(6, 255, 165, 0.15);
+  background: rgba(168, 85, 247, 0.15);
   border-radius: 10px;
   pointer-events: none;
 }
@@ -171,8 +171,8 @@
 }
 
 .current-value-indicator.met .indicator-dot {
-  border-color: #06FFA5;
-  box-shadow: 0 0 12px rgba(6, 255, 165, 0.8);
+  border-color: #A855F7;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.8);
 }
 
 /* 填充条 */
@@ -219,9 +219,9 @@
 }
 
 .status-indicator.success {
-  background: rgba(6, 255, 165, 0.15);
-  color: #06FFA5;
-  border: 1px solid rgba(6, 255, 165, 0.3);
+  background: rgba(168, 85, 247, 0.15);
+  color: #A855F7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
 .status-indicator.pending {
@@ -241,10 +241,10 @@
 /* 动画效果 */
 @keyframes pulse-success {
   0%, 100% {
-    box-shadow: 0 0 8px rgba(6, 255, 165, 0.4);
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
   }
   50% {
-    box-shadow: 0 0 16px rgba(6, 255, 165, 0.8);
+    box-shadow: 0 0 16px rgba(168, 85, 247, 0.8);
   }
 }
 
