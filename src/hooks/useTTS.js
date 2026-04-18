@@ -11,6 +11,7 @@ export const useTTS = () => {
   const activeFetchRef = useRef(null);
   const audioContextRef = useRef(null);
   const currentSourceRef = useRef(null);
+  const requestSeqRef = useRef(0);
   const OPENAI_TTS_VOICES = ['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'onyx', 'nova', 'sage', 'shimmer', 'verse'];
   const strictTextSync = String(import.meta.env.VITE_TTS_STRICT_TEXT_SYNC ?? '1') !== '0';
   const remoteTtsEnabled = String(import.meta.env.VITE_ENABLE_REMOTE_TTS ?? '1') !== '0';
@@ -117,6 +118,28 @@ export const useTTS = () => {
       .replace(/\s*-\s*/g, ' ')
       .replace(/\s{2,}/g, ' ')
       .trim();
+  }, [normalizeSpokenText]);
+
+  const looksLikeInstructionReply = useCallback((text) => {
+    const normalized = normalizeSpokenText(text).toLowerCase();
+    if (!normalized) return false;
+
+    return [
+      /i will read/,
+      /i[' ]?ll read/,
+      /i will say/,
+      /i[' ]?ll say/,
+      /you gave me/,
+      /the text you gave me/,
+      /provided text/,
+      /verbatim/,
+      /read the provided text/,
+      /明白/,
+      /我会读/,
+      /你给我的内容/,
+      /逐字/,
+      /照着读/,
+    ].some((pattern) => pattern.test(normalized));
   }, [normalizeSpokenText]);
 
   const logTtsDebug = useCallback((label, payload = {}) => {
@@ -408,6 +431,11 @@ export const useTTS = () => {
       return false;
     }
 
+    if (metadata?.requestSeq && metadata.requestSeq !== requestSeqRef.current) {
+      logTtsDebug('drop_stale_audio_blob', metadata);
+      return false;
+    }
+
     const audioUrl = URL.createObjectURL(blob);
     const audio = new Audio(audioUrl);
     audio.preload = 'auto';
@@ -431,6 +459,11 @@ export const useTTS = () => {
   const playPcm16Bytes = useCallback(async (pcmBytes, metadata = {}) => {
     if (!pcmBytes || pcmBytes.length === 0) {
       logTtsDebug('empty_audio_blob', metadata);
+      return false;
+    }
+
+    if (metadata?.requestSeq && metadata.requestSeq !== requestSeqRef.current) {
+      logTtsDebug('drop_stale_pcm_audio', metadata);
       return false;
     }
 
@@ -468,7 +501,7 @@ export const useTTS = () => {
     return true;
   }, [getAudioContext, logTtsDebug, pcm16ToFloat32, playAudioBlob]);
 
-  const playSpeechEndpointTTS = useCallback(async (spokenScript, model, verbatimInstruction, voice) => {
+  const playSpeechEndpointTTS = useCallback(async (spokenScript, model, verbatimInstruction, voice, requestSeq) => {
     const speechResponseFormat = remoteTtsFormat === 'pcm16' ? 'wav' : remoteTtsFormat;
     const controller = new AbortController();
     activeFetchRef.current = controller;
@@ -518,6 +551,7 @@ export const useTTS = () => {
       const played = await playAudioBlob(blob, {
         model,
         voice,
+        requestSeq,
         format: speechResponseFormat,
         bytes: bytes.length,
         transcript: spokenScript,
@@ -542,7 +576,7 @@ export const useTTS = () => {
   ]);
 
   const playRemoteTTS = useCallback(
-    async (spokenScript, voice) => {
+    async (spokenScript, voice, requestSeq) => {
       if (!remoteTtsEnabled || !remoteTtsApiKey || !spokenScript) return false;
 
       const verbatimInstruction = [
@@ -586,7 +620,7 @@ export const useTTS = () => {
 
       for (const model of remoteTtsModels) {
         if (/^openai\//.test(model) && !isOpenRouterEndpoint) {
-          const played = await playSpeechEndpointTTS(spokenScript, model, verbatimInstruction, voice);
+          const played = await playSpeechEndpointTTS(spokenScript, model, verbatimInstruction, voice, requestSeq);
           if (played) {
             return true;
           }
@@ -670,6 +704,17 @@ export const useTTS = () => {
                 logTtsDebug('drop_no_transcript', { model, spokenScript, format: chatAudioFormat });
                 continue;
               }
+              if (looksLikeInstructionReply(remoteTranscript)) {
+                logTtsDebug('drop_instruction_reply_transcript', {
+                  model,
+                  voice,
+                  format: chatAudioFormat,
+                  spokenScript,
+                  remoteTranscript,
+                  requestSeq,
+                });
+                continue;
+              }
               const expected = normalizeTtsComparisonText(spokenScript);
               const actual = normalizeTtsComparisonText(remoteTranscript);
               if (!isTranscriptCloseEnough(spokenScript, remoteTranscript)) {
@@ -681,16 +726,28 @@ export const useTTS = () => {
                   remoteTranscript,
                   expected,
                   actual,
+                  requestSeq,
                 });
                 continue;
               }
             }
 
             const bytes = decodeBase64AudioChunks(audioChunks);
+            if (requestSeq !== requestSeqRef.current) {
+              logTtsDebug('drop_stale_stream_response', {
+                model,
+                voice,
+                format: chatAudioFormat,
+                requestSeq,
+                currentRequestSeq: requestSeqRef.current,
+              });
+              continue;
+            }
             const played = chatAudioFormat === 'mp3'
               ? await playAudioBlob(new Blob([bytes], { type: 'audio/mpeg' }), {
                   model,
                   voice,
+                  requestSeq,
                   format: chatAudioFormat,
                   bytes: bytes.length,
                   transcript: remoteTranscript,
@@ -698,6 +755,7 @@ export const useTTS = () => {
               : await playPcm16Bytes(bytes, {
                   model,
                   voice,
+                  requestSeq,
                   format: chatAudioFormat,
                   transcript: remoteTranscript,
                 });
@@ -737,6 +795,7 @@ export const useTTS = () => {
       playSpeechEndpointTTS,
       normalizeTtsComparisonText,
       isTranscriptCloseEnough,
+      looksLikeInstructionReply,
       strictTextSync,
     ]
   );
@@ -754,22 +813,27 @@ export const useTTS = () => {
       const cleanText = normalizeSpokenText(text);
       const spokenScript = createTtsScript(cleanText);
       const selectedVoice = resolveCharacterTtsVoice(aiConfig);
+      const requestSeq = requestSeqRef.current + 1;
+      requestSeqRef.current = requestSeq;
 
       if (!spokenScript) return;
 
       void (async () => {
         logTtsDebug('voice_selected', {
+          requestSeq,
           characterId: aiConfig?.id || aiConfig?.name || 'unknown',
           voice: selectedVoice,
           tone: aiConfig?.dialogueStyle?.tone || aiConfig?.voiceProfile?.tone || '',
+          spokenScript,
         });
-        await playRemoteTTS(spokenScript, selectedVoice);
+        await playRemoteTTS(spokenScript, selectedVoice, requestSeq);
       })();
     },
     [createTtsScript, logTtsDebug, normalizeSpokenText, playRemoteTTS, resolveCharacterTtsVoice, stopRemoteAudio]
   );
 
   const stop = useCallback(() => {
+    requestSeqRef.current += 1;
     stopRemoteAudio();
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();

@@ -592,16 +592,23 @@ export const generateCustomerFromCharacterId = async (characterId) => {
   const openingLines = Array.isArray(context?.dialogueStyle?.openingLines)
     ? context.dialogueStyle.openingLines.map((line) => String(line || '').trim()).filter(Boolean)
     : [];
+  const contextVoiceProfile = context?.voiceProfile && typeof context.voiceProfile === 'object'
+    ? context.voiceProfile
+    : {};
   const normalizedVoice = normalizeRuntimeVoiceProfile({
     name: context?.displayName || roleId,
     categoryId,
     personality,
     dialogueStyle: {
-      tone: context?.dialogueStyle?.tone || undefined,
-      features: dialogueFeatures,
+      tone: contextVoiceProfile.tone || context?.dialogueStyle?.tone || undefined,
+      features: Array.isArray(contextVoiceProfile.features) && contextVoiceProfile.features.length > 0
+        ? contextVoiceProfile.features
+        : dialogueFeatures,
     },
     backstory: context?.background?.backstory || '',
-    openingLines,
+    openingLines: Array.isArray(contextVoiceProfile.openingLines) && contextVoiceProfile.openingLines.length > 0
+      ? contextVoiceProfile.openingLines
+      : openingLines,
   });
 
   const base = completeCustomerConfig({
@@ -619,8 +626,11 @@ export const generateCustomerFromCharacterId = async (characterId) => {
   base.customCharacterId = roleId;
   base.isCustomCharacter = true;
   base.customCharacterSource = context?.source || null;
+  base.aliases = Array.isArray(context?.aliases) ? context.aliases : [];
   base.avatarCacheKey = `custom_${roleId}`;
   base.voiceProfile = normalizedVoice;
+  base.gender = String(context?.gender?.value || 'unknown').trim() || 'unknown';
+  base.genderInfo = context?.gender || { value: 'unknown', confidence: 0, source: 'unknown', evidence: [] };
   base.rawBackstory = context?.background?.backstory || '';
 
   if (emotionAnalysis && typeof emotionAnalysis === 'object') {

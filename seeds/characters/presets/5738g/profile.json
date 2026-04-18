@@ -9,6 +9,10 @@
     "code": "5738g",
     "displayName": "Captain Quick",
     "categoryId": "workplace",
+    "aliases": [
+      "Captain Quick",
+      "5738g"
+    ],
     "profile": {
       "name": "Captain Quick",
       "age": 26,
@@ -40,12 +44,53 @@
         "Heard this place has the best... what was it again? Doesn't matter, just make it strong."
       ]
     },
+    "voiceProfile": {
+      "tone": "cynical",
+      "features": [
+        "Frequent use of playful challenges",
+        "Underlying sarcasm",
+        "Quick, punchy delivery",
+        "Occasional self-deprecating humor"
+      ],
+      "openingLines": [
+        "Alright, barkeep. Think you can keep up with my order?",
+        "Hit me with something that can put out a five-alarm fire. Or just a good drink.",
+        "Heard this place has the best... what was it again? Doesn't matter, just make it strong."
+      ],
+      "backstorySummary": "Abandoned orphan raised by a firefighter. A childhood prank led to his father's death, leaving him with survivor's guilt and a brow scar.",
+      "anchors": [
+        "Prefer natural spoken dialogue over narration.",
+        "Favor concrete feelings, objects, and scenes over abstract explanation.",
+        "Keep phrasing direct and conversational.",
+        "Speech trait: Frequent use of playful challenges",
+        "Speech trait: Underlying sarcasm",
+        "Speech trait: Quick, punchy delivery"
+      ],
+      "ttsVoice": null
+    },
+    "gender": {
+      "value": "male",
+      "confidence": 0.95,
+      "source": "image_inference",
+      "evidence": [
+        "tall lanky parkour physique",
+        "handsome youthful face",
+        "smirk",
+        "jagged brow scar",
+        "backward cap with red hair tuft",
+        "unzipped tan firefighter jacket with \"CAPTAIN\" text"
+      ]
+    },
     "source": {
       "type": "preset",
       "path": "seeds/characters/presets/5738g/source.yaml",
       "url": null
     },
-    "portrait": null
+    "portrait": {
+      "path": "seeds/characters/presets/5738g/portrait.png",
+      "url": null,
+      "mimeType": "image/png"
+    }
   },
   "emotionSchemaVersion": 2,
   "currentEmotionWeights": {
