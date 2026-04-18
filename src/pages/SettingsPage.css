@@ -384,33 +384,6 @@
 }
 
 /* 🆕 特效等级选择框 */
-.effects-select {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #e0e0e0;
-  font-size: 14px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.effects-select:hover {
-  border-color: rgba(6, 255, 165, 0.4);
-}
-
-.effects-select:focus {
-  border-color: #06FFA5;
-  box-shadow: 0 0 8px rgba(6, 255, 165, 0.2);
-}
-
-.effects-select option {
-  background: #1a1a3a;
-  color: #e0e0e0;
-}
-
-
 /* SettingsPage Pixel Art UI */
 .back-btn {
   border-radius: 0 !important;

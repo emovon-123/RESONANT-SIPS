@@ -77,13 +77,7 @@ const mixColor = (from, to, amount) => {
 const randomBetween = (min, max) => min + Math.random() * (max - min);
 
 const getEffectsLevel = () => {
-  if (typeof window === 'undefined') {
-    return 'full';
-  }
-
-  const value = window.localStorage.getItem('bartender_effects_level');
-
-  return value === 'reduced' || value === 'off' ? value : 'full';
+  return 'full';
 };
 
 const prefersReducedMotion = () => {
