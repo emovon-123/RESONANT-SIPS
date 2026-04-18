@@ -7,7 +7,7 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
   const { consecutiveSilenceRef, totalSilenceRef } = refs;
   const {
     tutorial, progress, customerFlow, dialogue, emotionSystem, cocktailFlow,
-    chapterSystem, playSFX, addToast, aiConfig, trustLevel, setTrustLevel,
+    chapterSystem, playSFX, addToast, clearToasts, aiConfig, trustLevel, setTrustLevel,
     money, atmosphere, resetDailyEvents, clearCustomerRestrictions, checkPendingChains,
     tryStartChain, generateDailyMemoryRecord, recordCustomer, advanceArc,
     evaluateReturnPotential, orchestrateDay, buildReturnCustomerConfig,
@@ -160,6 +160,7 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
   // ==================== 天数管理 ====================
 
   const startNewDay = useCallback(async () => {
+    clearToasts();
     // 灯塔系统：每日结算检查
     if (!tutorial.isTutorialMode) {
       try {
@@ -323,7 +324,7 @@ export const useCustomerDayHandlers = ({ ctx, refs }) => {
     progress.setGameStats(prev => ({ ...prev, totalDays: nextDay }));
     customerFlow.setIsGameReady(true);
   }, [customerFlow.currentDay, customerFlow.preloadedNextDayCustomer, customerFlow.preloadedSecondCustomer,
-    resetDailyEvents, generateAtmosphere, orchestrateDay, buildReturnCustomerConfig, atmosphere]);
+    resetDailyEvents, generateAtmosphere, orchestrateDay, buildReturnCustomerConfig, atmosphere, clearToasts]);
 
   // ==================== 对话 ====================
 

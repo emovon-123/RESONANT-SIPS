@@ -90,7 +90,7 @@ const GamePage = ({
 }) => {
   // ==================== 鍩虹 Hooks ====================
 
-  const { toastList, addToast, removeToast } = useToasts();
+  const { toastList, addToast, removeToast, clearToasts } = useToasts();
   const { gameHint, showGameHint, closeGameHint } = useGameHints();
 
   const {
@@ -261,6 +261,7 @@ const GamePage = ({
     tutorial, progress, customerFlow, dialogue, emotionSystem,
     cocktailFlow, chapterSystem, advancedGuides,
     playSFX, addToast, showGameHint, initAudio,
+    clearToasts,
     aiConfig, aiType, trustLevel, setTrustLevel,
     money, setMoney, unlockedItems, setUnlockedItems,
     atmosphere, generateAtmosphere,
@@ -349,6 +350,9 @@ const GamePage = ({
             onBackToSetup={onBackToSetup}
           />
           <AtmosphereOverlay atmosphere={atmosphere} day={customerFlow.currentDay} onStart={dismissAtmosphereOverlay} isVisible={showAtmosphereOverlay && !customerFlow.isLoadingCustomers} />
+          {toastList.map(toast => (
+            <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />
+          ))}
           {dayTransitionOverlay}
         </div>
       </div>
